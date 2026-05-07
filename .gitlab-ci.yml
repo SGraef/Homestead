@@ -35,7 +35,7 @@ default:
       - vendor/bundle
   before_script:
     - ruby -v
-    - apt-get update -qq && apt-get install -y --no-install-recommends default-libmysqlclient-dev pkg-config build-essential
+    - apt-get update -qq && apt-get install -y --no-install-recommends default-libmysqlclient-dev default-mysql-client pkg-config build-essential
     - gem install bundler --no-document
     - bundle install --jobs 4 --retry 3
 
