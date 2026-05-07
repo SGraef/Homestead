@@ -1,0 +1,85 @@
+<% content_for :title, t("storage.title") %>
+<h1><%= t("storage.title") %></h1>
+<p>
+  <%= link_to t("storage.add_item"), new_storage_item_path(location_id: @location&.id), class: "btn" %>
+  <%= link_to t("location.manage"), locations_path, class: "btn btn-sm secondary" %>
+</p>
+
+<%# Location filter chips. "Alle" clears, the rest scope the table. Each
+    chip shows the live count from @counts. %>
+<div style="display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-bottom:var(--sp-4)">
+  <%= link_to t("storage.filter.all"),
+              storage_items_path,
+              class: ("chip #{'chip-active' if @location.nil?}").strip %>
+  <% @locations.each do |loc| %>
+    <% next if @counts[loc.id].zero? && @location&.id != loc.id %>
+    <%= link_to "#{loc.name} (#{@counts[loc.id]})",
+                storage_items_path(location_id: loc.id),
+                class: ("chip #{'chip-active' if @location&.id == loc.id}").strip %>
+  <% end %>
+</div>
+
+<% if @expiring.any? %>
+  <div class="card card-warn">
+    <h3><%= t("storage.expiring_within_days", days: 7) %></h3>
+    <ul>
+      <% @expiring.each do |i| %>
+        <li><%= i.product.name %> (<%= i.quantity %>
+          <%= t("product.units.#{i.product.unit}", default: i.product.unit) %>) —
+          <%= l(i.expires_on) if i.expires_on %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<table>
+  <thead>
+    <tr>
+      <th><%= t("storage.table.product") %></th>
+      <th><%= t("storage.table.quantity") %></th>
+      <th><%= t("storage.table.location") %></th>
+      <th><%= t("storage.table.expires") %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @items.each do |i| %>
+      <tr>
+        <td><%= i.product.name %></td>
+        <td><%= i.quantity %> <%= t("product.units.#{i.product.unit}", default: i.product.unit) %></td>
+        <td>
+          <%= link_to i.location.name,
+                      storage_items_path(location_id: i.location_id),
+                      class: "chip",
+                      title: t("storage.filter.go_to_location") %>
+        </td>
+        <td><%= l(i.expires_on) if i.expires_on %></td>
+        <td style="display:flex;gap:var(--sp-1);align-items:center;flex-wrap:wrap">
+          <%= button_to "−1", decrement_storage_item_path(i, location_id: @location&.id),
+                        method: :post, class: "btn btn-sm soft",
+                        title: t("storage.decrement_help") %>
+
+          <%# Move form: pick target location + qty (defaults to current). %>
+          <%= form_with url: move_storage_item_path(i, location_id: @location&.id),
+                        method: :post, local: true,
+                        html: { style: "display:inline-flex;gap:var(--sp-1);align-items:center" } do |f| %>
+            <%= f.select :to_location_id,
+                         options_from_collection_for_select(
+                           @locations.reject { |l| l.id == i.location_id },
+                           :id, :name),
+                         { include_blank: t("storage.move.to_placeholder") },
+                         { style: "max-width:9rem" } %>
+            <%= f.number_field :quantity, step: 0.001, min: 0, value: i.quantity,
+                                           style: "width:5rem", title: t("storage.move.qty_help") %>
+            <%= f.submit "→", class: "btn btn-sm secondary",
+                              title: t("storage.move.submit") %>
+          <% end %>
+
+          <%= link_to t("common.edit"), edit_storage_item_path(i), class: "btn btn-sm tertiary" %>
+          <%= button_to t("common.delete"), i, method: :delete, class: "btn btn-sm warn",
+              data: { turbo_confirm: t("common.delete_confirm") } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

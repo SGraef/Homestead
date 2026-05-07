@@ -1,0 +1,129 @@
+# Pantria GitLab CI/CD pipeline.
+#
+# Stages:
+#   • lint    — RuboCop + Sorbet type-check
+#   • test    — RSpec against MySQL service container, with coverage
+#   • e2e     — Cypress against a built dev image
+#   • build   — Build the production image, push to the registry
+#   • deploy  — (manual) tag :latest on main and trigger downstream deploy
+
+stages: [lint, test, e2e, build, deploy]
+
+variables:
+  RUBY_VERSION: "3.3.6"
+  BUNDLE_PATH: vendor/bundle
+  BUNDLE_DEPLOYMENT: "1"
+  BUNDLE_WITHOUT: "production"
+  DATABASE_HOST: mysql
+  DATABASE_PORT: "3306"
+  DATABASE_USERNAME: pantria
+  DATABASE_PASSWORD: pantria
+  DATABASE_NAME: pantria_test
+  MYSQL_DATABASE: pantria_test
+  MYSQL_USER: pantria
+  MYSQL_PASSWORD: pantria
+  MYSQL_ROOT_PASSWORD: root
+  REGISTRY_IMAGE: $CI_REGISTRY_IMAGE
+  DOCKER_BUILDKIT: "1"
+
+default:
+  image: ruby:$RUBY_VERSION
+  cache:
+    key:
+      files: [Gemfile.lock]
+    paths:
+      - vendor/bundle
+  before_script:
+    - ruby -v
+    - apt-get update -qq && apt-get install -y --no-install-recommends default-libmysqlclient-dev pkg-config build-essential
+    - gem install bundler --no-document
+    - bundle install --jobs 4 --retry 3
+
+lint:rubocop:
+  stage: lint
+  script:
+    - bundle exec rubocop --parallel
+  allow_failure: true
+
+lint:sorbet:
+  stage: lint
+  script:
+    - bundle exec srb tc
+  allow_failure: true
+
+test:rspec:
+  stage: test
+  services:
+    - name: mysql:8.4
+      alias: mysql
+      command: ["--default-authentication-plugin=caching_sha2_password"]
+  variables:
+    RAILS_ENV: test
+    COVERAGE: "1"
+  script:
+    - until mysqladmin ping -h $DATABASE_HOST -u root -p$MYSQL_ROOT_PASSWORD --silent; do sleep 1; done
+    - bundle exec rails db:prepare
+    - bundle exec rspec --format progress --format RspecJunitFormatter --out tmp/rspec.xml
+  coverage: '/\(\d+\.\d+\%\) covered/'
+  artifacts:
+    when: always
+    reports:
+      junit: tmp/rspec.xml
+    paths:
+      - coverage/
+    expire_in: 1 week
+
+e2e:cypress:
+  stage: e2e
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script: []
+  script:
+    - docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from cypress
+  artifacts:
+    when: on_failure
+    paths:
+      - cypress/screenshots/
+      - cypress/videos/
+    expire_in: 1 week
+
+build:image:
+  stage: build
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    - docker build
+        --build-arg RUBY_VERSION=$RUBY_VERSION
+        --target runtime
+        --tag $REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+        --tag $REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+        .
+    - docker push $REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker push $REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+deploy:tag-latest:
+  stage: deploy
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    - docker pull $REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker tag  $REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $REGISTRY_IMAGE:latest
+    - docker push $REGISTRY_IMAGE:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual

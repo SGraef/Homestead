@@ -1,0 +1,10 @@
+<%= form_with model: @store, local: true do |f| %>
+  <% if @store.errors.any? %>
+    <div class="flash alert"><%= @store.errors.full_messages.to_sentence %></div>
+  <% end %>
+  <p><%= f.label :name %><br><%= f.text_field :name, required: true %></p>
+  <p><%= f.label :chain %><br><%= f.text_field :chain %></p>
+  <p><%= f.label :address %><br><%= f.text_field :address, style: "width:100%" %></p>
+  <p><%= f.label :url %><br><%= f.url_field :url, style: "width:100%" %></p>
+  <p><%= f.submit class: "btn" %></p>
+<% end %>

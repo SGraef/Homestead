@@ -1,0 +1,15 @@
+<%= form_with model: @item, local: true do |f| %>
+  <% if @item.errors.any? %>
+    <div class="flash alert"><%= @item.errors.full_messages.to_sentence %></div>
+  <% end %>
+  <p><%= f.label :product_id %><br>
+    <%= f.collection_select :product_id, current_household.products.order(:name), :id, :name %></p>
+  <p><%= f.label :store_id %><br>
+    <%= f.collection_select :store_id, current_household.stores.order(:name), :id, :name,
+                            include_blank: t("scan.bought_at_unspecified") %></p>
+  <p><%= f.label :quantity %><br><%= f.number_field :quantity, step: 0.001, min: 0, required: true %></p>
+  <p><%= f.label :status %><br>
+    <%= f.select :status,
+                 GroceryItem::STATUSES.map { |s| [t("grocery.statuses.#{s}", default: s), s] } %></p>
+  <p><%= f.submit class: "btn" %></p>
+<% end %>

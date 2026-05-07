@@ -1,0 +1,15 @@
+<% content_for :title, t("password_reset.set_new_title") %>
+<div class="card card-elev" style="max-width:420px;margin:var(--sp-9) auto">
+  <div class="eyebrow"><%= t("app_name") %></div>
+  <h2><%= t("password_reset.set_new_title") %></h2>
+  <%= form_with model: @user, url: password_reset_path(token: params[:token]), method: :patch, local: true do |f| %>
+    <% if @user.errors.any? %>
+      <div class="flash alert"><%= @user.errors.full_messages.to_sentence %></div>
+    <% end %>
+    <p><%= f.label :password, t("activerecord.attributes.user.password") %><br>
+       <%= f.password_field :password, required: true, style: "width:100%" %></p>
+    <p><%= f.label :password_confirmation, t("activerecord.attributes.user.password_confirmation") %><br>
+       <%= f.password_field :password_confirmation, required: true, style: "width:100%" %></p>
+    <p><%= f.submit t("password_reset.set_new_button"), class: "btn" %></p>
+  <% end %>
+</div>

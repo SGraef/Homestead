@@ -1,0 +1,16 @@
+<%= form_with model: [@product, @price], local: true do |f| %>
+  <% if @price.errors.any? %>
+    <div class="flash alert"><%= @price.errors.full_messages.to_sentence %></div>
+  <% end %>
+  <p><%= f.label :store_id %><br>
+    <%= f.collection_select :store_id, current_household.stores.order(:name), :id, :name %></p>
+  <p><%= f.label :amount %><br>
+    <%= f.number_field :amount, step: 0.01, value: @price.amount_cents ? @price.amount.to_s : nil, required: true %>
+    <%= f.text_field :currency, value: @price.currency || "EUR", maxlength: 3 %>
+  </p>
+  <p><%= f.label :observed_on %><br><%= f.date_field :observed_on, required: true %></p>
+  <p><%= f.label :source %><br>
+    <%= f.select :source,
+                 %w[manual receipt scan].map { |s| [t("price.sources.#{s}", default: s), s] } %></p>
+  <p><%= f.submit class: "btn" %></p>
+<% end %>

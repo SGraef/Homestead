@@ -1,0 +1,107 @@
+<%= form_with model: @product, local: true,
+              data: {
+                controller: "barcode-fetch",
+                barcode_fetch_url_value:        lookup_products_path,
+                barcode_fetch_search_url_value: search_products_path,
+                barcode_fetch_token_value:      form_authenticity_token,
+                barcode_fetch_empty_text:               t("product.fetch.empty"),
+                barcode_fetch_looking_up_text:          t("product.fetch.looking_up"),
+                barcode_fetch_found_text:               t("product.fetch.found"),
+                barcode_fetch_not_found_text:           t("product.fetch.not_found"),
+                barcode_fetch_already_exists_text:      t("product.fetch.already_exists"),
+                barcode_fetch_error_text:               t("product.fetch.error"),
+                barcode_fetch_searching_text:           t("product.fetch.searching"),
+                barcode_fetch_search_empty_text:        t("product.fetch.search_empty"),
+                barcode_fetch_search_found_text:        t("product.fetch.search_found"),
+                barcode_fetch_search_no_results_text:   t("product.fetch.search_no_results"),
+                barcode_fetch_use_this_text:            t("product.fetch.use_this"),
+                barcode_fetch_already_in_household_text: t("product.fetch.already_in_household"),
+                barcode_fetch_applied_text:             t("product.fetch.applied")
+              } do |f| %>
+  <% if @product.errors.any? %>
+    <div class="flash alert"><%= @product.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <p>
+    <%= f.label :name, t("product.table.name") %><br>
+    <%= f.text_field :name, required: true, style: "width:100%",
+                            data: { barcode_fetch_target: "name" } %>
+  </p>
+
+  <p>
+    <%= f.label :unit %><br>
+    <%= f.select :unit,
+                 Product::UNITS.map { |u| [t("product.units.#{u}", default: u), u] },
+                 {}, data: { barcode_fetch_target: "unit" } %>
+  </p>
+
+  <p>
+    <%= f.label :category %><br>
+    <%= f.text_field :category, data: { barcode_fetch_target: "category" } %>
+  </p>
+
+  <p>
+    <%= f.label :notes %><br>
+    <%= f.text_area :notes, rows: 3, style: "width:100%" %>
+  </p>
+
+  <fieldset class="card" data-controller="nested-form">
+    <legend><%= t("product.barcodes_section") %></legend>
+    <p class="caption"><%= t("product.barcodes_intro") %></p>
+
+    <%# Primary slot — maps to product.barcode / product.brand on the same
+        Product row. The "Fetch info" + "Search by name" tools target these
+        fields so name/brand/unit/category get filled in from OFF/OPF. %>
+    <div data-nested-form-row
+         style="display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:end;margin-bottom:var(--sp-3)">
+      <span>
+        <label><%= t("product.barcodes_primary_label") %></label><br>
+        <span style="display:inline-flex;gap:var(--sp-2);align-items:center">
+          <%= f.text_field :barcode, inputmode: "numeric", pattern: "\\d*",
+                                     data: { barcode_fetch_target: "barcode" } %>
+          <button type="button" class="btn btn-sm secondary"
+                  data-action="barcode-fetch#fetchInfo">
+            <%= t("product.fetch.button") %>
+          </button>
+        </span>
+      </span>
+      <span>
+        <label><%= t("product.table.brand") %></label><br>
+        <span style="display:inline-flex;gap:var(--sp-2);align-items:center">
+          <%= f.text_field :brand, data: { barcode_fetch_target: "brand" } %>
+          <button type="button" class="btn btn-sm secondary"
+                  data-action="barcode-fetch#searchByName">
+            <%= t("product.fetch.search_button") %>
+          </button>
+        </span>
+      </span>
+      <span class="caption" data-barcode-fetch-target="status"></span>
+    </div>
+
+    <div data-barcode-fetch-target="results" style="margin:var(--sp-2) 0"></div>
+
+    <%# Alternate brand variants (additional ProductBarcode rows). Existing
+        ones render directly; new ones get cloned from <template>. %>
+    <hr>
+    <p class="eyebrow"><%= t("product.barcodes_alternates") %></p>
+
+    <div data-nested-form-target="rows">
+      <% @product.product_barcodes.each_with_index do |pb, i| %>
+        <%= render "product_barcode_fields", pb: pb, index: i %>
+      <% end %>
+    </div>
+
+    <template data-nested-form-target="template">
+      <%= render "product_barcode_fields", pb: ProductBarcode.new, index: "NEW_RECORD" %>
+    </template>
+
+    <p>
+      <button type="button" class="btn btn-sm secondary"
+              data-action="nested-form#add">
+        + <%= t("product.add_barcode_variant") %>
+      </button>
+    </p>
+  </fieldset>
+
+  <p><%= f.submit class: "btn" %></p>
+<% end %>

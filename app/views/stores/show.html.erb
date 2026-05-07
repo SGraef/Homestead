@@ -1,0 +1,24 @@
+<h1><%= @store.name %></h1>
+<p><%= link_to t("common.edit"), edit_store_path(@store), class: "btn" %></p>
+
+<h2><%= t("store.recent_prices") %></h2>
+<table>
+  <thead>
+    <tr>
+      <th><%= t("activerecord.models.product") %></th>
+      <th><%= t("price.table.amount") %></th>
+      <th><%= t("price.table.normalized") %></th>
+      <th><%= t("price.table.observed_on") %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @recent_prices.each do |p| %>
+      <tr>
+        <td><%= link_to p.product.name, p.product %></td>
+        <td><%= number_to_currency(p.amount, unit: p.currency) %></td>
+        <td class="mono"><%= normalized_price(p) || "—" %></td>
+        <td><%= l(p.observed_on) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

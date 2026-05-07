@@ -1,0 +1,31 @@
+<% content_for :title, t("bring.title") %>
+<div class="card card-elev" style="max-width:440px;margin:var(--sp-7) auto">
+  <div class="eyebrow">Bring!</div>
+  <h2><%= t("bring.connect_title") %></h2>
+  <p class="caption"><%= t("bring.connect_intro") %></p>
+
+  <%= form_with model: @connection, url: bring_connection_path, local: true do |f| %>
+    <p>
+      <%= f.label :email %><br>
+      <%= f.email_field :email, name: "bring_connection[email]",
+                         value: @connection.bring_email,
+                         required: true, autofocus: true, style: "width:100%" %>
+    </p>
+    <p>
+      <%= f.label :password, t("bring.password") %><br>
+      <%= f.password_field :password, name: "bring_connection[password]",
+                            required: true, style: "width:100%" %>
+    </p>
+    <p>
+      <%= f.label :country_code, t("bring.country") %><br>
+      <%= f.select :country_code,
+                   %w[DE AT CH FR IT ES GB NL US].map { |c| [c, c] },
+                   { selected: @connection.country_code || "DE" },
+                   { name: "bring_connection[country_code]" } %>
+    </p>
+    <p>
+      <%= f.submit t("bring.connect"), class: "btn" %>
+      <%= link_to t("common.cancel"), root_path, class: "btn secondary" %>
+    </p>
+  <% end %>
+</div>

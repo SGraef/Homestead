@@ -1,0 +1,11 @@
+gem:
+  exclude:
+    - sorbet-static
+    - sorbet-static-and-runtime
+
+dsl:
+  exclude:
+    - UrlHelpers
+
+require:
+  exclude: []

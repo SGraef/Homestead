@@ -1,0 +1,489 @@
+en:
+  app_name: "Pantria"
+  app_tagline: "Household inventory"
+
+  date:
+    formats:
+      default: "%Y-%m-%d"
+      long: "%B %-d, %Y"
+
+  time:
+    formats:
+      default: "%Y-%m-%d %H:%M"
+      short: "%m/%d %H:%M"
+      long: "%B %-d, %Y %H:%M"
+
+  number:
+    format:
+      separator: "."
+      delimiter: ","
+      precision: 2
+    currency:
+      format:
+        format: "%u%n"
+        unit: "€"
+
+  helpers:
+    submit:
+      create: "Create"
+      update: "Save"
+      submit: "Submit"
+
+  common:
+    save: "Save"
+    cancel: "Cancel"
+    delete: "Delete"
+    edit: "Edit"
+    open: "Open"
+    back: "Back"
+    create: "Create"
+    update: "Update"
+    confirm: "Confirm"
+    delete_confirm: "Delete?"
+    optional: "(optional)"
+    none: "—"
+    yes: "Yes"
+    no: "No"
+
+  nav:
+    storage: "Storage"
+    freezer: "Freezer"
+    grocery_list: "Grocery list"
+    products: "Products"
+    stores: "Stores"
+    scan: "Scan"
+    receipts: "Receipts"
+    expenses: "Expenses"
+    households: "Households"
+    logout: "Logout"
+    login: "Login"
+    sign_up: "Sign up"
+
+  flash:
+    signed_in: "Welcome back, %{email}!"
+    signed_out: "You have been signed out."
+    invalid_login: "Invalid email or password."
+    not_authorized: "You are not authorized to perform this action."
+    create_household_first: "Create a household first."
+
+  notices:
+    product_saved:    "Product saved."
+    product_updated:  "Product updated."
+    product_removed:  "Product removed."
+    product_remove_failed: "Couldn't remove product."
+    barcode_added:    "Barcode added."
+    barcode_updated:  "Barcode updated."
+    barcode_removed:  "Barcode removed."
+    store_added:      "Store added."
+    store_updated:    "Store updated."
+    store_removed:    "Store removed."
+    storage_added:        "Storage item added."
+    storage_updated:      "Storage item updated."
+    storage_removed:      "Storage item removed."
+    storage_decremented:  "%{name}: %{qty} left."
+    storage_consumed:     "%{name} used up — entry removed."
+    storage_moved:        "%{name} moved to %{location}."
+    location_added:       "Location created."
+    location_updated:     "Location updated."
+    location_removed:     "Location removed."
+    location_has_items:   "Location still has items — empty or move them first."
+    grocery_added:    "Added to grocery list."
+    grocery_updated:  "Grocery item updated."
+    grocery_removed:  "Removed."
+    household_created: "Household created."
+    household_updated: "Household updated."
+    household_removed: "Household removed."
+    member_added:      "Member added."
+    member_removed:    "Member removed."
+    user_not_found:    "User not found."
+    receipt_uploaded:  "Receipt uploaded — OCR is running."
+    receipt_confirmed: "Receipt confirmed — products, store and prices saved."
+    receipt_removed:      "Receipt removed."
+    receipt_reprocessing: "Re-running OCR — refresh the page to see the result."
+    cannot_reprocess:     "Confirmed receipts cannot be reprocessed."
+    confirm_failed:    "Could not confirm: %{error}"
+    price_recorded:    "Price recorded."
+    price_updated:     "Price updated."
+    price_removed:     "Price removed."
+
+  auth:
+    sign_in_title:     "Sign in to Pantria"
+    create_account:    "Create your Pantria account"
+    sign_in_button:    "Sign in"
+    create_button:     "Create account"
+    no_account:        "No account?"
+    create_one:        "Create one"
+    remember_me:       "Remember me"
+    activation_email_sent: "Account created — please activate it via the link we just emailed you."
+    forgot_password:   "Forgot password?"
+
+  activation:
+    success: "Your account is now active. You can sign in."
+    invalid: "Activation link is invalid or has already been used."
+    resent:  "If an account exists for that address, a new activation link is on its way."
+
+  password_reset:
+    title:           "Reset password"
+    set_new_title:   "Set a new password"
+    send_link:       "Send link"
+    set_new_button:  "Save password"
+    email_sent:      "If an account exists for that address, we've sent instructions."
+    invalid:         "Link is invalid or has expired."
+    success:         "Password changed. You can sign in now."
+
+  activerecord:
+    errors:
+      models:
+        receipt:
+          attributes:
+            image:
+              unsupported_type: "File type not supported (allowed: %{accepted})."
+
+  user_mailer:
+    activation_needed_email:
+      subject:  "Please activate your Pantria account"
+      greeting: "Hello %{name},"
+      intro:    "thanks for signing up to Pantria."
+      cta:      "Click the link below to activate your account:"
+      activate: "Activate account"
+      ignore:   "If you didn't request this email, just ignore it."
+    activation_success_email:
+      subject:  "Your Pantria account is active"
+      greeting: "Hello %{name},"
+      body:     "Your account has been activated — you can sign in now."
+      sign_in:  "Sign in"
+    reset_password_email:
+      subject:  "Pantria password reset"
+      greeting: "Hello %{name},"
+      intro:    "we received a request to reset your password."
+      cta:      "Click the link below to set a new password:"
+      reset:    "Reset password"
+      ignore:   "If this wasn't you, just ignore this email."
+
+  dashboard:
+    title:           "Dashboard"
+    storage_card:    "Storage"
+    grocery_card:    "Grocery list"
+    recent_products: "Recently added products"
+    items_tracked:
+      one:   "%{count} item tracked."
+      other: "%{count} items tracked."
+    open_storage:    "Open storage"
+    open_list:       "Open list"
+    scan_barcode:    "Scan a barcode"
+    open_items:
+      one:   "%{count} open item."
+      other: "%{count} open items."
+    welcome:         "Welcome! Create a household to get started."
+    new_household:   "New household"
+    spending_card:   "Spending this month"
+    expense_breakdown: "Open breakdown"
+
+  expense:
+    title:         "Expenses"
+    intro:         "Aggregated from confirmed receipts over the last %{months} months."
+    empty:         "No confirmed receipts yet — confirm a receipt to start tracking spend."
+    uncategorized: "uncategorized"
+    other:         "Other"
+
+  bring:
+    title:               "Bring! integration"
+    connect_title:       "Connect to Bring!"
+    connect_intro:       "Pantria signs in once with your Bring! credentials, then only keeps a token — your password is never stored."
+    password:            "Password"
+    country:             "Country"
+    connect:             "Connect"
+    connect_cta:         "Connect Bring!"
+    connected:           "Bring! connected."
+    connected_label:     "connected"
+    disconnected_label:  "not connected"
+    disconnect:          "Disconnect"
+    disconnect_confirm:  "Disconnect from Bring!?"
+    disconnected:        "Disconnected from Bring!."
+    list:                "List"
+    no_lists:            "No Bring! lists found."
+    save_list:           "Save list"
+    list_updated:        "Bring! list updated."
+    last_synced_at:      "Last synced %{at}"
+    synced_to:           "Synced with %{list}"
+    login_failed:        "Bring! login failed: %{error}"
+    sync_now:            "Sync now"
+    reload_lists:        "Reload lists"
+    synced:              "Synced: %{added} added, %{reactivated} reactivated, %{marked_purchased} marked purchased."
+    sync_failed:         "Sync failed: %{error}"
+
+  product:
+    title:       "Products"
+    new_title:   "New product"
+    edit_title:  "Edit product"
+    new_button:  "New product"
+    table:
+      name:    "Name"
+      brand:   "Brand"
+      barcode: "Barcode"
+      unit:    "Unit"
+    cheapest_price: "Cheapest known price"
+    open_prices:    "Prices"
+    normalized_units:
+      kg:      "kg"
+      l:       "l"
+      piece:   "piece"
+      portion: "portion"
+    barcodes_section:       "Barcodes & brands"
+    barcodes_intro:         "A product can group several barcodes / brands (e.g. butter from different makers)."
+    barcodes_quantity:      "Quantity"
+    barcodes_primary:       "(primary)"
+    barcodes_primary_label: "Primary barcode"
+    barcodes_alternates:    "Other brands / barcodes"
+    add_barcode:            "Add barcode"
+    add_barcode_variant:    "Add brand variant"
+    delete_confirm:         "Really remove %{name}? Storage entries, prices and grocery list rows will be deleted with it."
+    units:
+      pcs:      "pcs"
+      g:        "g"
+      kg:       "kg"
+      ml:       "ml"
+      l:        "l"
+      portions: "portions"
+    fetch:
+      button:                "Fetch info"
+      empty:                 "Enter a barcode first."
+      looking_up:            "Looking up…"
+      found:                 "Found via %s — empty fields filled."
+      not_found:             "No match in public databases."
+      already_exists:        "Product already exists — opening…"
+      error:                 "Error"
+      search_button:         "Search by name"
+      search_empty:          "Enter a name or brand first."
+      searching:             "Searching…"
+      search_found:          "%s matches — pick one:"
+      search_no_results:     "No matches."
+      use_this:              "Use this"
+      already_in_household:  "already in household"
+      applied:               "Applied."
+
+  store:
+    title:        "Stores"
+    new_title:    "New store"
+    edit_title:   "Edit store"
+    new_button:   "New store"
+    table:
+      name:    "Name"
+      chain:   "Chain"
+      address: "Address"
+    recent_prices: "Recently observed prices"
+
+  price:
+    title:        "Prices"
+    new_title:    "Record a price"
+    edit_title:   "Edit price"
+    new_button:   "Add price"
+    back_to_product: "Back to product"
+    table:
+      store: "Store"
+      amount: "Amount"
+      normalized: "Unit price"
+      observed_on: "Date"
+      source: "Source"
+    sources:
+      manual:  "manual"
+      receipt: "receipt"
+      scan:    "scan"
+
+  freezer:
+    title:             "Freezer"
+    open:              "Open freezer"
+    add_homemade:      "Freeze homemade food"
+    add_homemade_help: "Record a meal or sauce that has no barcode — it lands as an entry in your freezer."
+    add_bought:        "Add a bought item"
+    homemade_label:    "Homemade"
+    empty:             "Nothing in the freezer yet."
+    days:
+      one:   "1 day"
+      other: "%{count} days"
+    in_freezer_for:    "%{days} days in"
+    stale_warning:
+      one:   "1 item has been in the freezer for over %{days} days."
+      other: "%{count} items have been in the freezer for over %{days} days."
+    added_homemade:    "%{name} added to the freezer."
+    table:
+      frozen_on:       "Frozen on"
+      days_in_freezer: "Days frozen"
+    homemade_form:
+      name:      "Name"
+      quantity:  "Quantity"
+      unit:      "Unit"
+      frozen_on: "Frozen on"
+      submit:    "Add"
+    errors:
+      name_required: "Please enter a name for the homemade item."
+      bad_unit:      "Unit must be g, l, or portions."
+
+  storage:
+    title:        "Storage"
+    add_item:     "Add item"
+    expiring_within_days: "Expiring within the next %{days} days"
+    expiring_soon_html:
+      one:   "<strong>1</strong> item expires in the next %{days} days."
+      other: "<strong>%{count}</strong> items expire in the next %{days} days."
+    table:
+      product:  "Product"
+      quantity: "Quantity"
+      location: "Location"
+      expires:  "Expires"
+    locations:
+      pantry:  "Pantry"
+      fridge:  "Fridge"
+      freezer: "Freezer"
+      cellar:  "Cellar"
+      other:   "Other"
+    filter:
+      all:              "All"
+      go_to_location:   "Filter by this location"
+    decrement_help:     "Used one (zero removes the entry)"
+    move:
+      to_placeholder: "Move to…"
+      qty_help:       "Quantity to move"
+      submit:         "Move"
+      errors:
+        no_target:      "Pick a target location."
+        same_location:  "Source and target are the same."
+        bad_quantity:   "Invalid quantity."
+
+  location:
+    title:       "Locations"
+    intro:       "Your own locations (pantry, garage chest freezer, …) and their kind."
+    new_title:   "New location"
+    edit_title:  "Edit location"
+    new_button:  "New location"
+    manage:      "Manage locations"
+    table:
+      name:     "Name"
+      kind:     "Kind"
+      position: "Order"
+      items:    "Items"
+
+  grocery:
+    title:            "Grocery list"
+    add_item:         "Add item"
+    scan_to_purchase: "Scan to mark purchased"
+    purchased:        "Marked as purchased."
+    scan_unknown:     "Barcode %{code} did not match any product."
+    mark_purchased:   "Mark purchased"
+    table:
+      product:  "Product"
+      quantity: "Qty"
+      status:   "Status"
+      store:    "Store"
+    statuses:
+      needed:    "Needed"
+      purchased: "Purchased"
+      cancelled: "Cancelled"
+    filter:
+      only_needed: "Needed only"
+      all:         "Show all"
+    purge_purchased: "Remove purchased (%{count})"
+    purge_confirm:   "Permanently remove %{count} purchased items?"
+    purged:
+      one:   "1 purchased item removed."
+      other: "%{count} purchased items removed."
+
+  scan:
+    title:                "Scan a barcode"
+    intro:                "Point a barcode at the camera or enter the code below."
+    start_camera:         "Start camera"
+    stop:                 "Stop"
+    manual_label:         "Or enter manually:"
+    lookup:               "Lookup"
+    suggested_from:       "Suggested from %{source}"
+    add_to_my_products:   "Add to my products"
+    view_on_source:       "View on %{source}"
+    quick_actions:        "Quick actions"
+    bought_at:            "Bought at"
+    bought_at_unspecified: "(unspecified)"
+    unknown_barcode:      "Unknown barcode %{code}"
+    no_match_anywhere:    "No match in this household, and no public database knew this code either."
+    create_for_code:      "Create a product for this code"
+    add_to_existing:      "Or add to an existing product"
+    add_to_existing_help: "Useful when the same thing (butter, toast …) comes in multiple brands / EANs."
+    add_existing_button:  "Add"
+    match_found:          "Match: %{name}"
+
+  household:
+    title:       "Households"
+    new_title:   "New household"
+    edit_title:  "Edit household"
+    new_button:  "New household"
+    members:     "Members"
+    add_member:  "Add member"
+    invite:      "Invite"
+    role:        "Role"
+    roles:
+      admin:  "Admin"
+      member: "Member"
+    remove_member_confirm: "Remove member?"
+
+  receipt:
+    title:               "Receipts"
+    new_title:           "Upload a receipt"
+    upload_button:       "Upload"
+    new_button:          "Upload receipt"
+    image_label:         "Receipt (photo or PDF)"
+    image_help:          "Accepts JPEG, PNG, HEIC, and PDF. PDFs are OCR'd page by page."
+    upload_hint:         "OCR will run in the background; refresh to see the parsed result."
+    pending_message:     "OCR is still running."
+    refresh:             "Refresh"
+    failed_prefix:       "OCR failed"
+    confirmed_on:        "Confirmed on %{date}."
+    detected_store:      "Detected store"
+    use_existing:        "Use existing store"
+    or_create_new:       "or create new"
+    line_items:          "Line items"
+    table:
+      uploaded:        "Uploaded"
+      store:           "Store"
+      date:            "Date"
+      status:          "Status"
+      lines:           "Lines"
+      ocr_line:        "OCR line"
+      action:          "Action"
+      product_or_name: "Product / new name"
+      unit:            "Unit"
+      barcode:         "Barcode"
+      pieces:               "Pieces"
+      per_piece:            "per piece"
+      per_piece_help:       "Per-piece price = total ÷ pieces"
+      to_storage:           "To storage"
+      to_storage_help:      "Untick if this item was bought but consumed right away."
+      expires:         "Expires"
+      total:           "Total"
+      result:          "Result"
+    storage:
+      expires_help:     "Optional best-before date"
+    actions:
+      create: "Create product"
+      match:  "Match existing"
+      skip:   "Skip"
+    confirm_button:    "Confirm receipt"
+    search:
+      button_help: "Search product online"
+      empty:       "Enter a name first."
+      searching:   "Searching…"
+      not_found:   "No matches."
+      error:       "Error"
+      use_this:    "Use this"
+    reprocess:         "Retry OCR"
+    reprocess_confirm: "Discard parsed lines and re-run OCR?"
+    raw_ocr:        "Raw OCR output"
+    delete:         "Delete receipt"
+    delete_confirm: "Delete this receipt?"
+    statuses:
+      pending:   "Pending"
+      parsed:    "Parsed"
+      confirmed: "Confirmed"
+      failed:    "Failed"
+
+  locale:
+    label: "Language"
+    de: "Deutsch"
+    en: "English"

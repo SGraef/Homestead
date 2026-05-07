@@ -1,0 +1,13 @@
+--output-dir doc/yard
+--markup markdown
+--readme YARD_README.md
+--protected
+--no-private
+--exclude db/migrate
+--exclude vendor
+--exclude tmp
+--exclude node_modules
+--exclude cypress
+app/**/*.rb
+lib/**/*.rb
+config/initializers/*.rb

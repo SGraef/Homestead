@@ -1,0 +1,27 @@
+<% content_for :title, t("scan.title") %>
+<h1><%= t("scan.title") %></h1>
+
+<div class="card" data-controller="barcode-scanner"
+     data-barcode-scanner-lookup-url-value="<%= lookup_products_path %>"
+     data-barcode-scanner-token-value="<%= form_authenticity_token %>">
+
+  <p><%= t("scan.intro") %></p>
+
+  <video data-barcode-scanner-target="video" class="scanner-video" playsinline muted></video>
+  <p>
+    <button type="button" class="btn" data-action="barcode-scanner#start"><%= t("scan.start_camera") %></button>
+    <button type="button" class="btn secondary" data-action="barcode-scanner#stop"><%= t("scan.stop") %></button>
+  </p>
+
+  <p><%= t("scan.manual_label") %>
+    <input type="text" data-barcode-scanner-target="input" placeholder="EAN / UPC" inputmode="numeric" pattern="\d*">
+    <button type="button" class="btn" data-action="barcode-scanner#manualLookup"><%= t("scan.lookup") %></button>
+  </p>
+
+  <p data-barcode-scanner-target="status" style="color:var(--muted);min-height:1.4em;"></p>
+</div>
+
+<%# Plain div, NOT a turbo-frame -- Turbo Streams update by element id, and a
+    frame scopes any link/form click inside it (rendering the response in the
+    frame layout instead of full page). %>
+<div id="scan-result"></div>

@@ -1,0 +1,56 @@
+<% content_for :title, t("bring.title") %>
+<h1><%= t("bring.title") %></h1>
+
+<div class="card">
+  <div class="eyebrow">Bring!</div>
+  <h3><%= @connection.bring_email %></h3>
+  <p>
+    <% if @connection.connected? %>
+      <span class="pill success"><%= t("bring.connected_label") %></span>
+    <% else %>
+      <span class="pill warn"><%= t("bring.disconnected_label") %></span>
+    <% end %>
+    <% if @connection.last_synced_at %>
+      <span class="caption"><%= t("bring.last_synced_at",
+                                  at: l(@connection.last_synced_at, format: :short)) %></span>
+    <% end %>
+  </p>
+  <% if @connection.last_error.present? %>
+    <p class="flash alert"><%= @connection.last_error %></p>
+  <% end %>
+
+  <%= form_with model: @connection, url: bring_connection_path, method: :patch, local: true do |f| %>
+    <p>
+      <%= f.label :default_list_uuid, t("bring.list") %><br>
+      <% if @list_error.present? %>
+        <span class="caption flash alert"><%= @list_error %></span>
+      <% elsif @lists.present? %>
+        <%= f.select :default_list_uuid,
+                     options_for_select(@lists.map { |l| [l["name"], l["listUuid"]] },
+                                        @connection.default_list_uuid),
+                     {}, { name: "bring_connection[default_list_uuid]" } %>
+      <% elsif @connection.default_list_uuid.present? %>
+        <span class="caption">
+          <%= @connection.default_list_name.presence || @connection.default_list_uuid %>
+        </span>
+        <%= link_to t("bring.reload_lists"), bring_connection_path(reload: 1),
+                    class: "btn btn-sm secondary" %>
+      <% else %>
+        <%= link_to t("bring.reload_lists"), bring_connection_path(reload: 1),
+                    class: "btn btn-sm secondary" %>
+      <% end %>
+    </p>
+    <p>
+      <%= f.submit t("bring.save_list"), class: "btn" %>
+    </p>
+  <% end %>
+</div>
+
+<div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+  <% if @connection.connected? %>
+    <%= button_to t("bring.sync_now"), sync_bring_connection_path,
+                  method: :post, class: "btn" %>
+  <% end %>
+  <%= button_to t("bring.disconnect"), bring_connection_path, method: :delete, class: "btn warn",
+                data: { turbo_confirm: t("bring.disconnect_confirm") } %>
+</div>

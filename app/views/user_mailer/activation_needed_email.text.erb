@@ -1,0 +1,8 @@
+<%= t("user_mailer.activation_needed_email.greeting", name: @user.name.presence || @user.email) %>
+
+<%= t("user_mailer.activation_needed_email.intro") %>
+
+<%= t("user_mailer.activation_needed_email.cta") %>
+<%= @url %>
+
+<%= t("user_mailer.activation_needed_email.ignore") %>

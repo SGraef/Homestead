@@ -1,0 +1,67 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pantria_development
+      MYSQL_USER: pantria
+      MYSQL_PASSWORD: pantria
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -proot --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bin/dev
+    environment:
+      RAILS_ENV: development
+      DATABASE_HOST: db
+      DATABASE_USERNAME: pantria
+      DATABASE_PASSWORD: pantria
+      DATABASE_NAME: pantria_development
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Solid Queue worker. Drains ActiveJob queues (push/pull/receipt OCR/sync
+  # mailers) and runs recurring jobs from config/recurring.yml -- including
+  # the Bring! pull every 5 minutes. `restart: unless-stopped` so it keeps
+  # retrying while migrations complete on first boot.
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bundle exec rake solid_queue:start
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: development
+      DATABASE_HOST: db
+      DATABASE_USERNAME: pantria
+      DATABASE_PASSWORD: pantria
+      DATABASE_NAME: pantria_development
+      # Mail in dev goes to tmp/mails — share the same volume so the worker
+      # can drop activation / reset emails too.
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  bundle_cache:

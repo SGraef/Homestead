@@ -1,0 +1,91 @@
+<% content_for :title, @product.name %>
+<h1><%= @product.name %></h1>
+<p>
+  <% if @product.barcode.present? %><span class="pill"><%= @product.barcode %></span><% end %>
+  <span class="pill"><%= t("product.units.#{@product.unit}", default: @product.unit) %></span>
+  <% if @product.category.present? %><span class="pill"><%= @product.category %></span><% end %>
+  <% if @product.brand.present? %><span class="pill"><%= @product.brand %></span><% end %>
+</p>
+
+<p><%= link_to t("common.edit"), edit_product_path(@product), class: "btn" %>
+   <%= link_to t("product.open_prices"), product_prices_path(@product), class: "btn secondary" %>
+   <%= button_to t("common.delete"), @product, method: :delete, class: "btn warn",
+       data: { turbo_confirm: t("common.delete_confirm") } %></p>
+
+<div class="card">
+  <h3><%= t("product.barcodes_section") %></h3>
+  <p class="caption"><%= t("product.barcodes_intro") %></p>
+
+  <%# Header row, then one editable form-row per alternate, then an
+      "add new" form-row. Using flex rows (not <table>) so each row can be
+      a real <form> -- nested <form>s aren't valid HTML, so the Delete
+      button (which is its own form via button_to) sits as a sibling
+      next to the edit form, not inside it. %>
+  <div class="caption" style="display:flex;gap:var(--sp-2);padding:var(--sp-1) 0;font-weight:500">
+    <span style="flex:0 0 160px"><%= t("product.table.barcode") %></span>
+    <span style="flex:0 0 160px"><%= t("product.table.brand") %></span>
+    <span style="flex:0 0 120px"><%= t("product.barcodes_quantity") %></span>
+    <span></span>
+  </div>
+
+  <% if @product.barcode.present? %>
+    <div style="display:flex;gap:var(--sp-2);align-items:center;padding:var(--sp-2) 0;border-top:1px solid var(--border-subtle)">
+      <span class="pill" style="flex:0 0 160px"><%= @product.barcode %></span>
+      <span style="flex:0 0 160px"><%= @product.brand %></span>
+      <span style="flex:0 0 120px">—</span>
+      <span class="caption"><%= t("product.barcodes_primary") %></span>
+    </div>
+  <% end %>
+
+  <% @product.product_barcodes.order(:created_at).each do |pb| %>
+    <div style="display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap;padding:var(--sp-2) 0;border-top:1px solid var(--border-subtle)">
+      <%= form_with url: product_product_barcode_path(@product, pb),
+                    method: :patch, local: true,
+                    html: { style: "display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap;flex:1 1 auto" } do |f| %>
+        <%= f.text_field :barcode, value: pb.barcode,
+                                   inputmode: "numeric", pattern: "\\d*",
+                                   style: "flex:0 0 160px" %>
+        <%= f.text_field :brand, value: pb.brand,
+                                 style: "flex:0 0 160px" %>
+        <%= f.text_field :quantity_text, value: pb.quantity_text,
+                                          placeholder: "250 g",
+                                          style: "flex:0 0 120px" %>
+        <%= f.submit t("common.save"), class: "btn btn-sm" %>
+      <% end %>
+      <%= button_to t("common.delete"),
+                    product_product_barcode_path(@product, pb),
+                    method: :delete, class: "btn btn-sm warn",
+                    data: { turbo_confirm: t("common.delete_confirm") } %>
+    </div>
+  <% end %>
+
+  <%= form_with url: product_product_barcodes_path(@product), local: true,
+                html: { style: "display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap;padding:var(--sp-3) 0;border-top:1px solid var(--border-subtle)" } do |f| %>
+    <input type="text" name="product_barcode[barcode]"
+           placeholder="<%= t("product.table.barcode") %>"
+           inputmode="numeric" pattern="\d*" required
+           style="flex:0 0 160px">
+    <input type="text" name="product_barcode[brand]"
+           placeholder="<%= t("product.table.brand") %>"
+           style="flex:0 0 160px">
+    <input type="text" name="product_barcode[quantity_text]"
+           placeholder="250 g"
+           style="flex:0 0 120px">
+    <%= f.submit t("product.add_barcode"), class: "btn btn-sm" %>
+  <% end %>
+</div>
+
+<% if @product.cheapest_price %>
+  <div class="card">
+    <h3><%= t("product.cheapest_price") %></h3>
+    <p>
+      <strong><%= number_to_currency(@product.cheapest_price.amount,
+                                      unit: @product.cheapest_price.currency) %></strong>
+      <% if (norm = normalized_price(@product.cheapest_price)) %>
+        <span class="caption">(<%= norm %>)</span>
+      <% end %>
+      — <%= @product.cheapest_price.store.name %>
+      (<%= l(@product.cheapest_price.observed_on) %>)
+    </p>
+  </div>
+<% end %>

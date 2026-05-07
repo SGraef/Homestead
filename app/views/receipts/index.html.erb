@@ -1,0 +1,30 @@
+<% content_for :title, t("receipt.title") %>
+<h1><%= t("receipt.title") %></h1>
+<p><%= link_to t("receipt.new_button"), new_receipt_path, class: "btn" %></p>
+
+<table>
+  <thead>
+    <tr>
+      <th><%= t("receipt.table.uploaded") %></th>
+      <th><%= t("receipt.table.store") %></th>
+      <th><%= t("receipt.table.date") %></th>
+      <th><%= t("receipt.table.status") %></th>
+      <th><%= t("receipt.table.lines") %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @receipts.each do |r| %>
+      <tr>
+        <td><%= l(r.created_at.to_date) %></td>
+        <td><%= r.store&.name || r.detected_store_name %></td>
+        <td><%= l(r.purchased_on) if r.purchased_on %></td>
+        <td><span class="pill <%= 'warn' if r.status.in?(%w[pending failed]) %>">
+          <%= t("receipt.statuses.#{r.status}", default: r.status) %>
+        </span></td>
+        <td><%= r.receipt_line_items.count %></td>
+        <td><%= link_to t("common.open"), r %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <title><%= t("app_name") %> · <%= content_for(:title) || t("app_tagline") %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#c97455">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%# Apply persisted theme before stylesheets so we don't flash the wrong palette. %>
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem("pantria-theme");
+          if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+        } catch (_) {}
+      })();
+    </script>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body>
+    <header class="app-header" data-controller="theme">
+      <a href="<%= root_path %>" class="brand">
+        <%= image_tag "mark.svg", alt: "" %>
+        <%= t("app_name") %>
+      </a>
+
+      <% if current_user %>
+        <a href="<%= storage_items_path %>" class="nav-link"><%= t("nav.storage") %></a>
+        <a href="<%= freezer_path %>" class="nav-link"><%= t("nav.freezer") %></a>
+        <a href="<%= grocery_items_path %>" class="nav-link"><%= t("nav.grocery_list") %></a>
+        <a href="<%= products_path %>" class="nav-link"><%= t("nav.products") %></a>
+        <a href="<%= stores_path %>" class="nav-link"><%= t("nav.stores") %></a>
+        <a href="<%= scan_products_path %>" class="nav-link"><%= t("nav.scan") %></a>
+        <a href="<%= receipts_path %>" class="nav-link"><%= t("nav.receipts") %></a>
+        <a href="<%= expenses_path %>" class="nav-link"><%= t("nav.expenses") %></a>
+        <span class="nav-spacer"></span>
+        <span class="locale">
+          <% I18n.available_locales.each do |loc| %>
+            <%= link_to t("locale.#{loc}"),
+                        url_for(request.params.merge(locale: loc)),
+                        class: ("active" if I18n.locale == loc) %>
+          <% end %>
+        </span>
+        <button type="button"
+                class="btn btn-sm tertiary"
+                data-action="theme#toggle"
+                data-theme-target="button"
+                aria-label="Toggle dark mode">🌓</button>
+        <span class="user-email"><%= current_user.email %></span>
+        <%= button_to t("nav.logout"), logout_path, method: :delete, class: "btn btn-sm secondary" %>
+      <% else %>
+        <span class="nav-spacer"></span>
+        <span class="locale">
+          <% I18n.available_locales.each do |loc| %>
+            <%= link_to t("locale.#{loc}"),
+                        url_for(request.params.merge(locale: loc)),
+                        class: ("active" if I18n.locale == loc) %>
+          <% end %>
+        </span>
+        <a href="<%= login_path %>" class="nav-link"><%= t("nav.login") %></a>
+        <%= link_to t("nav.sign_up"), new_registration_path, class: "btn btn-sm" %>
+      <% end %>
+    </header>
+
+    <main>
+      <% flash.each do |type, msg| %>
+        <div class="flash <%= type %>"><%= msg.html_safe %></div>
+      <% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

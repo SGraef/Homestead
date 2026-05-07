@@ -1,0 +1,34 @@
+<% content_for :title, t("product.title") %>
+<h1><%= t("product.title") %></h1>
+<p>
+  <%= link_to t("product.new_button"), new_product_path, class: "btn" %>
+  <%= link_to t("nav.scan"), scan_products_path, class: "btn secondary" %>
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th><%= t("product.table.name") %></th>
+      <th><%= t("product.table.brand") %></th>
+      <th><%= t("product.table.barcode") %></th>
+      <th><%= t("product.table.unit") %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @products.each do |p| %>
+      <tr>
+        <td><%= link_to p.name, p %></td>
+        <td><%= p.brand %></td>
+        <td><span class="pill"><%= p.barcode %></span></td>
+        <td><%= t("product.units.#{p.unit}", default: p.unit) %></td>
+        <td style="display:flex;gap:var(--sp-1);align-items:center;flex-wrap:wrap">
+          <%= link_to t("common.edit"), edit_product_path(p), class: "btn btn-sm tertiary" %>
+          <%= button_to t("common.delete"), p, method: :delete,
+                        class: "btn btn-sm warn",
+                        data: { turbo_confirm: t("product.delete_confirm", name: p.name) } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

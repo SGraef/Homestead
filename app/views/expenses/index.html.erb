@@ -1,0 +1,46 @@
+<% content_for :title, t("expense.title") %>
+<h1><%= t("expense.title") %></h1>
+<p class="caption"><%= t("expense.intro", months: @months.size) %></p>
+
+<% if @months.empty? || @months.all? { |m| m.total_cents.zero? } %>
+  <div class="card card-flat">
+    <p><%= t("expense.empty") %></p>
+    <p><%= link_to t("receipt.new_button"), new_receipt_path, class: "btn btn-sm" %></p>
+  </div>
+<% else %>
+  <div class="grid">
+    <% @months.each do |month| %>
+      <% next if month.total_cents.zero? %>
+      <div class="card card-elev">
+        <div class="eyebrow"><%= month.label %></div>
+        <h2><%= number_to_currency(month.total_cents / 100.0) %></h2>
+
+        <% top = month.top_categories(limit: 6) %>
+        <% if top.any? %>
+          <%
+            max = top.values.max.to_f
+          %>
+          <div style="margin-top:var(--sp-3);display:flex;flex-direction:column;gap:var(--sp-1)">
+            <% top.each do |category, cents| %>
+              <% pct = max.zero? ? 0 : (cents / max * 100).round %>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:var(--fs-xs)">
+                  <span>
+                    <% case category
+                       when ExpenseReport::UNCATEGORIZED %><%= t("expense.uncategorized") %><%
+                       when ExpenseReport::OTHER %><%= t("expense.other") %><%
+                       else %><%= category.titleize %><% end %>
+                  </span>
+                  <span class="mono"><%= number_to_currency(cents / 100.0) %></span>
+                </div>
+                <div style="height:6px;background:var(--bg-sunken);border-radius:var(--radius-pill);overflow:hidden">
+                  <div style="height:100%;width:<%= pct %>%;background:var(--accent)"></div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

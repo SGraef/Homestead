@@ -1,0 +1,22 @@
+# Override file that swaps the dev `web` service for a self-signed-HTTPS
+# variant on :3443, so phones on the LAN can hit the camera (mobile
+# browsers refuse `getUserMedia` on plain http://lan-ip).
+#
+# Usage:
+#   # set your phone-side view of the host (so the cert covers it):
+#   export LAN_IP=192.168.1.42
+#
+#   docker compose -f docker-compose.yml -f docker-compose.ssl.yml up --build
+#
+# The cert is generated on first boot into tmp/ssl/. Phones will warn
+# you the first time -- accept "Trust this site" / "Continue anyway".
+
+services:
+  web:
+    command: bin/dev-ssl
+    ports:
+      - "3000:3000"
+      - "3443:3443"
+    environment:
+      LAN_IP:      ${LAN_IP:-}
+      EXTRA_HOSTS: ${EXTRA_HOSTS:-}

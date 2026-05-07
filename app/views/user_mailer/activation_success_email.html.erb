@@ -1,0 +1,3 @@
+<h1><%= t("user_mailer.activation_success_email.greeting", name: @user.name.presence || @user.email) %></h1>
+<p><%= t("user_mailer.activation_success_email.body") %></p>
+<p><%= link_to t("user_mailer.activation_success_email.sign_in"), @url %></p>

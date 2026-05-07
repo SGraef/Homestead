@@ -1,0 +1,113 @@
+<% content_for :title, t("freezer.title") %>
+<h1><%= t("freezer.title") %></h1>
+
+<% if @stale.any? %>
+  <div class="card card-warn">
+    <h3>
+      <%= t("freezer.stale_warning",
+            count: @stale.size, days: @stale_threshold_days) %>
+    </h3>
+    <ul>
+      <% @stale.each do |i| %>
+        <li>
+          <%= i.product.name %>
+          (<%= i.quantity %>
+           <%= t("product.units.#{i.product.unit}", default: i.product.unit) %>)
+          —
+          <%= t("freezer.in_freezer_for", days: i.days_in_freezer) %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<div class="card">
+  <h3><%= t("freezer.add_homemade") %></h3>
+  <p class="caption"><%= t("freezer.add_homemade_help") %></p>
+
+  <%= form_with url: homemade_freezer_path, method: :post, local: true,
+                data: { controller: "no-enter-submit",
+                        action:     "keydown->no-enter-submit#guard" } do |f| %>
+    <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:end">
+      <span>
+        <label><%= t("freezer.homemade_form.name") %></label><br>
+        <%= f.text_field :name, required: true, style: "width:14rem" %>
+      </span>
+      <span>
+        <label><%= t("freezer.homemade_form.quantity") %></label><br>
+        <%= f.number_field :quantity, step: 0.001, min: 0.001, required: true,
+                                       value: 1, style: "width:6rem" %>
+      </span>
+      <span>
+        <label><%= t("freezer.homemade_form.unit") %></label><br>
+        <%= f.select :unit,
+                     FreezerController::HOMEMADE_UNITS.map { |u|
+                       [t("product.units.#{u}", default: u), u]
+                     },
+                     selected: "portions" %>
+      </span>
+      <span>
+        <label><%= t("freezer.homemade_form.frozen_on") %></label><br>
+        <%= f.date_field :frozen_on, value: Date.current %>
+      </span>
+      <%= f.submit t("freezer.homemade_form.submit"), class: "btn" %>
+    </div>
+  <% end %>
+</div>
+
+<div style="margin:var(--sp-3) 0">
+  <%= link_to t("freezer.add_bought"),
+              new_storage_item_path,
+              class: "btn btn-sm secondary" %>
+</div>
+
+<% if @items.any? %>
+  <table>
+    <thead>
+      <tr>
+        <th><%= t("storage.table.product") %></th>
+        <th><%= t("storage.table.quantity") %></th>
+        <th><%= t("freezer.table.frozen_on") %></th>
+        <th><%= t("freezer.table.days_in_freezer") %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @items.each do |i| %>
+        <tr>
+          <td>
+            <%= i.product.name %>
+            <% if i.product.category.to_s.casecmp(FreezerController::HOMEMADE_CATEGORY).zero? %>
+              <span class="pill chip-soft"><%= t("freezer.homemade_label") %></span>
+            <% end %>
+          </td>
+          <td><%= i.quantity %>
+              <%= t("product.units.#{i.product.unit}", default: i.product.unit) %></td>
+          <td><%= l(i.frozen_on || i.created_at.to_date) %></td>
+          <td>
+            <% days = i.days_in_freezer %>
+            <% if days %>
+              <span class="pill <%= 'warn' if i.stale_in_freezer? %>">
+                <%= t("freezer.days", count: days) %>
+              </span>
+            <% end %>
+          </td>
+          <td style="display:flex;gap:var(--sp-1);align-items:center">
+            <%= button_to "−1",
+                          decrement_storage_item_path(i, location_id: i.location_id),
+                          method: :post, class: "btn btn-sm soft",
+                          title: t("storage.decrement_help") %>
+            <%= link_to t("common.edit"),
+                        edit_storage_item_path(i),
+                        class: "btn btn-sm tertiary" %>
+            <%= button_to t("common.delete"), i, method: :delete,
+                          class: "btn btn-sm warn",
+                          data: { turbo_confirm: t("common.delete_confirm") } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="caption"><%= t("freezer.empty") %></p>
+<% end %>

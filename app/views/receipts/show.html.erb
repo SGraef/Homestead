@@ -1,0 +1,221 @@
+<% content_for :title, "#{t('receipt.title')} ##{@receipt.id}" %>
+<h1><%= t("receipt.title") %> #<%= @receipt.id %></h1>
+<p>
+  <%= t("receipt.table.status") %>:
+  <span class="pill <%= 'warn' if @receipt.status.in?(%w[pending failed]) %>">
+    <%= t("receipt.statuses.#{@receipt.status}", default: @receipt.status) %>
+  </span>
+  <% if @receipt.purchased_on %>· <%= l(@receipt.purchased_on) %><% end %>
+  <% if @receipt.subtotal_cents %>
+    · <%= number_to_currency(@receipt.subtotal_cents / 100.0, unit: @receipt.currency) %>
+  <% end %>
+</p>
+
+<% if @receipt.image.attached? %>
+  <% if @receipt.pdf? %>
+    <p>
+      <%= link_to "📄 #{@receipt.image.filename}",
+                  url_for(@receipt.image),
+                  class: "btn secondary",
+                  target: "_blank", rel: "noopener" %>
+    </p>
+  <% else %>
+    <p><%= image_tag url_for(@receipt.image),
+                    style: "max-height:280px;border-radius:var(--radius-lg)" %></p>
+  <% end %>
+<% end %>
+
+<% if @receipt.status == "pending" %>
+  <div class="card">
+    <%= t("receipt.pending_message") %>
+    <a href="<%= receipt_path(@receipt) %>"><%= t("receipt.refresh") %></a>
+  </div>
+
+<% elsif @receipt.status == "failed" %>
+  <div class="flash alert"><%= t("receipt.failed_prefix") %>: <%= @receipt.error_message %></div>
+  <p>
+    <%= button_to t("receipt.reprocess"), reprocess_receipt_path(@receipt),
+                  method: :post, class: "btn" %>
+  </p>
+
+<% elsif @receipt.status == "parsed" %>
+  <p>
+    <%= button_to t("receipt.reprocess"), reprocess_receipt_path(@receipt),
+                  method: :post, class: "btn secondary",
+                  data: { turbo_confirm: t("receipt.reprocess_confirm") } %>
+  </p>
+
+  <%# `no-enter-submit` keeps a stray Enter in any line input from firing
+      the confirm action while the user is still editing later fields. %>
+  <%= form_with url: confirm_receipt_path(@receipt), method: :post, local: true,
+                data: { controller: "no-enter-submit",
+                        action: "keydown->no-enter-submit#guard" } do |f| %>
+    <fieldset class="card">
+      <legend><%= t("receipt.detected_store") %></legend>
+      <p><strong><%= @receipt.detected_store_name || t("common.none") %></strong></p>
+      <p>
+        <%= label_tag :store_id, t("receipt.use_existing") %>
+        <%= select_tag :store_id,
+                       options_from_collection_for_select(current_household.stores, :id, :name, @receipt.store_id),
+                       include_blank: t("common.none") %>
+      </p>
+      <p>
+        <%= label_tag :new_store_name, t("receipt.or_create_new") %>
+        <%= text_field_tag :new_store_name, @receipt.detected_store_name %>
+      </p>
+    </fieldset>
+
+    <fieldset class="card">
+      <legend><%= t("receipt.line_items") %></legend>
+      <%# One card per line. Each card uses a small CSS grid that collapses
+          to a single column on narrow screens. The `unit-price` controller
+          drives the live "per piece" readout in the corner; `receipt-search`
+          handles the 🔍 button + results panel. %>
+      <% @line_items.each do |li| %>
+        <% initial_pieces = (li.parsed_quantity.presence || 1) %>
+        <div class="card card-flat receipt-line"
+             data-controller="unit-price receipt-search"
+             data-unit-price-total-value="<%= li.parsed_total_cents || 0 %>"
+             data-unit-price-currency-value="<%= @receipt.currency.presence || 'EUR' %>"
+             data-receipt-search-url-value="<%= search_products_path %>"
+             data-receipt-search-token-value="<%= form_authenticity_token %>"
+             data-receipt-search-empty-text="<%= t('receipt.search.empty') %>"
+             data-receipt-search-searching-text="<%= t('receipt.search.searching') %>"
+             data-receipt-search-not-found-text="<%= t('receipt.search.not_found') %>"
+             data-receipt-search-error-text="<%= t('receipt.search.error') %>"
+             data-receipt-search-use-this-text="<%= t('receipt.search.use_this') %>"
+             data-receipt-search-already-in-household-text="<%= t('product.fetch.already_in_household') %>"
+             style="margin-bottom:var(--sp-3)">
+
+          <%# Header row: OCR text on the left, total + live per-piece on the right. %>
+          <div class="receipt-line__head">
+            <code class="receipt-line__ocr"><%= li.line_text %></code>
+            <div class="receipt-line__totals">
+              <% if li.parsed_total %>
+                <strong><%= number_to_currency(li.parsed_total,
+                                               unit: @receipt.currency.presence || "EUR") %></strong>
+              <% end %>
+              <span class="caption mono"
+                    data-unit-price-target="output"
+                    title="<%= t('receipt.table.per_piece_help') %>">—</span>
+            </div>
+          </div>
+
+          <div class="receipt-line__grid">
+            <span class="receipt-line__field">
+              <label><%= t("receipt.table.action") %></label>
+              <select name="lines[<%= li.id %>][action]">
+                <option value="create" selected><%= t("receipt.actions.create") %></option>
+                <option value="match"><%= t("receipt.actions.match") %></option>
+                <option value="skip"><%= t("receipt.actions.skip") %></option>
+              </select>
+            </span>
+
+            <span class="receipt-line__field receipt-line__field--wide">
+              <label><%= t("receipt.table.product_or_name") %></label>
+              <span style="display:flex;gap:var(--sp-1);align-items:center;flex-wrap:wrap">
+                <input type="text" name="lines[<%= li.id %>][name]"
+                       value="<%= li.parsed_name %>" style="flex:1 1 12rem"
+                       data-receipt-search-target="nameInput">
+                <button type="button" class="btn btn-sm secondary"
+                        title="<%= t('receipt.search.button_help') %>"
+                        data-action="receipt-search#search">🔍</button>
+              </span>
+              <%= select_tag "lines[#{li.id}][product_id]",
+                             options_from_collection_for_select(current_household.products.order(:name), :id, :name),
+                             include_blank: t("common.none"),
+                             style: "width:100%;margin-top:var(--sp-1)" %>
+              <div data-receipt-search-target="results"></div>
+            </span>
+
+            <span class="receipt-line__field">
+              <label><%= t("receipt.table.pieces") %></label>
+              <input type="number" name="lines[<%= li.id %>][pieces]"
+                     value="<%= initial_pieces %>"
+                     min="0" step="0.001" inputmode="decimal"
+                     data-unit-price-target="pieces"
+                     data-action="input->unit-price#recompute">
+            </span>
+
+            <span class="receipt-line__field">
+              <label><%= t("receipt.table.unit") %></label>
+              <%= select_tag "lines[#{li.id}][unit]",
+                             options_for_select(Product::UNITS.map { |u| [t("product.units.#{u}", default: u), u] }, "pcs"),
+                             data: { receipt_search_target: "unitSelect" } %>
+            </span>
+
+            <span class="receipt-line__field">
+              <label title="<%= t('receipt.table.to_storage_help') %>">
+                <%# Hidden 0 sibling so unchecking submits an explicit "0"
+                    instead of the param disappearing. %>
+                <%= hidden_field_tag "lines[#{li.id}][to_storage]", "0" %>
+                <input type="checkbox" name="lines[<%= li.id %>][to_storage]"
+                       value="1" checked>
+                <%= t("receipt.table.to_storage") %>
+              </label>
+            </span>
+
+            <span class="receipt-line__field">
+              <label><%= t("storage.table.location") %></label>
+              <%= select_tag "lines[#{li.id}][location]",
+                             options_from_collection_for_select(
+                               current_household.locations.ordered,
+                               :id, :name,
+                               current_household.default_storage_location.id) %>
+            </span>
+
+            <span class="receipt-line__field">
+              <label><%= t("receipt.table.expires") %></label>
+              <input type="date" name="lines[<%= li.id %>][expires_on]"
+                     title="<%= t('receipt.storage.expires_help') %>">
+            </span>
+          </div>
+        </div>
+      <% end %>
+    </fieldset>
+
+    <p><%= f.submit t("receipt.confirm_button"), class: "btn" %></p>
+  <% end %>
+
+<% elsif @receipt.status == "confirmed" %>
+  <div class="flash notice"><%= t("receipt.confirmed_on", date: l(@receipt.confirmed_at)) %></div>
+  <table>
+    <thead>
+      <tr>
+        <th><%= t("receipt.table.ocr_line") %></th>
+        <th><%= t("receipt.table.result") %></th>
+        <th><%= t("activerecord.models.product") %></th>
+        <th><%= t("receipt.table.total") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @line_items.each do |li| %>
+        <tr>
+          <td><code><%= li.line_text %></code></td>
+          <td><span class="pill"><%= li.status %></span></td>
+          <td>
+            <% if li.product %>
+              <%= link_to li.product.name, li.product %>
+            <% else %>
+              <%# Product was deleted after this receipt was confirmed --
+                  fall back to the OCR-parsed name so the row still tells
+                  the user what it was. %>
+              <span class="caption"><%= li.parsed_name %></span>
+            <% end %>
+          </td>
+          <td><%= number_with_precision(li.parsed_total, precision: 2) if li.parsed_total %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<% if @receipt.raw_text.present? %>
+  <details class="card">
+    <summary><%= t("receipt.raw_ocr") %></summary>
+    <pre style="white-space:pre-wrap;font-size:.85rem"><%= @receipt.raw_text %></pre>
+  </details>
+<% end %>
+
+<p><%= button_to t("receipt.delete"), receipt_path(@receipt), method: :delete, class: "btn warn",
+        data: { turbo_confirm: t("receipt.delete_confirm") } %></p>

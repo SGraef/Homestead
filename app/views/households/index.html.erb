@@ -1,0 +1,7 @@
+<h1><%= t("household.title") %></h1>
+<p><%= link_to t("household.new_button"), new_household_path, class: "btn" %></p>
+<ul>
+  <% @households.each do |h| %>
+    <li><%= link_to h.name, h %></li>
+  <% end %>
+</ul>

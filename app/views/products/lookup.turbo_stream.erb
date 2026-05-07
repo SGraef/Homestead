@@ -1,0 +1,80 @@
+<%# Every link/form here breaks out of the scan page (data-turbo-frame="_top")
+    so it survives even if the surrounding page is loaded inside a turbo-frame
+    by an older cached snapshot. %>
+<%= turbo_stream.update "scan-result" do %>
+  <% if @product %>
+    <div class="card">
+      <h2><%= t("scan.match_found", name: @product.name) %></h2>
+      <p><span class="pill"><%= @product.barcode %></span> <%= @product.brand %></p>
+      <p><%= link_to t("common.open"), @product, class: "btn",
+                                       data: { turbo_frame: "_top" } %></p>
+
+      <h3><%= t("scan.quick_actions") %></h3>
+      <%= form_with url: scan_purchase_grocery_items_path, method: :post, local: true,
+                    data: { turbo_frame: "_top" } do |f| %>
+        <%= f.hidden_field :barcode, value: @product.barcode %>
+        <%= f.label :store_id, t("scan.bought_at") %>
+        <%= f.select :store_id,
+                     options_from_collection_for_select(current_household.stores, :id, :name),
+                     include_blank: t("scan.bought_at_unspecified") %>
+        <%= f.submit t("grocery.mark_purchased"), class: "btn" %>
+      <% end %>
+    </div>
+
+  <% elsif @remote %>
+    <div class="card">
+      <h2><%= t("scan.suggested_from", source: @remote.source.titleize) %></h2>
+      <p>
+        <strong><%= @remote.name %></strong>
+        <% if @remote.brand.present? %> — <%= @remote.brand %><% end %>
+      </p>
+      <p>
+        <span class="pill"><%= @barcode %></span>
+        <% if @remote.quantity_text %><span class="pill"><%= @remote.quantity_text %></span><% end %>
+        <% if @remote.category %><span class="pill"><%= @remote.category %></span><% end %>
+      </p>
+      <% if @remote.image_url.present? %>
+        <p><%= image_tag @remote.image_url, alt: @remote.name, style: "max-height:120px;border-radius:.4rem" %></p>
+      <% end %>
+      <p>
+        <%= link_to t("scan.add_to_my_products"),
+                    new_product_path(barcode: @remote.barcode,
+                                     name:    @remote.name,
+                                     brand:   @remote.brand,
+                                     category: @remote.category,
+                                     unit:    @remote.unit),
+                    class: "btn",
+                    data: { turbo_frame: "_top" } %>
+        <%= link_to t("scan.view_on_source", source: @remote.source.titleize),
+                    @remote.source_url, target: "_blank", rel: "noopener", class: "btn secondary" %>
+      </p>
+    </div>
+
+  <% else %>
+    <div class="card">
+      <h2><%= t("scan.unknown_barcode", code: @barcode) %></h2>
+      <p><%= t("scan.no_match_anywhere") %></p>
+      <p>
+        <%= link_to t("scan.create_for_code"),
+                    new_product_path(barcode: @barcode),
+                    class: "btn",
+                    data: { turbo_frame: "_top" } %>
+      </p>
+
+      <% existing = current_household.products.order(:name).limit(200) %>
+      <% if existing.any? %>
+        <h4 style="margin-top:var(--sp-4)"><%= t("scan.add_to_existing") %></h4>
+        <p class="caption"><%= t("scan.add_to_existing_help") %></p>
+        <%# Posts straight to the flat /products/attach_barcode route -- no
+            inline JS, no URL rewriting, no Stimulus controller. %>
+        <%= form_with url: attach_barcode_products_path, method: :post, local: true,
+                      data: { turbo_frame: "_top" } do |f| %>
+          <%= f.hidden_field :barcode, value: @barcode %>
+          <%= f.select :product_id,
+                       options_from_collection_for_select(existing, :id, :name) %>
+          <%= f.submit t("scan.add_existing_button"), class: "btn" %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

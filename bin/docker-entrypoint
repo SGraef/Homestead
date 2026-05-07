@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run pending migrations on boot — safe because Rails wraps each migration
+# in a transaction (and is idempotent for already-applied versions).
+if [ "${RAILS_RUN_DB_PREPARE:-1}" = "1" ]; then
+  bundle exec rails db:prepare
+fi
+
+exec "$@"

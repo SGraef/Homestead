@@ -1,0 +1,32 @@
+<%# A single nested-form row for a ProductBarcode (alternate brand variant).
+    Used both for existing rows on edit and for the hidden <template> the
+    Stimulus controller clones on "Add". `index` is either an integer (for
+    persisted rows) or the literal "NEW_RECORD" placeholder which the JS
+    rewrites to a unique value per click. %>
+<%= fields_for "product[product_barcodes_attributes][#{index}]", pb do |bf| %>
+  <div data-nested-form-row
+       style="display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:end;margin-bottom:var(--sp-2)">
+    <%# The top-level `fields_for` with a string prefix does NOT auto-emit
+        the hidden id field that `accepts_nested_attributes_for` needs to
+        identify which existing row to update -- without it Rails treats
+        the submission as a brand-new row and the unique-barcode validation
+        rejects the change. Emit it explicitly. %>
+    <%= bf.hidden_field :id if pb.persisted? %>
+    <span>
+      <label><%= t("product.table.barcode") %></label><br>
+      <%= bf.text_field :barcode, inputmode: "numeric", pattern: "\\d*" %>
+    </span>
+    <span>
+      <label><%= t("product.table.brand") %></label><br>
+      <%= bf.text_field :brand %>
+    </span>
+    <span>
+      <label><%= t("product.barcodes_quantity") %></label><br>
+      <%= bf.text_field :quantity_text, placeholder: "250 g" %>
+    </span>
+    <%= bf.hidden_field :_destroy if pb.persisted? %>
+    <button type="button" class="btn btn-sm secondary"
+            data-action="nested-form#remove"
+            title="<%= t('common.delete') %>">×</button>
+  </div>
+<% end %>

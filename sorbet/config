@@ -1,0 +1,11 @@
+--dir
+.
+--ignore=/tmp/
+--ignore=/log/
+--ignore=/node_modules/
+--ignore=/coverage/
+--ignore=/cypress/
+--ignore=/public/
+--ignore=/storage/
+--ignore=/vendor/bundle/
+--ignore=/db/migrate/

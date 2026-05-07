@@ -1,0 +1,23 @@
+<% content_for :title, t("store.title") %>
+<h1><%= t("store.title") %></h1>
+<p><%= link_to t("store.new_button"), new_store_path, class: "btn" %></p>
+<table>
+  <thead>
+    <tr>
+      <th><%= t("store.table.name") %></th>
+      <th><%= t("store.table.chain") %></th>
+      <th><%= t("store.table.address") %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @stores.each do |s| %>
+      <tr>
+        <td><%= link_to s.name, s %></td>
+        <td><%= s.chain %></td>
+        <td><%= s.address %></td>
+        <td><%= link_to t("common.edit"), edit_store_path(s) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

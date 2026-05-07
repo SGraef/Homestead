@@ -1,0 +1,66 @@
+<% content_for :title, t("dashboard.title") %>
+<h1><%= t("dashboard.title") %></h1>
+
+<% if @household %>
+  <div class="grid">
+    <div class="card">
+      <div class="eyebrow"><%= @household.name %></div>
+      <h3><%= t("dashboard.storage_card") %></h3>
+      <p><%= t("dashboard.items_tracked", count: @household.storage_items.count) %></p>
+      <% if @expiring.any? %>
+        <p><span class="pill warn"><%= t("storage.expiring_soon_html", count: @expiring.size, days: 7).html_safe %></span></p>
+      <% end %>
+      <%= link_to t("dashboard.open_storage"), storage_items_path, class: "btn btn-sm" %>
+    </div>
+
+    <% if @stale_freezer.any? %>
+      <div class="card card-warn">
+        <div class="eyebrow"><%= t("nav.freezer") %></div>
+        <h3><%= t("freezer.stale_warning",
+                  count: @stale_freezer.size,
+                  days: StorageItem::STALE_FREEZER_DAYS) %></h3>
+        <p><%= link_to t("freezer.open"), freezer_path, class: "btn btn-sm warn" %></p>
+      </div>
+    <% end %>
+
+    <div class="card">
+      <div class="eyebrow"><%= t("nav.grocery_list") %></div>
+      <h3><%= t("dashboard.grocery_card") %></h3>
+      <p><%= t("dashboard.open_items", count: @open_groceries.count) %></p>
+      <p>
+        <%= link_to t("dashboard.open_list"), grocery_items_path, class: "btn btn-sm" %>
+        <%= link_to t("dashboard.scan_barcode"), scan_products_path, class: "btn btn-sm secondary" %>
+      </p>
+    </div>
+
+    <% if @this_month %>
+      <div class="card">
+        <div class="eyebrow"><%= @this_month.label %></div>
+        <h3><%= t("dashboard.spending_card") %></h3>
+        <p style="font-size:var(--fs-2xl);font-weight:600;letter-spacing:var(--tracking-tight);margin:var(--sp-2) 0">
+          <%= number_to_currency(@this_month.total_cents / 100.0) %>
+        </p>
+        <%= link_to t("dashboard.expense_breakdown"), expenses_path, class: "btn btn-sm secondary" %>
+      </div>
+    <% end %>
+
+    <div class="card">
+      <div class="eyebrow"><%= t("nav.products") %></div>
+      <h3><%= t("dashboard.recent_products") %></h3>
+      <ul style="list-style:none;padding:0;margin:0">
+        <% @recent_products.each do |p| %>
+          <li style="padding:6px 0;border-top:1px solid var(--border-subtle)">
+            <%= link_to p.name, p %>
+            <% if p.barcode.present? %><span class="pill"><%= p.barcode %></span><% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% else %>
+  <div class="card card-elev">
+    <%= image_tag "illustration-jar.svg", alt: "", style: "max-height:140px;display:block;margin:0 auto var(--sp-4)" %>
+    <p><%= t("dashboard.welcome") %></p>
+    <%= link_to t("dashboard.new_household"), new_household_path, class: "btn" %>
+  </div>
+<% end %>

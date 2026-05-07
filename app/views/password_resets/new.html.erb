@@ -1,0 +1,10 @@
+<% content_for :title, t("password_reset.title") %>
+<div class="card card-elev" style="max-width:420px;margin:var(--sp-9) auto">
+  <div class="eyebrow"><%= t("app_name") %></div>
+  <h2><%= t("password_reset.title") %></h2>
+  <%= form_with url: password_resets_path, local: true do |f| %>
+    <p><%= f.label :email, t("activerecord.attributes.user.email") %><br>
+       <%= f.email_field :email, required: true, autofocus: true, style: "width:100%" %></p>
+    <p><%= f.submit t("password_reset.send_link"), class: "btn" %></p>
+  <% end %>
+</div>

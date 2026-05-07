@@ -1,0 +1,34 @@
+<% content_for :title, t("location.title") %>
+<h1><%= t("location.title") %></h1>
+<p class="caption"><%= t("location.intro") %></p>
+<p>
+  <%= link_to t("location.new_button"), new_location_path, class: "btn btn-sm" %>
+  <%= link_to t("nav.storage"), storage_items_path, class: "btn btn-sm secondary" %>
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th><%= t("location.table.name") %></th>
+      <th><%= t("location.table.kind") %></th>
+      <th><%= t("location.table.position") %></th>
+      <th><%= t("location.table.items") %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @locations.each do |loc| %>
+      <tr>
+        <td><strong><%= loc.name %></strong></td>
+        <td><%= t("storage.locations.#{loc.kind}", default: loc.kind) %></td>
+        <td><%= loc.position %></td>
+        <td><%= @counts[loc.id] %></td>
+        <td>
+          <%= link_to t("common.edit"), edit_location_path(loc), class: "btn btn-sm tertiary" %>
+          <%= button_to t("common.delete"), loc, method: :delete, class: "btn btn-sm warn",
+                        data: { turbo_confirm: t("common.delete_confirm") } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -1,0 +1,7 @@
+<h1><%= @item.product.name %></h1>
+<p><%= t("storage.table.quantity") %>: <%= @item.quantity %>
+   <%= t("product.units.#{@item.product.unit}", default: @item.product.unit) %></p>
+<p><%= t("storage.table.location") %>:
+   <span class="pill"><%= t("storage.locations.#{@item.location}", default: @item.location) %></span></p>
+<p><%= t("storage.table.expires") %>: <%= @item.expires_on ? l(@item.expires_on) : t("common.none") %></p>
+<p><%= link_to t("common.edit"), edit_storage_item_path(@item), class: "btn" %></p>

@@ -1,0 +1,5 @@
+<%= t("user_mailer.activation_success_email.greeting", name: @user.name.presence || @user.email) %>
+
+<%= t("user_mailer.activation_success_email.body") %>
+
+<%= @url %>

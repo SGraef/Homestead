@@ -1,0 +1,558 @@
+de:
+  app_name: "Pantria"
+  app_tagline: "Haushaltsinventar"
+
+  date:
+    formats:
+      default: "%d.%m.%Y"
+      long: "%-d. %B %Y"
+    day_names: [Sonntag, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag]
+    abbr_day_names: [So, Mo, Di, Mi, Do, Fr, Sa]
+    month_names: [~, Januar, Februar, März, April, Mai, Juni, Juli, August, September, Oktober, November, Dezember]
+    abbr_month_names: [~, Jan, Feb, Mär, Apr, Mai, Jun, Jul, Aug, Sep, Okt, Nov, Dez]
+
+  time:
+    formats:
+      default: "%d.%m.%Y %H:%M"
+      short: "%d.%m. %H:%M"
+      long: "%-d. %B %Y %H:%M"
+
+  number:
+    format:
+      separator: ","
+      delimiter: "."
+      precision: 2
+    currency:
+      format:
+        format: "%n %u"
+        unit: "€"
+        separator: ","
+        delimiter: "."
+
+  helpers:
+    submit:
+      create: "Anlegen"
+      update: "Speichern"
+      submit: "Absenden"
+
+  common:
+    save: "Speichern"
+    cancel: "Abbrechen"
+    delete: "Löschen"
+    edit: "Bearbeiten"
+    open: "Öffnen"
+    back: "Zurück"
+    create: "Anlegen"
+    update: "Aktualisieren"
+    confirm: "Bestätigen"
+    delete_confirm: "Wirklich löschen?"
+    optional: "(optional)"
+    none: "—"
+    yes: "Ja"
+    no: "Nein"
+
+  nav:
+    storage: "Vorrat"
+    freezer: "Tiefkühler"
+    grocery_list: "Einkaufsliste"
+    products: "Produkte"
+    stores: "Geschäfte"
+    scan: "Scannen"
+    receipts: "Belege"
+    expenses: "Ausgaben"
+    households: "Haushalte"
+    logout: "Abmelden"
+    login: "Anmelden"
+    sign_up: "Registrieren"
+
+  flash:
+    signed_in: "Willkommen zurück, %{email}!"
+    signed_out: "Du wurdest abgemeldet."
+    invalid_login: "Ungültige E-Mail oder Passwort."
+    not_authorized: "Du bist nicht berechtigt, diese Aktion auszuführen."
+    create_household_first: "Lege zuerst einen Haushalt an."
+
+  notices:
+    product_saved:    "Produkt gespeichert."
+    product_updated:  "Produkt aktualisiert."
+    product_removed:  "Produkt entfernt."
+    product_remove_failed: "Produkt konnte nicht entfernt werden."
+    barcode_added:    "Barcode hinzugefügt."
+    barcode_updated:  "Barcode aktualisiert."
+    barcode_removed:  "Barcode entfernt."
+    store_added:      "Geschäft hinzugefügt."
+    store_updated:    "Geschäft aktualisiert."
+    store_removed:    "Geschäft entfernt."
+    storage_added:        "Eintrag im Vorrat hinzugefügt."
+    storage_updated:      "Eintrag aktualisiert."
+    storage_removed:      "Eintrag entfernt."
+    storage_decremented:  "%{name}: noch %{qty} übrig."
+    storage_consumed:     "%{name} aufgebraucht — Eintrag entfernt."
+    storage_moved:        "%{name} nach %{location} verschoben."
+    location_added:       "Lagerort angelegt."
+    location_updated:     "Lagerort aktualisiert."
+    location_removed:     "Lagerort entfernt."
+    location_has_items:   "Lagerort enthält noch Einträge — bitte zuerst leeren oder verschieben."
+    grocery_added:    "Zur Einkaufsliste hinzugefügt."
+    grocery_updated:  "Eintrag aktualisiert."
+    grocery_removed:  "Entfernt."
+    household_created: "Haushalt erstellt."
+    household_updated: "Haushalt aktualisiert."
+    household_removed: "Haushalt entfernt."
+    member_added:      "Mitglied hinzugefügt."
+    member_removed:    "Mitglied entfernt."
+    user_not_found:    "Benutzer nicht gefunden."
+    receipt_uploaded:  "Beleg hochgeladen — OCR läuft im Hintergrund."
+    receipt_confirmed: "Beleg bestätigt — Produkte, Geschäft und Preise gespeichert."
+    receipt_removed:      "Beleg entfernt."
+    receipt_reprocessing: "OCR läuft erneut — aktualisiere die Seite, um das Ergebnis zu sehen."
+    cannot_reprocess:     "Bestätigte Belege können nicht neu verarbeitet werden."
+    confirm_failed:    "Konnte nicht bestätigen: %{error}"
+    price_recorded:    "Preis erfasst."
+    price_updated:     "Preis aktualisiert."
+    price_removed:     "Preis entfernt."
+
+  auth:
+    sign_in_title:     "Bei Pantria anmelden"
+    create_account:    "Pantria-Konto erstellen"
+    sign_in_button:    "Anmelden"
+    create_button:     "Konto anlegen"
+    no_account:        "Noch kein Konto?"
+    create_one:        "Jetzt erstellen"
+    remember_me:       "Eingeloggt bleiben"
+    activation_email_sent: "Konto erstellt — bitte aktiviere es über den Link, den wir dir gerade per E-Mail geschickt haben."
+    forgot_password:   "Passwort vergessen?"
+
+  activation:
+    success: "Dein Konto ist jetzt aktiv. Du kannst dich anmelden."
+    invalid: "Aktivierungslink ungültig oder bereits verwendet."
+    resent:  "Falls für diese Adresse ein Konto existiert, wurde der Aktivierungslink erneut versendet."
+
+  password_reset:
+    title:           "Passwort zurücksetzen"
+    set_new_title:   "Neues Passwort festlegen"
+    send_link:       "Link senden"
+    set_new_button:  "Passwort speichern"
+    email_sent:      "Falls für diese Adresse ein Konto existiert, haben wir eine E-Mail mit weiteren Schritten gesendet."
+    invalid:         "Link ungültig oder abgelaufen."
+    success:         "Passwort geändert. Du kannst dich jetzt anmelden."
+
+  user_mailer:
+    activation_needed_email:
+      subject:  "Bitte aktiviere dein Pantria-Konto"
+      greeting: "Hallo %{name},"
+      intro:    "vielen Dank für deine Registrierung bei Pantria."
+      cta:      "Klicke auf den folgenden Link, um dein Konto zu aktivieren:"
+      activate: "Konto aktivieren"
+      ignore:   "Wenn du diese E-Mail nicht angefordert hast, kannst du sie ignorieren."
+    activation_success_email:
+      subject:  "Dein Pantria-Konto ist aktiv"
+      greeting: "Hallo %{name},"
+      body:     "Dein Konto wurde erfolgreich aktiviert — du kannst dich jetzt anmelden."
+      sign_in:  "Jetzt anmelden"
+    reset_password_email:
+      subject:  "Pantria-Passwort zurücksetzen"
+      greeting: "Hallo %{name},"
+      intro:    "wir haben eine Anfrage zum Zurücksetzen deines Passworts erhalten."
+      cta:      "Klicke auf den folgenden Link, um ein neues Passwort zu setzen:"
+      reset:    "Passwort zurücksetzen"
+      ignore:   "Wenn du das nicht warst, kannst du diese E-Mail ignorieren."
+
+  dashboard:
+    title:           "Übersicht"
+    storage_card:    "Vorrat"
+    grocery_card:    "Einkaufsliste"
+    recent_products: "Zuletzt hinzugefügte Produkte"
+    items_tracked:
+      one:   "%{count} Eintrag erfasst."
+      other: "%{count} Einträge erfasst."
+    open_storage:    "Vorrat öffnen"
+    open_list:       "Liste öffnen"
+    scan_barcode:    "Barcode scannen"
+    open_items:
+      one:   "%{count} offener Eintrag."
+      other: "%{count} offene Einträge."
+    welcome:         "Willkommen! Lege einen Haushalt an, um zu beginnen."
+    new_household:   "Neuer Haushalt"
+    spending_card:   "Ausgaben (Monat)"
+    expense_breakdown: "Aufschlüsselung öffnen"
+
+  expense:
+    title:         "Ausgaben"
+    intro:         "Aus bestätigten Belegen über die letzten %{months} Monate."
+    empty:         "Noch keine bestätigten Belege — sobald du einen Beleg bestätigst, taucht er hier auf."
+    uncategorized: "ohne Kategorie"
+    other:         "Sonstiges"
+
+  bring:
+    title:               "Bring!-Verknüpfung"
+    connect_title:       "Mit Bring! verbinden"
+    connect_intro:       "Pantria meldet sich einmal mit deinen Bring!-Zugangsdaten an und behält danach nur noch ein Token. Dein Passwort wird nicht gespeichert."
+    password:            "Passwort"
+    country:             "Land"
+    connect:             "Verbinden"
+    connect_cta:         "Bring! verbinden"
+    connected:           "Bring! verknüpft."
+    connected_label:     "verknüpft"
+    disconnected_label:  "nicht verknüpft"
+    disconnect:          "Verknüpfung lösen"
+    disconnect_confirm:  "Bring!-Verknüpfung wirklich lösen?"
+    disconnected:        "Bring! getrennt."
+    list:                "Liste"
+    no_lists:            "Keine Bring!-Listen gefunden."
+    save_list:           "Liste speichern"
+    list_updated:        "Bring!-Liste aktualisiert."
+    last_synced_at:      "Zuletzt synchronisiert: %{at}"
+    synced_to:           "Synchronisiert mit %{list}"
+    login_failed:        "Bring!-Login fehlgeschlagen: %{error}"
+    sync_now:            "Jetzt synchronisieren"
+    reload_lists:        "Listen neu laden"
+    synced:              "Synchronisiert: %{added} neu, %{reactivated} reaktiviert, %{marked_purchased} als gekauft markiert."
+    sync_failed:         "Synchronisation fehlgeschlagen: %{error}"
+
+  product:
+    title:       "Produkte"
+    new_title:   "Neues Produkt"
+    edit_title:  "Produkt bearbeiten"
+    new_button:  "Neues Produkt"
+    table:
+      name:    "Name"
+      brand:   "Marke"
+      barcode: "Barcode"
+      unit:    "Einheit"
+    cheapest_price: "Bekannter Bestpreis"
+    open_prices:    "Preise"
+    normalized_units:
+      kg:      "kg"
+      l:       "l"
+      piece:   "Stück"
+      portion: "Portion"
+    barcodes_section:    "Barcodes & Marken"
+    barcodes_intro:      "Ein Produkt darf mehrere Barcodes / Marken bündeln (z. B. Butter von verschiedenen Herstellern)."
+    barcodes_quantity:   "Inhalt"
+    barcodes_primary:    "(Primär)"
+    barcodes_primary_label: "Primärer Barcode"
+    barcodes_alternates: "Weitere Marken / Barcodes"
+    add_barcode:         "Barcode hinzufügen"
+    add_barcode_variant: "Brand-Variante hinzufügen"
+    delete_confirm:      "%{name} wirklich entfernen? Vorrat-Einträge, Preise und Einkaufslisten-Zeilen werden mit gelöscht."
+    units:
+      pcs:      "Stk"
+      g:        "g"
+      kg:       "kg"
+      ml:       "ml"
+      l:        "l"
+      portions: "Portionen"
+    fetch:
+      button:                "Infos abrufen"
+      empty:                 "Bitte zuerst einen Barcode eingeben."
+      looking_up:            "Wird gesucht…"
+      found:                 "Treffer aus %s — leere Felder befüllt."
+      not_found:             "Kein Treffer in den öffentlichen Datenbanken."
+      already_exists:        "Produkt existiert bereits — wird geöffnet…"
+      error:                 "Fehler"
+      search_button:         "Per Name suchen"
+      search_empty:          "Bitte Namen oder Marke eingeben."
+      searching:             "Suche läuft…"
+      search_found:          "%s Treffer — bitte einen auswählen:"
+      search_no_results:     "Keine Treffer."
+      use_this:              "Übernehmen"
+      already_in_household:  "bereits im Haushalt"
+      applied:               "Auswahl übernommen."
+
+  store:
+    title:        "Geschäfte"
+    new_title:    "Neues Geschäft"
+    edit_title:   "Geschäft bearbeiten"
+    new_button:   "Neues Geschäft"
+    table:
+      name:    "Name"
+      chain:   "Kette"
+      address: "Adresse"
+    recent_prices: "Zuletzt erfasste Preise"
+
+  price:
+    title:        "Preise"
+    new_title:    "Preis erfassen"
+    edit_title:   "Preis bearbeiten"
+    new_button:   "Preis erfassen"
+    back_to_product: "Zurück zum Produkt"
+    table:
+      store: "Geschäft"
+      amount: "Betrag"
+      normalized: "Stückpreis"
+      observed_on: "Datum"
+      source: "Quelle"
+    sources:
+      manual:  "manuell"
+      receipt: "Beleg"
+      scan:    "Scan"
+
+  freezer:
+    title:           "Tiefkühler"
+    open:            "Tiefkühler öffnen"
+    add_homemade:    "Selbstgemachtes einfrieren"
+    add_homemade_help: "Lege eine Mahlzeit oder Soße ohne Barcode an — landet als Eintrag in deinem Tiefkühler."
+    add_bought:      "Gekauften Artikel hinzufügen"
+    homemade_label:  "Selbstgemacht"
+    empty:           "Noch nichts im Tiefkühler."
+    days:
+      one:   "1 Tag"
+      other: "%{count} Tage"
+    in_freezer_for:  "seit %{days} Tagen"
+    stale_warning:
+      one:   "1 Eintrag ist seit über %{days} Tagen im Tiefkühler."
+      other: "%{count} Einträge sind seit über %{days} Tagen im Tiefkühler."
+    added_homemade:  "%{name} im Tiefkühler eingefroren."
+    table:
+      frozen_on:       "Eingefroren am"
+      days_in_freezer: "Eingefroren seit"
+    homemade_form:
+      name:      "Name"
+      quantity:  "Menge"
+      unit:      "Einheit"
+      frozen_on: "Eingefroren am"
+      submit:    "Hinzufügen"
+    errors:
+      name_required: "Bitte einen Namen für das Selbstgemachte angeben."
+      bad_unit:      "Einheit muss g, l oder Portionen sein."
+
+  storage:
+    title:        "Vorrat"
+    add_item:     "Eintrag hinzufügen"
+    expiring_within_days: "Läuft in den nächsten %{days} Tagen ab"
+    expiring_soon_html:
+      one:   "<strong>1</strong> Eintrag läuft in den nächsten %{days} Tagen ab."
+      other: "<strong>%{count}</strong> Einträge laufen in den nächsten %{days} Tagen ab."
+    table:
+      product:  "Produkt"
+      quantity: "Menge"
+      location: "Ort"
+      expires:  "Läuft ab"
+    locations:
+      pantry:  "Vorratskammer"
+      fridge:  "Kühlschrank"
+      freezer: "Tiefkühler"
+      cellar:  "Keller"
+      other:   "Sonstige"
+    filter:
+      all:              "Alle"
+      go_to_location:   "Nach diesem Ort filtern"
+    decrement_help:     "Eine Einheit verbraucht (auf 0: Eintrag entfernt)"
+    move:
+      to_placeholder: "Verschieben nach…"
+      qty_help:       "Menge zum Verschieben"
+      submit:         "Verschieben"
+      errors:
+        no_target:      "Kein Ziel-Lagerort ausgewählt."
+        same_location:  "Quelle und Ziel sind identisch."
+        bad_quantity:   "Ungültige Menge."
+
+  location:
+    title:       "Lagerorte"
+    intro:       "Eigene Lagerorte (Speisekammer, Garagen-Tiefkühltruhe, …) und ihre Art."
+    new_title:   "Neuer Lagerort"
+    edit_title:  "Lagerort bearbeiten"
+    new_button:  "Neuer Lagerort"
+    manage:      "Lagerorte verwalten"
+    table:
+      name:     "Name"
+      kind:     "Art"
+      position: "Reihenfolge"
+      items:    "Einträge"
+
+  grocery:
+    title:            "Einkaufsliste"
+    add_item:         "Artikel hinzufügen"
+    scan_to_purchase: "Per Scan abhaken"
+    purchased:        "Als gekauft markiert."
+    scan_unknown:     "Barcode %{code} entspricht keinem Produkt."
+    mark_purchased:   "Als gekauft markieren"
+    table:
+      product:  "Produkt"
+      quantity: "Menge"
+      status:   "Status"
+      store:    "Geschäft"
+    statuses:
+      needed:    "Benötigt"
+      purchased: "Gekauft"
+      cancelled: "Storniert"
+    filter:
+      only_needed: "Nur benötigt"
+      all:         "Alle anzeigen"
+    purge_purchased: "Gekaufte entfernen (%{count})"
+    purge_confirm:   "%{count} gekaufte Einträge dauerhaft entfernen?"
+    purged:
+      one:   "1 gekauften Eintrag entfernt."
+      other: "%{count} gekaufte Einträge entfernt."
+
+  scan:
+    title:                "Barcode scannen"
+    intro:                "Halte einen Barcode vor die Kamera oder gib den Code unten ein."
+    start_camera:         "Kamera starten"
+    stop:                 "Stop"
+    manual_label:         "Oder manuell eingeben:"
+    lookup:               "Nachschlagen"
+    suggested_from:       "Vorschlag von %{source}"
+    add_to_my_products:   "Zu meinen Produkten hinzufügen"
+    view_on_source:       "Bei %{source} ansehen"
+    quick_actions:        "Schnellaktionen"
+    bought_at:            "Gekauft bei"
+    bought_at_unspecified: "(nicht angegeben)"
+    unknown_barcode:      "Unbekannter Barcode %{code}"
+    no_match_anywhere:    "Keine Übereinstimmung im Haushalt und in keiner öffentlichen Datenbank."
+    create_for_code:      "Produkt für diesen Code anlegen"
+    add_to_existing:      "Oder zu bestehendem Produkt hinzufügen"
+    add_to_existing_help: "Praktisch, wenn dieselbe Sache (Butter, Toast …) in mehreren Marken / EAN-Codes existiert."
+    add_existing_button:  "Hinzufügen"
+    match_found:          "Treffer: %{name}"
+
+  household:
+    title:       "Haushalte"
+    new_title:   "Neuer Haushalt"
+    edit_title:  "Haushalt bearbeiten"
+    new_button:  "Neuer Haushalt"
+    members:     "Mitglieder"
+    add_member:  "Mitglied hinzufügen"
+    invite:      "Einladen"
+    role:        "Rolle"
+    roles:
+      admin:  "Administrator"
+      member: "Mitglied"
+    remove_member_confirm: "Mitglied entfernen?"
+
+  receipt:
+    title:               "Belege"
+    new_title:           "Beleg hochladen"
+    upload_button:       "Hochladen"
+    new_button:          "Beleg hochladen"
+    image_label:         "Beleg (Foto oder PDF)"
+    image_help:          "Akzeptiert JPEG, PNG, HEIC und PDF. PDFs werden Seite für Seite per OCR ausgewertet."
+    upload_hint:         "OCR läuft im Hintergrund; aktualisiere die Seite, um das Ergebnis zu sehen."
+    pending_message:     "OCR läuft noch."
+    refresh:             "Aktualisieren"
+    failed_prefix:       "OCR fehlgeschlagen"
+    confirmed_on:        "Bestätigt am %{date}."
+    detected_store:      "Erkanntes Geschäft"
+    use_existing:        "Bestehendes Geschäft verwenden"
+    or_create_new:       "oder neu anlegen"
+    line_items:          "Positionen"
+    table:
+      uploaded:        "Hochgeladen"
+      store:           "Geschäft"
+      date:            "Datum"
+      status:          "Status"
+      lines:           "Zeilen"
+      ocr_line:        "OCR-Zeile"
+      action:          "Aktion"
+      product_or_name: "Produkt / neuer Name"
+      unit:            "Einheit"
+      barcode:         "Barcode"
+      pieces:               "Stück"
+      per_piece:            "pro Stück"
+      per_piece_help:       "Stückpreis = Summe ÷ Stück"
+      to_storage:           "In Vorrat"
+      to_storage_help:      "Häkchen entfernen, wenn der Artikel sofort verbraucht und nicht eingelagert wurde."
+      expires:         "Läuft ab"
+      total:           "Summe"
+      result:          "Ergebnis"
+    storage:
+      expires_help:     "Optionales Mindesthaltbarkeitsdatum"
+    actions:
+      create: "Produkt anlegen"
+      match:  "Vorhandenem zuordnen"
+      skip:   "Überspringen"
+    confirm_button:    "Beleg bestätigen"
+    search:
+      button_help: "Produkt online suchen"
+      empty:       "Bitte einen Namen eingeben."
+      searching:   "Suche läuft…"
+      not_found:   "Keine Treffer."
+      error:       "Fehler"
+      use_this:    "Übernehmen"
+    reprocess:         "OCR erneut starten"
+    reprocess_confirm: "Erkannte Zeilen verwerfen und OCR neu starten?"
+    raw_ocr:        "OCR-Rohausgabe"
+    delete:         "Beleg löschen"
+    delete_confirm: "Diesen Beleg löschen?"
+    statuses:
+      pending:   "Ausstehend"
+      parsed:    "Geparst"
+      confirmed: "Bestätigt"
+      failed:    "Fehlgeschlagen"
+
+  locale:
+    label: "Sprache"
+    de: "Deutsch"
+    en: "English"
+
+  activerecord:
+    errors:
+      models:
+        receipt:
+          attributes:
+            image:
+              unsupported_type: "Dateityp wird nicht unterstützt (erlaubt: %{accepted})."
+    models:
+      user:           "Benutzer"
+      household:      "Haushalt"
+      membership:     "Mitgliedschaft"
+      product:        "Produkt"
+      store:          "Geschäft"
+      price:          "Preis"
+      storage_item:   "Vorrat-Eintrag"
+      grocery_item:   "Einkaufslisten-Eintrag"
+      receipt:        "Beleg"
+    attributes:
+      user:
+        email:                  "E-Mail"
+        name:                   "Name"
+        password:               "Passwort"
+        password_confirmation:  "Passwort wiederholen"
+      household:
+        name:     "Name"
+        timezone: "Zeitzone"
+      product:
+        name:     "Name"
+        brand:    "Marke"
+        barcode:  "Barcode"
+        unit:     "Einheit"
+        category: "Kategorie"
+        notes:    "Notizen"
+      store:
+        name:    "Name"
+        chain:   "Kette"
+        address: "Adresse"
+        url:     "Webseite"
+      price:
+        store_id:    "Geschäft"
+        amount:      "Betrag"
+        currency:    "Währung"
+        observed_on: "Datum"
+        source:      "Quelle"
+      storage_item:
+        product_id: "Produkt"
+        quantity:   "Menge"
+        location:   "Ort"
+        expires_on: "Läuft ab"
+        opened_on:  "Geöffnet am"
+      grocery_item:
+        product_id: "Produkt"
+        store_id:   "Geschäft"
+        quantity:   "Menge"
+        status:     "Status"
+      receipt:
+        image: "Beleg-Bild"
+
+  errors:
+    messages:
+      blank: "muss ausgefüllt werden"
+      taken: "ist bereits vergeben"
+      invalid: "ist ungültig"
+      too_short: "ist zu kurz (mindestens %{count} Zeichen)"
+      too_long: "ist zu lang (höchstens %{count} Zeichen)"
+      confirmation: "stimmt nicht mit %{attribute} überein"
+      not_a_number: "ist keine Zahl"
+      greater_than: "muss größer als %{count} sein"
+      greater_than_or_equal_to: "muss größer oder gleich %{count} sein"
+      inclusion: "ist nicht in der Liste enthalten"

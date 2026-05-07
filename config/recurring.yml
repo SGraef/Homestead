@@ -1,0 +1,14 @@
+# Solid Queue picks this up automatically when the worker boots. Add new
+# recurring jobs here as needed.
+default: &default
+  bring_pull_all:
+    class: BringPullAllJob
+    schedule: every 5 minutes
+    queue: default
+    description: "Pull each connected household's Bring! list and reconcile."
+
+development:
+  <<: *default
+
+production:
+  <<: *default

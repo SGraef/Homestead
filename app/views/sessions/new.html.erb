@@ -1,0 +1,23 @@
+<% content_for :title, t("nav.login") %>
+<div class="card card-elev" style="max-width:420px;margin:var(--sp-9) auto">
+  <div class="eyebrow"><%= t("app_name") %></div>
+  <h2><%= t("auth.sign_in_title") %></h2>
+  <%= form_with url: login_path, local: true do |f| %>
+    <p>
+      <%= f.label :email, t("activerecord.attributes.user.email") %><br>
+      <%= f.email_field :email, required: true, autofocus: true, style: "width:100%" %>
+    </p>
+    <p>
+      <%= f.label :password, t("activerecord.attributes.user.password") %><br>
+      <%= f.password_field :password, required: true, style: "width:100%" %>
+    </p>
+    <p>
+      <label style="display:inline-flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-sm)">
+        <%= f.check_box :remember_me %> <%= t("auth.remember_me") %>
+      </label>
+    </p>
+    <p><%= f.submit t("auth.sign_in_button"), class: "btn" %></p>
+  <% end %>
+  <p class="caption"><%= t("auth.no_account") %> <%= link_to t("auth.create_one"), new_registration_path %></p>
+  <p class="caption"><%= link_to t("auth.forgot_password"), new_password_reset_path %></p>
+</div>

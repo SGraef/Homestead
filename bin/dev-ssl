@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+# Run the dev server with self-signed HTTPS so mobile browsers will let you
+# use the camera (BarcodeDetector / getUserMedia require a secure context
+# and treat anything other than `localhost` as insecure).
+#
+# Usage:
+#   bin/dev-ssl                 # uses 0.0.0.0:3443
+#   PORT=4443 bin/dev-ssl       # custom port
+#   LAN_IP=192.168.1.42 bin/dev-ssl   # adds your phone's view of the host
+#
+# The generated cert is for `localhost` (+ any LAN_IP / EXTRA_HOSTS you
+# pass) and lasts 365 days. Phones will warn you the first time -- accept
+# the warning to proceed.
+set -e
+
+PORT="${PORT:-3443}"
+SSL_DIR="${SSL_DIR:-tmp/ssl}"
+KEY="$SSL_DIR/key.pem"
+CERT="$SSL_DIR/cert.pem"
+
+mkdir -p "$SSL_DIR"
+
+if [ ! -f "$KEY" ] || [ ! -f "$CERT" ]; then
+  echo "==> Generating self-signed cert in $SSL_DIR ..."
+  alt="DNS:localhost,DNS:web,IP:127.0.0.1"
+  if [ -n "$LAN_IP" ]; then
+    alt="$alt,IP:$LAN_IP"
+  fi
+  if [ -n "$EXTRA_HOSTS" ]; then
+    # space-separated extra DNS names, e.g. EXTRA_HOSTS="pantria.local foo.bar"
+    for h in $EXTRA_HOSTS; do
+      alt="$alt,DNS:$h"
+    done
+  fi
+
+  openssl req -x509 -nodes -newkey rsa:2048 \
+    -keyout "$KEY" -out "$CERT" \
+    -days 365 \
+    -subj "/CN=pantria.dev" \
+    -addext "subjectAltName=$alt"
+  echo "==> Cert SAN: $alt"
+fi
+
+echo "==> Starting Puma on https://0.0.0.0:$PORT (Ctrl-C to stop)"
+exec bundle exec puma -b "ssl://0.0.0.0:$PORT?key=$KEY&cert=$CERT" -C config/puma.rb

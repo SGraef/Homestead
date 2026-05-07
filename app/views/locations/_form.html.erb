@@ -1,0 +1,19 @@
+<%= form_with model: @location, local: true do |f| %>
+  <% if @location.errors.any? %>
+    <div class="flash alert"><%= @location.errors.full_messages.to_sentence %></div>
+  <% end %>
+  <p>
+    <%= f.label :name %><br>
+    <%= f.text_field :name, required: true, style: "width:100%" %>
+  </p>
+  <p>
+    <%= f.label :kind, t("location.table.kind") %><br>
+    <%= f.select :kind,
+                 Location::KINDS.map { |k| [t("storage.locations.#{k}", default: k), k] } %>
+  </p>
+  <p>
+    <%= f.label :position, t("location.table.position") %><br>
+    <%= f.number_field :position, min: 0, style: "width:6rem" %>
+  </p>
+  <p><%= f.submit class: "btn" %></p>
+<% end %>

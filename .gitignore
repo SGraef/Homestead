@@ -1,0 +1,45 @@
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Ruby / Rails
+/.bundle
+/vendor/bundle
+/log/*
+!/log/.keep
+/tmp/*
+!/tmp/.keep
+/storage/*
+!/storage/.keep
+/public/assets
+/public/packs
+/public/packs-test
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+/config/master.key
+/config/credentials/*.key
+
+# Sorbet generated
+/sorbet/rbi/gems
+/sorbet/rbi/dsl
+/sorbet/rbi/annotations
+
+# Tests / coverage
+/coverage
+/spec/tmp
+/spec/examples.txt
+
+# Cypress
+/cypress/screenshots
+/cypress/videos
+/cypress/downloads
+node_modules/
+
+# Docs
+/doc/
+/.yardoc/

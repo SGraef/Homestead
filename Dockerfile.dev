@@ -1,0 +1,31 @@
+# syntax=docker/dockerfile:1.7
+# Development / test image. Ruby toolchain + OCR deps; intentionally no Node.
+#
+# Why no Node: importmap-rails serves JS straight from gems/CDN (no bundling),
+# and Cypress runs from its own `cypress/included` image in docker-compose.test.yml.
+# Adding Node here only slowed the build and broke on NodeSource setup churn.
+ARG RUBY_VERSION=3.3.6
+
+FROM ruby:${RUBY_VERSION}-slim-bookworm
+
+ENV LANG=C.UTF-8 \
+    BUNDLE_PATH=/usr/local/bundle \
+    PATH=/app/bin:$PATH
+
+WORKDIR /app
+
+RUN apt-get update -qq \
+ && apt-get install --no-install-recommends -y \
+      build-essential git curl ca-certificates pkg-config \
+      default-libmysqlclient-dev libyaml-dev tzdata \
+      imagemagick poppler-utils \
+      tesseract-ocr tesseract-ocr-eng tesseract-ocr-deu \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY Gemfile Gemfile.lock* ./
+RUN bundle install --jobs 4
+
+COPY . .
+
+EXPOSE 3000
+CMD ["bin/dev"]

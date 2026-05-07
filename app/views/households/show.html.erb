@@ -1,0 +1,24 @@
+<h1><%= @household.name %></h1>
+<p><%= link_to t("common.edit"), edit_household_path(@household), class: "btn" %></p>
+
+<h2><%= t("household.members") %></h2>
+<ul>
+  <% @household.memberships.includes(:user).each do |m| %>
+    <li><%= m.user.email %> — <%= t("household.roles.#{m.role}", default: m.role) %>
+      <% if policy(@household).update? %>
+        <%= button_to t("common.delete"), household_membership_path(@household, m), method: :delete,
+            class: "btn warn", data: { turbo_confirm: t("household.remove_member_confirm") } %>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
+
+<% if policy(@household).update? %>
+  <h3><%= t("household.add_member") %></h3>
+  <%= form_with url: household_memberships_path(@household), local: true do |f| %>
+    <%= f.email_field "membership[email]", placeholder: "user@example.com", required: true %>
+    <%= f.select "membership[role]",
+                 %w[admin member].map { |r| [t("household.roles.#{r}"), r] } %>
+    <%= f.submit t("household.invite"), class: "btn" %>
+  <% end %>
+<% end %>

@@ -1,0 +1,60 @@
+<% content_for :title, t("grocery.title") %>
+<h1><%= t("grocery.title") %></h1>
+<p>
+  <%= link_to t("grocery.add_item"), new_grocery_item_path, class: "btn" %>
+  <%= link_to t("grocery.scan_to_purchase"), scan_products_path, class: "btn secondary" %>
+  <% if current_household.bring_connected? %>
+    <%= link_to t("bring.synced_to", list: current_household.bring_connection.default_list_name.presence || "Bring!"),
+                bring_connection_path, class: "chip success" %>
+  <% else %>
+    <%= link_to t("bring.connect_cta"), new_bring_connection_path, class: "chip" %>
+  <% end %>
+</p>
+
+<div style="display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center;margin-bottom:var(--sp-3)">
+  <%= link_to t("grocery.filter.only_needed"),
+              grocery_items_path,
+              class: ("chip #{'chip-active' unless @show_purchased}").strip %>
+  <%= link_to t("grocery.filter.all"),
+              grocery_items_path(show_purchased: 1),
+              class: ("chip #{'chip-active' if @show_purchased}").strip %>
+
+  <% if @purchased_count.positive? %>
+    <span style="margin-left:auto"></span>
+    <%= button_to t("grocery.purge_purchased", count: @purchased_count),
+                  purge_purchased_grocery_items_path,
+                  method: :delete,
+                  class: "btn btn-sm warn",
+                  data: { turbo_confirm: t("grocery.purge_confirm", count: @purchased_count) } %>
+  <% end %>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th><%= t("grocery.table.product") %></th>
+      <th><%= t("grocery.table.quantity") %></th>
+      <th><%= t("grocery.table.status") %></th>
+      <th><%= t("grocery.table.store") %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @items.each do |i| %>
+      <tr id="grocery_item_<%= i.id %>">
+        <td><%= i.product.name %></td>
+        <td><%= i.quantity %> <%= t("product.units.#{i.product.unit}", default: i.product.unit) %></td>
+        <td><span class="pill <%= 'warn' if i.status == 'needed' %>">
+          <%= t("grocery.statuses.#{i.status}", default: i.status) %>
+        </span></td>
+        <td><%= i.store&.name %></td>
+        <td>
+          <% if i.status == "needed" %>
+            <%= button_to t("grocery.mark_purchased"), purchase_grocery_item_path(i), method: :patch, class: "btn" %>
+          <% end %>
+          <%= link_to t("common.edit"), edit_grocery_item_path(i) %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

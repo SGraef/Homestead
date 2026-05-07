@@ -1,0 +1,16 @@
+<% content_for :title, t("nav.sign_up") %>
+<div class="card card-elev" style="max-width:420px;margin:var(--sp-9) auto">
+  <div class="eyebrow"><%= t("app_name") %></div>
+  <h2><%= t("auth.create_account") %></h2>
+  <%= form_with model: @user, url: registration_path, local: true do |f| %>
+    <% if @user.errors.any? %>
+      <div class="flash alert"><%= @user.errors.full_messages.to_sentence %></div>
+    <% end %>
+    <p><%= f.label :name %><br><%= f.text_field :name, style: "width:100%" %></p>
+    <p><%= f.label :email %><br><%= f.email_field :email, required: true, style: "width:100%" %></p>
+    <p><%= f.label :password %><br><%= f.password_field :password, required: true, style: "width:100%" %></p>
+    <p><%= f.label :password_confirmation %><br>
+       <%= f.password_field :password_confirmation, required: true, style: "width:100%" %></p>
+    <p><%= f.submit t("auth.create_button"), class: "btn" %></p>
+  <% end %>
+</div>
