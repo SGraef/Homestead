@@ -54,9 +54,10 @@ lint:sorbet:
 test:rspec:
   stage: test
   services:
+    # MySQL 8.4 already defaults to caching_sha2_password and removed the
+    # --default-authentication-plugin flag, so no `command:` override needed.
     - name: mysql:8.4
       alias: mysql
-      command: ["--default-authentication-plugin=caching_sha2_password"]
   variables:
     RAILS_ENV: test
     COVERAGE: "1"
