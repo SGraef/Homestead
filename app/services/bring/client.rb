@@ -19,9 +19,9 @@ require "json"
 # There is no documented refresh endpoint -- when an access token actually
 # expires the user re-authenticates via the connect form.
 module Bring
-  class Error     < StandardError; end
-  class AuthError < Error; end
-
+  # Error / AuthError classes live in their own files (bring/error.rb,
+  # bring/auth_error.rb) so Zeitwerk's eager_load can resolve them by
+  # path. Don't redefine here.
   class Client
     BASE_URL      = "https://api.getbring.com/rest/v2"
     # Public client API key shipped with Bring's first-party clients. Override
