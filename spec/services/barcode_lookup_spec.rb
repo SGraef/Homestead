@@ -8,7 +8,7 @@ RSpec.describe BarcodeLookup do
 
   describe ".call" do
     it "returns a normalised result when Open Food Facts has the product" do
-      stub_request(:get, "https://world.openfoodfacts.org/api/v2/product/#{barcode}.json")
+      stub_request(:get, "https://world.openfoodfacts.org/api/v2/product/#{barcode}.json?lc=de")
         .to_return(
           status: 200,
           headers: { "Content-Type" => "application/json" },
@@ -35,7 +35,7 @@ RSpec.describe BarcodeLookup do
     end
 
     it "falls through to Open Products Facts when OFF has nothing" do
-      stub_request(:get, "https://world.openfoodfacts.org/api/v2/product/#{barcode}.json")
+      stub_request(:get, "https://world.openfoodfacts.org/api/v2/product/#{barcode}.json?lc=de")
         .to_return(status: 200, body: { status: 0 }.to_json,
                    headers: { "Content-Type" => "application/json" })
 
@@ -50,15 +50,52 @@ RSpec.describe BarcodeLookup do
       expect(result.unit).to eq("ml")
     end
 
-    it "returns nil when both sources miss" do
-      %w[
-        https://world.openfoodfacts.org/api/v2/product
-        https://world.openproductsfacts.org/api/v2/product
-      ].each do |base|
-        stub_request(:get, "#{base}/#{barcode}.json")
+    it "falls through to Marktguru when both open DBs miss" do
+      stub_request(:get, "https://world.openfoodfacts.org/api/v2/product/#{barcode}.json?lc=de")
+        .to_return(status: 200, body: { status: 0 }.to_json,
+                   headers: { "Content-Type" => "application/json" })
+      stub_request(:get, "https://world.openproductsfacts.org/api/v2/product/#{barcode}.json")
+        .to_return(status: 200, body: { status: 0 }.to_json,
+                   headers: { "Content-Type" => "application/json" })
+
+      stub_request(:get, "https://www.marktguru.de/api/v1/products/searchByEan?ean=#{barcode}")
+        .to_return(
+          status: 200,
+          headers: { "Content-Type" => "application/json" },
+          body: {
+            results: [
+              { "id" => 4711, "name" => "Alnatura Bio Vollmilch",
+                "brand" => "Alnatura", "amount" => "1 L",
+                "ean" => [barcode],
+                "imageUrl" => "https://media.marktguru.de/foo.jpg",
+                "category" => { "name" => "Milch & Käse" } }
+            ]
+          }.to_json
+        )
+
+      result = described_class.call(barcode)
+      expect(result).to have_attributes(
+        source:    "marktguru",
+        name:      "Alnatura Bio Vollmilch",
+        brand:     "Alnatura",
+        unit:      "l",
+        category:  "Milch & Käse",
+        image_url: "https://media.marktguru.de/foo.jpg"
+      )
+    end
+
+    it "returns nil when all three sources miss" do
+      [
+        "https://world.openfoodfacts.org/api/v2/product/#{barcode}.json?lc=de",
+        "https://world.openproductsfacts.org/api/v2/product/#{barcode}.json"
+      ].each do |url|
+        stub_request(:get, url)
           .to_return(status: 200, body: { status: 0 }.to_json,
                      headers: { "Content-Type" => "application/json" })
       end
+      stub_request(:get, %r{www\.marktguru\.de/api/v1/products/searchByEan})
+        .to_return(status: 200, body: { results: [] }.to_json,
+                   headers: { "Content-Type" => "application/json" })
 
       expect(described_class.call(barcode)).to be_nil
     end
@@ -66,6 +103,7 @@ RSpec.describe BarcodeLookup do
     it "swallows network errors and returns nil" do
       stub_request(:get, %r{world\.openfoodfacts\.org}).to_timeout
       stub_request(:get, %r{world\.openproductsfacts\.org}).to_timeout
+      stub_request(:get, %r{www\.marktguru\.de}).to_timeout
       expect(described_class.call(barcode)).to be_nil
     end
   end
@@ -116,6 +154,36 @@ RSpec.describe BarcodeLookup do
       results = described_class.search(name: "Soap")
       expect(results.size).to eq(1)
       expect(results.first.source).to eq("open_products_facts")
+    end
+
+    it "falls all the way through to Marktguru on search misses" do
+      stub_request(:get, %r{world\.openfoodfacts\.org/cgi/search\.pl})
+        .to_return(status: 200, body: { products: [] }.to_json,
+                   headers: { "Content-Type" => "application/json" })
+      stub_request(:get, %r{world\.openproductsfacts\.org/cgi/search\.pl})
+        .to_return(status: 200, body: { products: [] }.to_json,
+                   headers: { "Content-Type" => "application/json" })
+
+      stub_request(:get, %r{www\.marktguru\.de/api/v1/products\?})
+        .to_return(
+          status: 200,
+          headers: { "Content-Type" => "application/json" },
+          body: {
+            results: [
+              { "id" => 99, "name" => "Vollmilch 1L", "brand" => "Edeka",
+                "amount" => "1 L", "ean" => ["4006381333924"] }
+            ]
+          }.to_json
+        )
+
+      results = described_class.search(name: "Vollmilch")
+      expect(results.size).to eq(1)
+      expect(results.first).to have_attributes(
+        source:  "marktguru",
+        barcode: "4006381333924",
+        brand:   "Edeka",
+        unit:    "l"
+      )
     end
 
     it "returns [] when both name and brand are empty (no upstream call)" do

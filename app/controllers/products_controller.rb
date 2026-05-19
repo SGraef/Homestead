@@ -135,10 +135,15 @@ class ProductsController < ApplicationController
   end
 
   def product_params
-    params.require(:product).permit(
+    raw = params.require(:product).permit(
       :name, :brand, :barcode, :unit, :category, :notes,
       product_barcodes_attributes: %i[id barcode brand quantity_text _destroy]
     )
+    # Clearing the primary barcode: AR's barcode validation is
+    # `allow_nil`, not `allow_blank`, so a "" from the form would fail
+    # format. Normalize to nil up front.
+    raw[:barcode] = nil if raw.key?(:barcode) && raw[:barcode].to_s.strip.empty?
+    raw
   end
 
   # Whitelisted query-string fields the scanner uses to prefill the new-product

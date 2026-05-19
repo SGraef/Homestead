@@ -26,9 +26,14 @@ module BarcodeLookup
     keyword_init: true
   )
 
+  # Lookup order matters: open community DBs first (stable schemas, open
+  # license), then Marktguru as a DE-focused commercial fallback for
+  # supermarket SKUs the open DBs don't carry. Marktguru's API is
+  # reverse-engineered and may break -- keeping it last means upstream
+  # breakage degrades to "no extra hits", not "scan flow broken".
   # @return [Array<Class>]
   def self.sources
-    [OpenFoodFacts, OpenProductsFacts]
+    [OpenFoodFacts, OpenProductsFacts, Marktguru]
   end
 
   # Lookup by barcode (exact match).

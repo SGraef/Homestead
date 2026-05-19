@@ -15,11 +15,16 @@ module BarcodeLookup
   #                                           behavior).
   class OpenFoodFacts < Source
     SOURCE_NAME    = "open_food_facts"
-    PRODUCT_URL    = "https://world.openfoodfacts.org/api/v2/product/%s.json"
+    # `world.*` is the canonical, always-on host. We pass `lc=de` so OFF
+    # surfaces German fallback names + the `de:`-prefixed tag namespace
+    # in responses; the German subdomain (`de.*`) was an attractive
+    # alternative but its search routes intermittently return a
+    # "temporarily unavailable" HTML page, so we stay on world.
+    PRODUCT_URL    = "https://world.openfoodfacts.org/api/v2/product/%s.json?lc=de"
     SEARCH_URL     = "https://world.openfoodfacts.org/cgi/search.pl"
     PAGE_TEMPLATE  = "https://world.openfoodfacts.org/product/%s"
     SEARCH_FIELDS  = %w[code product_name product_name_de brands
-                        categories_tags quantity image_front_url].join(",")
+                        categories categories_tags quantity image_front_url].join(",")
 
     # @param barcode [String]
     # @return [BarcodeLookup::Result, nil]
@@ -49,6 +54,7 @@ module BarcodeLookup
         json:         "1",
         page_size:    limit,
         fields:       SEARCH_FIELDS,
+        lc:           "de",
         search_terms: terms
       }
       params[:brands_tags] = brand unless brand.empty?
