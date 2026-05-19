@@ -52,4 +52,10 @@ Rails.application.configure do
 
   config.hosts.clear
   config.hosts << ENV.fetch("APP_HOST", "pantria.example.com")
+  # Docker's HEALTHCHECK curls http://localhost:3000/up from inside the
+  # container -- that Host header isn't in the whitelist, so without this
+  # the health probe gets a 403 and the orchestrator marks the container
+  # unhealthy. Skip host auth for the health endpoint only; the rest of
+  # the app keeps its DNS-rebinding guard.
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end
