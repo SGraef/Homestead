@@ -46,6 +46,11 @@ RUN bundle install --jobs 4 \
 COPY . .
 RUN bundle exec bootsnap precompile app/ lib/ config/
 
+# Rails ships an empty tmp/ that .gitignore (and our .dockerignore) strip
+# from the image. Re-create the scratch dirs Puma + Solid Queue write to
+# at boot so the runtime stage inherits them.
+RUN mkdir -p tmp/pids tmp/cache tmp/sockets log storage
+
 # Asset precompile uses a placeholder secret so it doesn't require real creds.
 RUN SECRET_KEY_BASE=DUMMY DATABASE_HOST=localhost DATABASE_USERNAME=u DATABASE_PASSWORD=p \
     bundle exec rails assets:precompile
