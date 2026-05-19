@@ -38,6 +38,8 @@ Rails.application.configure do
 
   config.hosts << "pantria.localhost"
   config.hosts << "web"
+  # docker-compose.test.yml service name used by the Cypress runner.
+  config.hosts << "app-e2e"
 
   # Phones on the LAN reach the dev server via the host's private IP, which
   # would otherwise be rejected by Rails' DNS-rebinding guard. Allow the

@@ -98,7 +98,27 @@ e2e:cypress:
     DOCKER_TLS_CERTDIR: "/certs"
   before_script: []
   script:
-    - docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from cypress
+    # Only start the cypress service (and its depends_on chain: db ->
+    # app-e2e -> cypress). The `app` service runs rspec+sorbet for
+    # local use; in CI we run those in `test:rspec`/`lint:sorbet`
+    # already, and letting it start here would abort the run via
+    # `--abort-on-container-exit` before cypress finishes.
+    - |
+      set +e
+      docker compose -f docker-compose.test.yml up --build \
+        --abort-on-container-exit --exit-code-from cypress cypress
+      CYPRESS_EXIT=$?
+      set -e
+    # dind containers don't share a filesystem with the runner, so we
+    # can't bind-mount artifacts out. Copy them with `docker compose
+    # cp` while the cypress container still exists (compose `up`
+    # leaves stopped containers around until `down`).
+    - mkdir -p cypress/junit cypress/screenshots cypress/videos
+    - docker compose -f docker-compose.test.yml cp cypress:/e2e/cypress/junit/. cypress/junit/ || true
+    - docker compose -f docker-compose.test.yml cp cypress:/e2e/cypress/screenshots/. cypress/screenshots/ || true
+    - docker compose -f docker-compose.test.yml cp cypress:/e2e/cypress/videos/. cypress/videos/ || true
+    - docker compose -f docker-compose.test.yml down --volumes --remove-orphans || true
+    - exit "$CYPRESS_EXIT"
   artifacts:
     # `when: always` (not on_failure) because we now emit JUnit XML on
     # every run -- GitLab needs them on success too to populate the

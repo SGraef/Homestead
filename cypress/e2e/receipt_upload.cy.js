@@ -12,17 +12,17 @@ describe("Receipt upload", () => {
     // attachable file to enqueue ProcessReceiptJob).
     const png1x1 =
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8//8/AwAI/AL+RGSMHAAAAABJRU5ErkJggg=="
-    const blob = Cypress.Blob.base64StringToBlob(png1x1, "image/png")
-    const file = new File([blob], "tiny.png", { type: "image/png" })
-    const dt = new DataTransfer()
-    dt.items.add(file)
-    cy.get('input[type="file"]').then(input => {
-      input[0].files = dt.files
-      cy.wrap(input).trigger("change", { force: true })
+    cy.get('input[type="file"]').selectFile({
+      contents: Cypress.Buffer.from(png1x1, "base64"),
+      fileName: "tiny.png",
+      mimeType: "image/png"
     })
 
     cy.get('input[type="submit"]').click()
     cy.contains(/Receipt uploaded/i)
-    cy.contains(/Receipt #/)
+    // Show page header is "<%= t('receipt.title') %> #<id>" -- "Receipts #<n>"
+    // in English. Match the trailing "#<digits>" rather than the
+    // singular/plural-sensitive prefix.
+    cy.contains(/#\d+/)
   })
 })

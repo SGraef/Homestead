@@ -3,7 +3,9 @@ describe("Grocery list flow", () => {
 
   it("adds a grocery item, marks it purchased, and shows it in storage", () => {
     cy.visit("/grocery_items/new")
-    cy.get('select[name="grocery_item[product_id]"]').select(1)
+    // Seed creates the "Vollmilch 1L" product; select by label so the
+    // test isn't sensitive to whatever id Rails hands out.
+    cy.get('select[name="grocery_item[product_id]"]').select("Vollmilch 1L")
     cy.get('input[name="grocery_item[quantity]"]').clear().type("1")
     cy.get('input[type="submit"]').click()
 

@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1.7
+# Cypress runner image. Bakes in cypress.config.js, cypress/, and the
+# JUnit reporter deps from package.json so we don't depend on bind
+# mounts -- which don't work in dind-on-CI (the dind daemon can't see
+# the runner's filesystem, so `.:/e2e` would mount an empty dir).
+FROM cypress/included:13.15.0
+
+WORKDIR /e2e
+
+# Install dev dependencies first so this layer caches when only cypress
+# specs change.
+COPY package.json package-lock.json* ./
+RUN npm install --silent --no-audit --no-fund
+
+COPY cypress.config.js ./
+COPY cypress/ ./cypress/
+
+# cypress/included's entrypoint is `cypress`. Default to Electron --
+# the only browser the image bundles on linux/arm64 (Chrome is amd64
+# only). Compose can override with `command:` if needed.
+CMD ["run", "--browser", "electron"]

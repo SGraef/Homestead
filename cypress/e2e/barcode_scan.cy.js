@@ -9,14 +9,14 @@ describe("Barcode scan flow", () => {
     cy.get('input[data-barcode-scanner-target="input"]').type("4006381333924")
     cy.contains("button", "Lookup").click()
 
-    cy.get("turbo-frame#scan-result").contains(/Vollmilch/i)
+    cy.get("#scan-result").contains(/Vollmilch/i)
   })
 
   it("offers to create a product for an unknown barcode", () => {
     cy.visit("/products/scan")
     cy.get('input[data-barcode-scanner-target="input"]').type("9999999999999")
     cy.contains("button", "Lookup").click()
-    cy.get("turbo-frame#scan-result").contains(/Unknown barcode/i)
-    cy.get("turbo-frame#scan-result").contains("Create a product for this code")
+    cy.get("#scan-result").contains(/Unknown barcode/i)
+    cy.get("#scan-result").contains("Create a product for this code")
   })
 })
