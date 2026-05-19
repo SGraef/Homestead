@@ -17,3 +17,8 @@ if ENV["WEB_CONCURRENCY"]
 end
 
 plugin :tmp_restart
+
+# Run Solid Queue in-process when this Puma is the only Pantria process
+# on the host (single-container deployments like the Unraid template).
+# Multi-host setups should leave this off and start `bin/jobs` separately.
+plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"] == "1"

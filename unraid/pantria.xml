@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Pantria</Name>
+  <Repository>ghcr.io/sgraef/pantria:latest</Repository>
+  <Registry>https://ghcr.io/</Registry>
+  <Branch>
+    <Tag>latest</Tag>
+    <TagDescription>Tracking the latest green CI build.</TagDescription>
+  </Branch>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/SGraef/pantria</Support>
+  <Project>https://github.com/SGraef/pantria</Project>
+  <Overview>
+    Pantria — household ERP for food storage, multi-store grocery prices,
+    and receipt OCR. Rails 8 + MySQL + Solid Queue. The image bundles Puma
+    (web), Solid Queue (background jobs) and OCR tooling in one process so
+    a single Unraid container runs the whole app.
+
+    BEFORE INSTALLING:
+    1. Provision a MySQL 8.4+ container (the official `mysql:8.4` image
+       works, or `linuxserver/mariadb`). Create a database (default name
+       `pantria_production`) and a user that owns it.
+    2. Mint a SECRET_KEY_BASE (`docker run --rm ruby:3.3 ruby -rsecurerandom -e 'puts SecureRandom.hex(64)'`)
+       OR copy the project's `config/master.key` value into RAILS_MASTER_KEY.
+    3. Put a reverse proxy (SWAG, Traefik, Nginx Proxy Manager) in front --
+       the app sets `force_ssl=true` so it expects to be terminated over HTTPS.
+       Point the proxy at this container's host:port and set APP_HOST to the
+       public hostname it serves.
+
+    First boot runs `rails db:prepare` automatically (creates schema +
+    runs seeds on an empty database), so an empty pantria_production DB
+    is fine.
+  </Overview>
+  <Category>Productivity: Tools: HomeAutomation:</Category>
+  <WebUI>http://[IP]:[PORT:3000]/</WebUI>
+  <TemplateURL>https://github.com/SGraef/pantria/raw/main/unraid/pantria.xml</TemplateURL>
+  <Icon>https://github.com/SGraef/pantria/raw/main/app/assets/images/icon.png</Icon>
+  <ExtraParams>--restart=unless-stopped</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires>An external MySQL 8.4+ container and a reverse proxy that terminates HTTPS.</Requires>
+
+  <Config Name="WebUI Port" Target="3000" Default="3000" Mode="tcp" Description="Container port Puma listens on. Map to whatever host port your reverse proxy points at." Type="Port" Display="always" Required="true" Mask="false">3000</Config>
+
+  <Config Name="Active Storage" Target="/app/storage" Default="/mnt/user/appdata/pantria/storage" Mode="rw" Description="Receipt images and other ActiveStorage blobs. Persist this -- losing it means losing every uploaded receipt." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/pantria/storage</Config>
+
+  <Config Name="Config" Target="/app/config/credentials" Default="/mnt/user/appdata/pantria/credentials" Mode="rw" Description="Optional. Mount a directory containing credentials.yml.enc and the matching master.key if you don't want to pass RAILS_MASTER_KEY as an env var." Type="Path" Display="advanced" Required="false" Mask="false"/>
+
+  <Config Name="DATABASE_HOST" Target="DATABASE_HOST" Default="" Mode="" Description="Hostname (or container name on the same Docker network) of the MySQL server." Type="Variable" Display="always" Required="true" Mask="false"/>
+
+  <Config Name="DATABASE_PORT" Target="DATABASE_PORT" Default="3306" Mode="" Description="MySQL port." Type="Variable" Display="always" Required="true" Mask="false">3306</Config>
+
+  <Config Name="DATABASE_NAME" Target="DATABASE_NAME" Default="pantria_production" Mode="" Description="Database name. `rails db:prepare` will create the schema on first boot if the DB itself exists." Type="Variable" Display="always" Required="true" Mask="false">pantria_production</Config>
+
+  <Config Name="DATABASE_USERNAME" Target="DATABASE_USERNAME" Default="pantria" Mode="" Description="MySQL user that owns the Pantria database." Type="Variable" Display="always" Required="true" Mask="false">pantria</Config>
+
+  <Config Name="DATABASE_PASSWORD" Target="DATABASE_PASSWORD" Default="" Mode="" Description="MySQL password for the user above." Type="Variable" Display="always" Required="true" Mask="true"/>
+
+  <Config Name="APP_HOST" Target="APP_HOST" Default="pantria.example.com" Mode="" Description="Public hostname the app is served as. Required -- Rails' DNS-rebinding guard rejects anything else, and email/Active Storage links use it." Type="Variable" Display="always" Required="true" Mask="false">pantria.example.com</Config>
+
+  <Config Name="RAILS_MASTER_KEY" Target="RAILS_MASTER_KEY" Default="" Mode="" Description="Contents of config/master.key (32 hex chars). Required for decrypting credentials.yml.enc. Alternatively, mount the master.key file via the 'Config' path above and leave this empty." Type="Variable" Display="always" Required="false" Mask="true"/>
+
+  <Config Name="SECRET_KEY_BASE" Target="SECRET_KEY_BASE" Default="" Mode="" Description="Optional. Falls back to credentials if unset. Generate with `ruby -rsecurerandom -e 'puts SecureRandom.hex(64)'`." Type="Variable" Display="advanced" Required="false" Mask="true"/>
+
+  <Config Name="SOLID_QUEUE_IN_PUMA" Target="SOLID_QUEUE_IN_PUMA" Default="1" Mode="" Description="Run background workers in-process inside Puma. Leave on for single-container deployments; turn off (set to 0) only if you run a separate worker container." Type="Variable" Display="advanced" Required="false" Mask="false">1</Config>
+
+  <Config Name="RAILS_LOG_LEVEL" Target="RAILS_LOG_LEVEL" Default="info" Mode="" Description="One of: debug, info, warn, error, fatal. Stay on info unless you're chasing a bug -- debug is very chatty." Type="Variable" Display="advanced" Required="false" Mask="false">info</Config>
+
+  <Config Name="RAILS_MAX_THREADS" Target="RAILS_MAX_THREADS" Default="5" Mode="" Description="Puma threads per worker AND ActiveRecord pool size. Bump together if you raise WEB_CONCURRENCY." Type="Variable" Display="advanced" Required="false" Mask="false">5</Config>
+
+  <Config Name="WEB_CONCURRENCY" Target="WEB_CONCURRENCY" Default="" Mode="" Description="Puma worker processes (clustered mode). Leave empty for single-process mode -- safer for low-traffic homelab use. Set to 2-4 only if you have CPU headroom." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+
+  <Config Name="SMTP_ADDRESS" Target="SMTP_ADDRESS" Default="" Mode="" Description="SMTP host for outbound email (password resets, activation). Leave empty to disable email." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+
+  <Config Name="SMTP_PORT" Target="SMTP_PORT" Default="587" Mode="" Description="SMTP port (usually 587 for STARTTLS, 465 for implicit TLS)." Type="Variable" Display="advanced" Required="false" Mask="false">587</Config>
+
+  <Config Name="SMTP_USERNAME" Target="SMTP_USERNAME" Default="" Mode="" Description="SMTP auth user." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+
+  <Config Name="SMTP_PASSWORD" Target="SMTP_PASSWORD" Default="" Mode="" Description="SMTP auth password." Type="Variable" Display="advanced" Required="false" Mask="true"/>
+
+  <Config Name="SMTP_DOMAIN" Target="SMTP_DOMAIN" Default="" Mode="" Description="HELO domain (typically same as APP_HOST). Defaults to APP_HOST if unset." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+
+  <Config Name="SMTP_STARTTLS" Target="SMTP_STARTTLS" Default="true" Mode="" Description="Set to 'false' for implicit-TLS (port 465) or unencrypted SMTP." Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+
+  <Config Name="TZ" Target="TZ" Default="Europe/Berlin" Mode="" Description="Container timezone. Affects log timestamps and scheduled-job firing times." Type="Variable" Display="advanced" Required="false" Mask="false">Europe/Berlin</Config>
+</Container>
