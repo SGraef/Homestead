@@ -24,8 +24,11 @@ RSpec.describe GroceryItem do
       expect(item.paid_amount_cents).to eq(199)
       expect(item.store).to eq(store)
       expect(StorageItem.last).to have_attributes(
-        product: product, household: household, quantity: 2, location: "fridge"
+        product: product, household: household, quantity: 2
       )
+      # `location` is a Location association, but mark_purchased! accepts the
+      # location *kind* string and resolves it -- assert via .kind.
+      expect(StorageItem.last.location.kind).to eq("fridge")
     end
   end
 end

@@ -13,8 +13,12 @@ class FreezerController < ApplicationController
   before_action :ensure_household
 
   def show
+    # Qualify columns -- `freezer_items` joins `locations` (also has its
+    # own `created_at`), so a bare `created_at` is ambiguous to MySQL.
     @items = current_household.freezer_items
-                              .order(Arel.sql("COALESCE(frozen_on, DATE(created_at)) ASC"))
+                              .order(Arel.sql(
+                                "COALESCE(storage_items.frozen_on, DATE(storage_items.created_at)) ASC"
+                              ))
     @stale = current_household.stale_freezer_items
     @stale_threshold_days = StorageItem::STALE_FREEZER_DAYS
   end

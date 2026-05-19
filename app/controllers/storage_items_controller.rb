@@ -64,6 +64,7 @@ class StorageItemsController < ApplicationController
   # POST /storage_items/:id/decrement -- "I just used one of these".
   def decrement
     authorize @item, :update?
+    @location = lookup_location(params[:location_id])
     name = @item.product.name
     new_qty = (@item.quantity || 0) - 1
 

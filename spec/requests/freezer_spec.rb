@@ -7,7 +7,10 @@ RSpec.describe "Freezer page" do
   let(:user)      { create(:user) }
   let(:household) { create(:household, admin: user) }
 
-  before { login_via_post(user) }
+  before do
+    household
+    login_via_post(user)
+  end
 
   describe "GET /freezer" do
     it "lists freezer items and surfaces stale ones with a warning" do

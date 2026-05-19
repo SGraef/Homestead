@@ -9,7 +9,10 @@ RSpec.describe "GET /products/lookup.json (web)" do
   let(:user)      { create(:user) }
   let(:household) { create(:household, admin: user) }
 
-  before { login_via_post(user) }
+  before do
+    household
+    login_via_post(user)
+  end
 
   it "returns the existing product when the barcode is already in the household" do
     product = create(:product, household: household, barcode: "4006381333924")
@@ -23,7 +26,7 @@ RSpec.describe "GET /products/lookup.json (web)" do
   end
 
   it "returns a remote suggestion when the barcode is unknown locally" do
-    stub_request(:get, "https://world.openfoodfacts.org/api/v2/product/4006381333924.json")
+    stub_request(:get, %r{world\.openfoodfacts\.org/api/v2/product/4006381333924\.json})
       .to_return(status: 200,
                  headers: { "Content-Type" => "application/json" },
                  body: { status: 1, product: { product_name: "Whole Milk",
@@ -40,6 +43,9 @@ RSpec.describe "GET /products/lookup.json (web)" do
   it "returns source: 'none' when neither local nor remote sources match" do
     stub_request(:get, %r{world\.open(food|products)facts\.org})
       .to_return(status: 200, body: { status: 0 }.to_json,
+                 headers: { "Content-Type" => "application/json" })
+    stub_request(:get, %r{marktguru\.de/api/v1/products/searchByEan})
+      .to_return(status: 200, body: { results: [] }.to_json,
                  headers: { "Content-Type" => "application/json" })
 
     get "/products/lookup.json", params: { barcode: "0000000000" }

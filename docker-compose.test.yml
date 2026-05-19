@@ -3,7 +3,8 @@
 services:
   db:
     image: mysql:8.4
-    command: --default-authentication-plugin=caching_sha2_password
+    # MySQL 8.4 defaults to caching_sha2_password and removed the
+    # --default-authentication-plugin flag, so no command override.
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: pantria_test

@@ -46,10 +46,15 @@ RSpec.describe Bring::Client do
 
   describe "#push_item" do
     it "PUTs to the bound list with purchase=name" do
+      # WebMock's header matcher iterates the headers hash with
+      # `each_with_object`, which `hash_including` doesn't implement.
+      # WebMock already matches headers loosely (the request just has to
+      # *contain* the listed pairs), so a plain Hash works for the
+      # "at least these headers" assertion.
       stub = stub_request(:put, "https://api.getbring.com/rest/v2/bringlists/list-uuid-1")
              .with(body: hash_including("purchase" => "Milk"),
-                   headers: hash_including("Authorization" => "Bearer tok-current",
-                                           "X-BRING-USER-UUID" => "user-uuid-1"))
+                   headers: { "Authorization" => "Bearer tok-current",
+                              "X-BRING-USER-UUID" => "user-uuid-1" })
              .to_return(status: 204)
 
       described_class.new(connection).push_item(name: "Milk")
@@ -71,8 +76,8 @@ RSpec.describe Bring::Client do
     it "uses the connection's stored token_type instead of hard-coding Bearer" do
       connection.update!(token_type: "JWT")
       stub = stub_request(:put, "https://api.getbring.com/rest/v2/bringlists/list-uuid-1")
-             .with(headers: hash_including("Authorization" => "JWT tok-current",
-                                           "X-BRING-VERSION" => Bring::Client::CLIENT_VERSION))
+             .with(headers: { "Authorization" => "JWT tok-current",
+                              "X-BRING-VERSION" => Bring::Client::CLIENT_VERSION })
              .to_return(status: 204)
 
       described_class.new(connection).push_item(name: "Milk")

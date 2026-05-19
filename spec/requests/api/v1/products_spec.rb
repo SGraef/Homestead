@@ -19,7 +19,7 @@ RSpec.describe "API v1 Products" do
     end
 
     it "falls back to the upstream database for an unknown barcode" do
-      stub_request(:get, "https://world.openfoodfacts.org/api/v2/product/9999999999999.json")
+      stub_request(:get, %r{world\.openfoodfacts\.org/api/v2/product/9999999999999\.json})
         .to_return(status: 200,
                    headers: { "Content-Type" => "application/json" },
                    body: { status: 1, product: { product_name: "Mystery Snack",
@@ -37,6 +37,9 @@ RSpec.describe "API v1 Products" do
     it "returns 404 when neither local nor remote sources have the barcode" do
       stub_request(:get, %r{world\.open(food|products)facts\.org})
         .to_return(status: 200, body: { status: 0 }.to_json,
+                   headers: { "Content-Type" => "application/json" })
+      stub_request(:get, %r{marktguru\.de/api/v1/products/searchByEan})
+        .to_return(status: 200, body: { results: [] }.to_json,
                    headers: { "Content-Type" => "application/json" })
 
       get "/api/v1/products/lookup", params: { barcode: "0000000000" }, headers: api_login(user)

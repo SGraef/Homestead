@@ -29,7 +29,7 @@ class UserMailer < ApplicationMailer
   # @param user [User]
   def reset_password_email(user)
     @user = user
-    @url  = password_reset_url(token: user.reset_password_token, host: mail_host, port: mail_port)
+    @url  = edit_password_reset_url(token: user.reset_password_token, host: mail_host, port: mail_port)
     mail to: user.email, subject: t("user_mailer.reset_password_email.subject")
   end
 

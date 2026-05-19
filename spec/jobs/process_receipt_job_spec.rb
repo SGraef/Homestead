@@ -51,6 +51,10 @@ RSpec.describe ProcessReceiptJob do
   it "keeps the receipt pending and stores the error on a non-final failed attempt" do
     allow(ReceiptScanner).to receive(:call).and_raise(ReceiptScanner::OcrError, "boom")
     allow_any_instance_of(described_class).to receive(:executions).and_return(1)
+    # `retry_on` consults a per-exception counter via `executions_for`,
+    # which is independent of `executions`. Bypass it so the error
+    # surfaces synchronously instead of being scheduled for retry.
+    allow_any_instance_of(described_class).to receive(:executions_for).and_return(described_class::MAX_ATTEMPTS)
 
     expect { described_class.perform_now(receipt.id) }.to raise_error(ReceiptScanner::OcrError)
 
@@ -62,6 +66,7 @@ RSpec.describe ProcessReceiptJob do
   it "marks the receipt failed once retries are exhausted" do
     allow(ReceiptScanner).to receive(:call).and_raise(ReceiptScanner::OcrError, "boom")
     allow_any_instance_of(described_class).to receive(:executions).and_return(described_class::MAX_ATTEMPTS)
+    allow_any_instance_of(described_class).to receive(:executions_for).and_return(described_class::MAX_ATTEMPTS)
 
     expect { described_class.perform_now(receipt.id) }.to raise_error(ReceiptScanner::OcrError)
 

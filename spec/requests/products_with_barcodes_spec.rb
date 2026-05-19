@@ -7,7 +7,10 @@ RSpec.describe "Creating products with multiple barcodes" do
   let(:user)      { create(:user) }
   let(:household) { create(:household, admin: user) }
 
-  before { login_via_post(user) }
+  before do
+    household
+    login_via_post(user)
+  end
 
   it "creates the product + nested ProductBarcode rows in one POST" do
     expect {

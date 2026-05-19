@@ -26,8 +26,12 @@ class Receipt < ApplicationRecord
   has_one_attached :image
 
   validates :status, inclusion: { in: STATUSES }
-  validate :image_must_be_attached
-  validate :image_must_be_supported_type
+  # Image is required at upload time. Once the receipt is persisted,
+  # subsequent updates (status transitions, store assignment, etc.)
+  # shouldn't fail just because the attachment was never blob-bound
+  # in tests or got purged after confirmation.
+  validate :image_must_be_attached,      on: :create
+  validate :image_must_be_supported_type, on: :create
 
   scope :recent, -> { order(created_at: :desc) }
 

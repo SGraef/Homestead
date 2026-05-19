@@ -41,6 +41,11 @@ RSpec.describe SyncGroceryToBringJob do
     it "records the error message and re-raises on a transient failure" do
       stub_request(:put, %r{api\.getbring\.com/rest/v2/bringlists/l-1})
         .to_return(status: 502)
+      # retry_on uses a per-exception executions counter; force it past
+      # the limit so the error propagates instead of being scheduled for
+      # retry, which would swallow it.
+      allow_any_instance_of(described_class)
+        .to receive(:executions_for).and_return(described_class::MAX_ATTEMPTS_FOR_TRANSIENT)
 
       expect {
         described_class.perform_now(household.id, action: "push", name: "Vollmilch")
@@ -53,12 +58,11 @@ RSpec.describe SyncGroceryToBringJob do
       stub_request(:put, %r{api\.getbring\.com/rest/v2/bringlists/l-1})
         .to_return(status: 401, body: "Unauthorized")
 
-      expect {
-        described_class.perform_now(household.id, action: "push", name: "Milk")
-      }.to raise_error(Bring::AuthError)
+      # `discard_on Bring::AuthError` -- the job swallows the exception
+      # so it doesn't re-enter the retry pipeline. We assert on the
+      # side effects (connection state was updated, token survived).
+      described_class.perform_now(household.id, action: "push", name: "Milk")
 
-      # The token survives the failure -- the user can investigate / reconnect
-      # without losing the connection state on a single bad response.
       expect(connection.reload.access_token).to eq("tok")
       expect(connection.last_error).to include("401")
     end

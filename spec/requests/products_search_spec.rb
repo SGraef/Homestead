@@ -7,7 +7,13 @@ RSpec.describe "GET /products/search.json" do
   let(:user)      { create(:user) }
   let(:household) { create(:household, admin: user) }
 
-  before { login_via_post(user) }
+  # Force the household to materialise -- controllers redirect away when
+  # the user has none, and a few example branches don't otherwise reference
+  # `household` (which would lazily create it).
+  before do
+    household
+    login_via_post(user)
+  end
 
   it "returns candidates from Open Food Facts and flags ones already in the household" do
     create(:product, household: household, barcode: "4006381333924", name: "Existing")

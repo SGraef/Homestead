@@ -5,9 +5,11 @@
 # Triggered from {GroceryItem} after_commit callbacks; safe to enqueue even
 # when no Bring! connection exists (no-ops at the top of `perform`).
 class SyncGroceryToBringJob < ApplicationJob
+  MAX_ATTEMPTS_FOR_TRANSIENT = 3
+
   queue_as :default
 
-  retry_on Bring::Error,           attempts: 3, wait: :polynomially_longer
+  retry_on Bring::Error,           attempts: MAX_ATTEMPTS_FOR_TRANSIENT, wait: :polynomially_longer
   discard_on ActiveJob::DeserializationError, ActiveRecord::RecordNotFound, Bring::AuthError
 
   # @param household_id [Integer]
