@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 # typed: false
 
-ENV["RAILS_ENV"] ||= "test"
+# `=` instead of `||=`: our dev container exports RAILS_ENV=development, which
+# would otherwise leak in and run specs against the dev DB / dev middleware
+# (HostAuthorization rejects ActionDispatch's www.example.com host in dev).
+ENV["RAILS_ENV"] = "test"
 
 require_relative "../config/environment"
 abort("The Rails environment is running in production mode!") if Rails.env.production?
