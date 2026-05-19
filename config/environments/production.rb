@@ -39,7 +39,16 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
   config.active_record.attributes_for_inspect = [:id]
 
-  config.cache_store = :solid_cache_store rescue :memory_store
+  # Use solid_cache when it's bundled, fall back to in-process memory
+  # otherwise. Inline `rescue` only catches StandardError, but LoadError
+  # is a ScriptError -- so we have to require + rescue explicitly.
+  config.cache_store =
+    begin
+      require "solid_cache"
+      :solid_cache_store
+    rescue LoadError
+      :memory_store
+    end
 
   config.hosts.clear
   config.hosts << ENV.fetch("APP_HOST", "pantria.example.com")
