@@ -42,8 +42,23 @@ default:
 lint:rubocop:
   stage: lint
   script:
-    - bundle exec rubocop --parallel
+    - mkdir -p tmp
+    # Single rubocop run: progress format streams to the job log,
+    # json format dumps the same offenses to a file we then convert
+    # to GitLab's Code Quality JSON in after_script. `--format json`
+    # writes the file even on a non-zero exit, so the conversion
+    # always has something to chew on.
+    - bundle exec rubocop --parallel --format progress --format json --out tmp/rubocop.json
+  after_script:
+    - bundle exec bin/ci/rubocop-codequality tmp/rubocop.json tmp/rubocop-codequality.json
   allow_failure: true
+  artifacts:
+    when: always
+    reports:
+      codequality: tmp/rubocop-codequality.json
+    paths:
+      - tmp/rubocop.json
+    expire_in: 1 week
 
 lint:sorbet:
   stage: lint
@@ -85,10 +100,16 @@ e2e:cypress:
   script:
     - docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from cypress
   artifacts:
-    when: on_failure
+    # `when: always` (not on_failure) because we now emit JUnit XML on
+    # every run -- GitLab needs them on success too to populate the
+    # Tests tab + compare against previous pipelines.
+    when: always
+    reports:
+      junit: cypress/junit/*.xml
     paths:
       - cypress/screenshots/
       - cypress/videos/
+      - cypress/junit/
     expire_in: 1 week
 
 build:image:

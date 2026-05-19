@@ -48,7 +48,14 @@ services:
     depends_on:
       app-e2e:
         condition: service_healthy
-    command: ["--browser", "chrome"]
+    # Install JUnit reporters before launching Cypress -- the
+    # cypress/included image ships cypress baked in but no node
+    # modules, and cypress.config.js requires `cypress-multi-reporters`
+    # + `mocha-junit-reporter` at load time.
+    entrypoint: ["/bin/bash", "-lc"]
+    command:
+      - npm install --silent --no-audit --no-fund &&
+        cypress run --browser chrome
 
   app-e2e:
     build:

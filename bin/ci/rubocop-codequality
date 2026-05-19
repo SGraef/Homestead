@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+#
+# Convert RuboCop's JSON output to GitLab's Code Quality (CodeClimate)
+# JSON format so the lint:rubocop CI job can surface per-line findings
+# in the MR diff view via `artifacts.reports.codequality`.
+#
+# Usage:
+#   bin/ci/rubocop-codequality <input.json> [output.json]
+#
+# Where <input.json> is the file produced by:
+#   rubocop --format json --out <input.json>
+#
+# Output defaults to tmp/rubocop-codequality.json. Always exits 0
+# regardless of how many offenses the input contains -- the job's
+# pass/fail is driven by RuboCop itself, not by this converter.
+
+require "json"
+require "digest"
+require "fileutils"
+
+input_path  = ARGV[0] || abort("usage: rubocop-codequality <input.json> [output.json]")
+output_path = ARGV[1] || "tmp/rubocop-codequality.json"
+
+unless File.exist?(input_path)
+  warn "[rubocop-codequality] input not found: #{input_path}"
+  warn "[rubocop-codequality] writing empty report so GitLab still sees the artifact"
+  FileUtils.mkdir_p(File.dirname(output_path))
+  File.write(output_path, "[]")
+  exit 0
+end
+
+# Code Climate's spec recognises five severity levels; map RuboCop's
+# scale onto them. Anything unrecognised defaults to "minor" so a
+# missing/odd value never blows up the report.
+SEVERITY_MAP = {
+  "refactor"   => "info",
+  "convention" => "minor",
+  "warning"    => "major",
+  "error"      => "critical",
+  "fatal"      => "blocker"
+}.freeze
+
+data = JSON.parse(File.read(input_path))
+
+offenses = Array(data["files"]).flat_map do |file|
+  path = file["path"]
+  Array(file["offenses"]).map do |offense|
+    line = offense.dig("location", "start_line") || 1
+    cop  = offense["cop_name"]
+    {
+      description: offense["message"],
+      check_name:  cop,
+      # GitLab dedupes findings across pipelines by fingerprint.
+      # Include path + cop + line + message so a cosmetic edit to a
+      # different file doesn't reshuffle every fingerprint, but a
+      # real change at this location does.
+      fingerprint: Digest::SHA1.hexdigest("#{path}:#{cop}:#{line}:#{offense["message"]}"),
+      severity:    SEVERITY_MAP.fetch(offense["severity"], "minor"),
+      location: {
+        path:  path,
+        lines: { begin: line }
+      }
+    }
+  end
+end
+
+FileUtils.mkdir_p(File.dirname(output_path))
+File.write(output_path, JSON.pretty_generate(offenses))
+puts "[rubocop-codequality] wrote #{offenses.size} offenses to #{output_path}"
