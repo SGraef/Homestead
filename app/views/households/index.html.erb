@@ -1,7 +1,46 @@
+<% content_for :title, t("household.title") %>
 <h1><%= t("household.title") %></h1>
-<p><%= link_to t("household.new_button"), new_household_path, class: "btn" %></p>
-<ul>
-  <% @households.each do |h| %>
-    <li><%= link_to h.name, h %></li>
-  <% end %>
-</ul>
+<p class="caption"><%= t("household.intro") %></p>
+
+<p>
+  <%= link_to t("household.new_button"), new_household_path, class: "btn" %>
+</p>
+
+<% if @households.empty? %>
+  <div class="card card-flat"><p><%= t("household.empty") %></p></div>
+<% else %>
+  <div class="grid">
+    <% @households.each do |h| %>
+      <% membership = h.memberships.find_by(user: current_user) %>
+      <% is_current = (h.id == current_household&.id) %>
+      <div class="card card-elev">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--sp-2)">
+          <div>
+            <h2 style="margin:.1em 0">
+              <%= link_to h.name, h %>
+              <% if is_current %>
+                <span class="pill"><%= t("household.current") %></span>
+              <% end %>
+            </h2>
+            <p class="caption" style="margin:.1em 0">
+              <%= t("household.role_label") %>:
+              <strong><%= t("household.roles.#{membership.role}", default: membership.role) %></strong>
+              · <%= t("household.member_count", count: h.memberships.size) %>
+              <% if h.postal_code.present? %> · <%= t("household.postcode") %> <%= h.postal_code %><% end %>
+            </p>
+          </div>
+        </div>
+
+        <p style="margin:var(--sp-2) 0 0;display:flex;gap:var(--sp-1);flex-wrap:wrap">
+          <% unless is_current %>
+            <%= button_to t("household.use"), switch_household_path(h),
+                          method: :post, class: "btn btn-sm",
+                          form: { style: "display:inline" } %>
+          <% end %>
+          <%= link_to t("common.edit"), edit_household_path(h),
+                      class: "btn btn-sm secondary" %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000024) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -91,6 +91,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
     t.string "timezone", default: "UTC", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "postal_code", limit: 16
   end
 
   create_table "locations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -114,6 +115,83 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
     t.index ["household_id"], name: "index_memberships_on_household_id"
     t.index ["user_id", "household_id"], name: "index_memberships_on_user_id_and_household_id", unique: true
     t.index ["user_id"], name: "index_memberships_on_user_id"
+  end
+
+  create_table "offer_blocklist_entries", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "pattern", limit: 200, null: false
+    t.string "reason", limit: 200
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "pattern"], name: "idx_offer_blocklist_household_pattern", unique: true
+    t.index ["household_id"], name: "index_offer_blocklist_entries_on_household_id"
+  end
+
+  create_table "offer_categories", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "name", limit: 80, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "name"], name: "idx_offer_categories_household_name", unique: true
+    t.index ["household_id", "position"], name: "idx_offer_categories_household_position"
+    t.index ["household_id"], name: "index_offer_categories_on_household_id"
+  end
+
+  create_table "offer_category_keywords", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "offer_category_id", null: false
+    t.string "keyword", limit: 80, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["offer_category_id", "keyword"], name: "idx_offer_category_keywords_cat_keyword", unique: true
+    t.index ["offer_category_id"], name: "index_offer_category_keywords_on_offer_category_id"
+  end
+
+  create_table "offer_retailer_filters", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "retailer", limit: 80, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "retailer"], name: "idx_offer_retailer_filter_household_retailer", unique: true
+    t.index ["household_id"], name: "index_offer_retailer_filters_on_household_id"
+  end
+
+  create_table "offer_watchlist_entries", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "pattern", limit: 200, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "pattern"], name: "idx_offer_watchlist_household_pattern", unique: true
+    t.index ["household_id"], name: "index_offer_watchlist_entries_on_household_id"
+  end
+
+  create_table "offers", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "product_id"
+    t.bigint "store_id"
+    t.string "source", limit: 32, default: "marktguru", null: false
+    t.string "external_id", limit: 64, null: false
+    t.string "retailer_name", limit: 80, null: false
+    t.string "title", limit: 500, null: false
+    t.string "brand", limit: 80
+    t.string "category", limit: 80
+    t.integer "price_cents", null: false
+    t.integer "regular_price_cents"
+    t.string "currency", limit: 8, default: "EUR", null: false
+    t.string "unit", limit: 16
+    t.text "quantity_text"
+    t.text "image_url"
+    t.text "source_url"
+    t.date "valid_from"
+    t.date "valid_until"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "product_id"], name: "index_offers_on_household_id_and_product_id"
+    t.index ["household_id", "source", "external_id"], name: "index_offers_on_household_id_and_source_and_external_id", unique: true
+    t.index ["household_id", "valid_until"], name: "index_offers_on_household_id_and_valid_until"
+    t.index ["household_id"], name: "index_offers_on_household_id"
+    t.index ["product_id"], name: "index_offers_on_product_id"
+    t.index ["store_id"], name: "index_offers_on_store_id"
   end
 
   create_table "prices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -195,7 +273,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
     t.index ["user_id"], name: "index_receipts_on_user_id"
   end
 
-  create_table "solid_queue_blocked_executions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "solid_queue_blocked_executions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.bigint "job_id", null: false
     t.string "queue_name", null: false
     t.integer "priority", default: 0, null: false
@@ -207,7 +285,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
     t.index ["job_id"], name: "index_solid_queue_blocked_executions_on_job_id", unique: true
   end
 
-  create_table "solid_queue_claimed_executions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "solid_queue_claimed_executions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.bigint "job_id", null: false
     t.bigint "process_id"
     t.datetime "created_at", null: false
@@ -215,14 +293,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
     t.index ["process_id", "job_id"], name: "index_solid_queue_claimed_executions_on_process_id_and_job_id"
   end
 
-  create_table "solid_queue_failed_executions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "solid_queue_failed_executions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.bigint "job_id", null: false
     t.text "error"
     t.datetime "created_at", null: false
     t.index ["job_id"], name: "index_solid_queue_failed_executions_on_job_id", unique: true
   end
 
-  create_table "solid_queue_jobs", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "solid_queue_jobs", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "queue_name", null: false
     t.string "class_name", null: false
     t.text "arguments"
@@ -240,13 +318,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
     t.index ["scheduled_at", "finished_at"], name: "index_solid_queue_jobs_for_alerting"
   end
 
-  create_table "solid_queue_pauses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "solid_queue_pauses", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "queue_name", null: false
     t.datetime "created_at", null: false
     t.index ["queue_name"], name: "index_solid_queue_pauses_on_queue_name", unique: true
   end
 
-  create_table "solid_queue_processes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "solid_queue_processes", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "kind", null: false
     t.datetime "last_heartbeat_at", null: false
     t.bigint "supervisor_id"
@@ -260,7 +338,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
     t.index ["supervisor_id"], name: "index_solid_queue_processes_on_supervisor_id"
   end
 
-  create_table "solid_queue_ready_executions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "solid_queue_ready_executions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.bigint "job_id", null: false
     t.string "queue_name", null: false
     t.integer "priority", default: 0, null: false
@@ -270,7 +348,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
     t.index ["queue_name", "priority", "job_id"], name: "index_solid_queue_poll_by_queue"
   end
 
-  create_table "solid_queue_recurring_executions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "solid_queue_recurring_executions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.bigint "job_id", null: false
     t.string "task_key", null: false
     t.datetime "run_at", null: false
@@ -279,7 +357,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
     t.index ["task_key", "run_at"], name: "index_solid_queue_recurring_executions_on_task_key_and_run_at", unique: true
   end
 
-  create_table "solid_queue_recurring_tasks", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "solid_queue_recurring_tasks", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "key", null: false
     t.string "schedule", null: false
     t.string "command", limit: 2048
@@ -295,7 +373,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
     t.index ["static"], name: "index_solid_queue_recurring_tasks_on_static"
   end
 
-  create_table "solid_queue_scheduled_executions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "solid_queue_scheduled_executions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.bigint "job_id", null: false
     t.string "queue_name", null: false
     t.integer "priority", default: 0, null: false
@@ -305,7 +383,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
     t.index ["scheduled_at", "priority", "job_id"], name: "index_solid_queue_dispatch_all"
   end
 
-  create_table "solid_queue_semaphores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "solid_queue_semaphores", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "key", null: false
     t.integer "value", default: 1, null: false
     t.datetime "expires_at", null: false
@@ -378,6 +456,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000017) do
   add_foreign_key "locations", "households"
   add_foreign_key "memberships", "households"
   add_foreign_key "memberships", "users"
+  add_foreign_key "offer_blocklist_entries", "households", on_delete: :cascade
+  add_foreign_key "offer_categories", "households", on_delete: :cascade
+  add_foreign_key "offer_category_keywords", "offer_categories", on_delete: :cascade
+  add_foreign_key "offer_retailer_filters", "households", on_delete: :cascade
+  add_foreign_key "offer_watchlist_entries", "households", on_delete: :cascade
+  add_foreign_key "offers", "households", on_delete: :cascade
+  add_foreign_key "offers", "products", on_delete: :nullify
+  add_foreign_key "offers", "stores", on_delete: :nullify
   add_foreign_key "prices", "products"
   add_foreign_key "prices", "stores"
   add_foreign_key "product_barcodes", "products"

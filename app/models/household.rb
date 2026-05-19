@@ -13,11 +13,24 @@ class Household < ApplicationRecord
   has_many :receipts, dependent: :destroy
   has_many :locations, -> { ordered }, dependent: :destroy
   has_one  :bring_connection, dependent: :destroy
+  has_many :offers, dependent: :destroy
+  has_many :offer_blocklist_entries, dependent: :destroy
+  has_many :offer_retailer_filters, dependent: :destroy
+  has_many :offer_watchlist_entries, dependent: :destroy
+  has_many :offer_categories, -> { ordered }, dependent: :destroy
+
+  after_create :seed_default_offer_categories
 
   after_create :seed_default_locations
 
   validates :name, presence: true, length: { maximum: 80 }
   validates :timezone, presence: true
+  # Loose validation: accepts DE 5-digit codes plus international formats
+  # (alphanumeric + space + hyphen, up to 16 chars). Marktguru itself only
+  # supports DE codes today; we keep the model permissive for future
+  # adapters.
+  validates :postal_code, allow_blank: true, length: { maximum: 16 },
+                          format: { with: /\A[A-Z0-9 \-]+\z/i }
 
   # @return [ActiveRecord::Relation<StorageItem>] items expiring within `days`.
   def expiring_storage(days: 7)
@@ -63,6 +76,12 @@ class Household < ApplicationRecord
   end
 
   private
+
+  def seed_default_offer_categories
+    OfferCategorySeeder.call(self)
+  rescue StandardError => e
+    Rails.logger.warn("[Household] offer-category seed failed: #{e.class}: #{e.message}")
+  end
 
   def seed_default_locations
     Location::KINDS.each_with_index do |kind, i|

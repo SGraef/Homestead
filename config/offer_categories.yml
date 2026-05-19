@@ -1,0 +1,257 @@
+# Keyword → German category mapping for OfferCategorizer.
+#
+# Each category lists German keywords matched as case-insensitive
+# substrings against an offer's title. The first match wins, walking
+# categories top-to-bottom and keywords within a category by length
+# descending (so "Hähnchenbrust" matches the more specific keyword
+# before bare "Brust" if both exist).
+#
+# Add / refine entries here when you spot mis-categorised offers --
+# this is the cheapest, most predictable lever for offer-grouping
+# quality. The Rails app loads this file once at boot; restart the
+# `web` and `worker` containers to pick up changes.
+
+# NOTE: Category order matters. Brand-rich categories (Süßigkeiten,
+# Snacks) are checked first so brand names like "Milka" or "Haribo"
+# win over generic ingredient words ("Vollmilch") that would otherwise
+# pull a "Milka Tafel Vollmilch" into Milch & Käse.
+
+"Süßigkeiten":
+  - schokolade
+  - schoko
+  - praline
+  - bonbon
+  - gummi
+  - lakritz
+  - lutscher
+  - pralinés
+  - keks
+  - waffel
+  - oblate
+  - kuchen
+  - torte
+  - glühwürmchen
+  - haribo
+  - milka
+  - ritter
+  - lindt
+  - kinder
+
+"Snacks":
+  - chips
+  - flips
+  - popcorn
+  - salzstange
+  - cracker
+  - knabber
+  - nüsse
+  - erdnuss
+  - mandel
+  - cashew
+
+"Tiefkühl":
+  - tiefkühl
+  - tk-
+  - eis
+  - eiscreme
+  - pizza
+  - pommes
+
+# Fisch before Fleisch so titles like "Lachsfilet" route to fish via
+# `lachs` rather than being claimed by a generic meat keyword. (Bare
+# `filet` is intentionally absent from Fleisch -- "Schnitzel" /
+# "Hähnchen" / etc. catch the meat cuts; "filet" alone is too generic.)
+"Fisch & Meeresfrüchte":
+  - lachs
+  - thunfisch
+  - hering
+  - matjes
+  - makrele
+  - forelle
+  - garnele
+  - shrimp
+  - krabbe
+  - tintenfisch
+  - fisch
+
+"Fleisch & Wurst":
+  - hähnchen
+  - hühnchen
+  - hähnchenbrust
+  - putenbrust
+  - puten
+  - rinder
+  - rindfleisch
+  - schweine
+  - schwein
+  - kotelett
+  - schnitzel
+  - steak
+  - gulasch
+  - hack
+  - frikadelle
+  - gyros
+  - döner
+  - bratwurst
+  - wurst
+  - salami
+  - schinken
+  - speck
+  - bacon
+  - leberwurst
+
+"Milch & Käse":
+  - vollmilch
+  - milch
+  - haltbarmilch
+  - frischmilch
+  - hafermilch
+  - sojamilch
+  - joghurt
+  - skyr
+  - quark
+  - schmand
+  - sahne
+  - kefir
+  - käse
+  - mozzarella
+  - feta
+  - gouda
+  - camembert
+  - brie
+  - emmentaler
+  - parmesan
+  - butter
+
+"Backwaren":
+  - brot
+  - brötchen
+  - toast
+  - baguette
+  - croissant
+  - laugen
+  - knäcke
+
+"Getränke":
+  - cola
+  - limonade
+  - limo
+  - saft
+  - direktsaft
+  - schorle
+  - wasser
+  - mineralwasser
+  - sprudel
+  - bier
+  - radler
+  - wein
+  - sekt
+  - prosecco
+  - whisky
+  - rum
+  - vodka
+  - schnaps
+  - liqueur
+  - likör
+  - kaffee
+  - espresso
+  - tee
+  - energy
+  - drink
+
+"Obst & Gemüse":
+  # Note on umlaut variants: MySQL's default utf8mb4_0900_ai_ci
+  # collation treats "apfel" and "äpfel" as equal at the unique-index
+  # level, so we only list one form here. The classifier's substring
+  # match still catches both since it works on the downcased title.
+  - apfel
+  - banane
+  - birne
+  - kiwi
+  - traube
+  - erdbeere
+  - himbeere
+  - blaubeere
+  - melone
+  - ananas
+  - mango
+  - orange
+  - mandarine
+  - zitrone
+  - tomate
+  - gurke
+  - paprika
+  - salat
+  - kartoffel
+  - zwiebel
+  - knoblauch
+  - karotte
+  - möhre
+  - pilz
+  - champignon
+  - kohl
+  - spargel
+  - rhabarber
+
+"Konserven & Fertiggerichte":
+  - dose
+  - eintopf
+  - lasagne
+  - suppe
+  - linsen
+  - bohnen
+  - ravioli
+  - tortellini
+  - ketchup
+  - mayo
+  - mayonnaise
+  - senf
+  - sauce
+  - dressing
+
+"Müsli & Cerealien":
+  - müsli
+  - cerealien
+  - cornflakes
+  - haferflocken
+  - porridge
+
+"Drogerie":
+  - shampoo
+  - duschgel
+  - zahnpasta
+  - zahnbürste
+  - deo
+  - creme
+  - lotion
+  - rasier
+  - windel
+  - feuchttüch
+  - tampon
+  - binde
+  - wattepad
+
+"Haushalt":
+  - spülmittel
+  - spülmaschinen
+  - waschmittel
+  - weichspüler
+  - allzweckreiniger
+  - glasreiniger
+  - wc-
+  - küchenrolle
+  - toilettenpapier
+  - taschentücher
+  - müllbeutel
+  - alufolie
+  - frischhalte
+
+"Tierfutter":
+  - katzenfutter
+  - hundefutter
+  - whiskas
+  - kitekat
+  - sheba
+  - pedigree
+  - katze
+  - hund

@@ -4,5 +4,10 @@
   <% end %>
   <p><%= f.label :name %><br><%= f.text_field :name, required: true %></p>
   <p><%= f.label :timezone %><br><%= f.text_field :timezone, value: @household.timezone || "UTC" %></p>
+  <p>
+    <%= f.label :postal_code %><br>
+    <%= f.text_field :postal_code, placeholder: "10115" %><br>
+    <span class="caption"><%= t("household.postal_code_hint") %></span>
+  </p>
   <p><%= f.submit class: "btn" %></p>
 <% end %>

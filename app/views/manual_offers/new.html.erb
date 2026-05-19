@@ -1,0 +1,7 @@
+<% content_for :title, t("offer.manual.new_title") %>
+<h1><%= t("offer.manual.new_title") %></h1>
+<p class="caption"><%= t("offer.manual.intro") %></p>
+<%= render "form",
+           form_url: manual_offers_path,
+           form_method: :post,
+           submit_label: t("offer.manual.create_button") %>

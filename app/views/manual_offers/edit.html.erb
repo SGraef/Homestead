@@ -1,0 +1,6 @@
+<% content_for :title, t("offer.manual.edit_title") %>
+<h1><%= t("offer.manual.edit_title") %></h1>
+<%= render "form",
+           form_url: manual_offer_path(@offer),
+           form_method: :patch,
+           submit_label: t("common.save") %>

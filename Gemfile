@@ -38,6 +38,9 @@ gem "image_processing", "~> 1.13"
 # Background jobs (Rails 8 native, DB-backed). Worker runs in its own
 # container; recurring schedule lives in config/recurring.yml.
 gem "solid_queue", "~> 1.0"
+# /jobs dashboard for Solid Queue. Mounted in routes.rb behind a
+# require-login gate.
+gem "solid_queue_dashboard"
 
 group :development, :test do
   gem "rspec-rails", "~> 7.1"

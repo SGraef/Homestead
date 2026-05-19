@@ -1,0 +1,72 @@
+<%= form_with model: @offer, url: form_url, method: form_method, local: true do |f| %>
+  <% if @offer.errors.any? %>
+    <div class="flash alert"><%= @offer.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <fieldset class="card">
+    <legend><%= t("offer.manual.basics") %></legend>
+    <p>
+      <%= f.label :title, t("offer.manual.title") %><br>
+      <%= f.text_field :title, required: true, style: "width:100%",
+                       placeholder: "Bio Vollmilch 1L" %>
+    </p>
+    <p>
+      <%= f.label :retailer_name, t("offer.manual.retailer") %><br>
+      <%= f.text_field :retailer_name, required: true, style: "width:100%",
+                       placeholder: "Edeka Weserpark" %>
+    </p>
+    <p style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+      <span style="flex:1 1 8rem">
+        <%= f.label :price_euros, t("offer.manual.price") %><br>
+        <%= f.number_field :price_euros,
+                           value: (@offer.price_cents ? format("%.2f", @offer.price_cents/100.0) : nil),
+                           step: 0.01, min: 0, required: true,
+                           placeholder: "1.99", style: "width:100%" %>
+      </span>
+      <span style="flex:1 1 8rem">
+        <%= f.label :regular_price_euros, t("offer.manual.regular_price") %><br>
+        <%= f.number_field :regular_price_euros,
+                           value: (@offer.regular_price_cents ? format("%.2f", @offer.regular_price_cents/100.0) : nil),
+                           step: 0.01, min: 0,
+                           placeholder: "2.49", style: "width:100%" %>
+      </span>
+    </p>
+  </fieldset>
+
+  <fieldset class="card">
+    <legend><%= t("offer.manual.optional") %></legend>
+    <p style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+      <span style="flex:1 1 10rem">
+        <%= f.label :brand, t("offer.manual.brand") %><br>
+        <%= f.text_field :brand, style: "width:100%", placeholder: "Alnatura" %>
+      </span>
+      <span style="flex:1 1 10rem">
+        <%= f.label :category, t("offer.manual.category") %><br>
+        <%= f.text_field :category, style: "width:100%", placeholder: "Milch" %>
+      </span>
+    </p>
+    <p>
+      <%= f.label :quantity_text, t("offer.manual.quantity_text") %><br>
+      <%= f.text_field :quantity_text, style: "width:100%", placeholder: "1 L Pkg." %>
+    </p>
+    <p style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+      <span style="flex:1 1 8rem">
+        <%= f.label :valid_from, t("offer.manual.valid_from") %><br>
+        <%= f.date_field :valid_from, style: "width:100%" %>
+      </span>
+      <span style="flex:1 1 8rem">
+        <%= f.label :valid_until, t("offer.manual.valid_until") %><br>
+        <%= f.date_field :valid_until, style: "width:100%" %>
+      </span>
+    </p>
+    <p>
+      <%= f.label :image_url, t("offer.manual.image_url") %><br>
+      <%= f.url_field :image_url, style: "width:100%" %>
+    </p>
+  </fieldset>
+
+  <p style="display:flex;gap:var(--sp-1)">
+    <%= f.submit submit_label, class: "btn" %>
+    <%= link_to t("common.cancel"), offers_path, class: "btn btn-sm secondary" %>
+  </p>
+<% end %>

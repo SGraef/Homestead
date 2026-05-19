@@ -1,0 +1,92 @@
+<% content_for :title, t("offer.categories.title") %>
+<h1><%= t("offer.categories.title") %></h1>
+<p class="caption"><%= t("offer.categories.intro") %></p>
+
+<p style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+  <%= link_to t("offer.categories.back"), offers_path,
+              class: "btn btn-sm secondary" %>
+  <%= button_to t("offer.categories.reset_defaults"),
+                reset_defaults_offer_categories_path, method: :post,
+                class: "btn btn-sm warn",
+                data: { turbo_confirm: t("offer.categories.reset_confirm") } %>
+</p>
+
+<%# Per-category cards. Position drives match priority (lower wins);
+    the input lets the user reorder without drag-and-drop. %>
+<% @categories.each do |cat| %>
+  <div class="card" style="margin-bottom:var(--sp-3)">
+    <%= form_with model: cat, url: offer_category_path(cat),
+                  method: :patch, local: true,
+                  html: { style: "display:flex;gap:var(--sp-2);align-items:flex-end;flex-wrap:wrap" } do |f| %>
+      <span style="flex:1 1 16rem">
+        <%= f.label :name, t("offer.categories.label_name") %><br>
+        <%= f.text_field :name, required: true, style: "width:100%" %>
+      </span>
+      <span style="flex:0 0 6rem">
+        <%= f.label :position, t("offer.categories.label_position") %><br>
+        <%= f.number_field :position, step: 1, style: "width:100%" %>
+      </span>
+      <%= f.submit t("common.save"), class: "btn btn-sm" %>
+    <% end %>
+
+    <%# Keyword chips. Each is its own delete form so the surrounding
+        form doesn't have to nest. %>
+    <div style="display:flex;flex-wrap:wrap;gap:var(--sp-1);margin:var(--sp-2) 0">
+      <% if cat.offer_category_keywords.empty? %>
+        <span class="caption"><%= t("offer.categories.no_keywords") %></span>
+      <% end %>
+      <% cat.offer_category_keywords.each do |kw| %>
+        <span class="pill" style="display:inline-flex;align-items:center;gap:.25rem">
+          <code><%= kw.keyword %></code>
+          <%= button_to "×",
+                        offer_category_offer_category_keyword_path(cat, kw),
+                        method: :delete,
+                        class: "btn btn-sm secondary",
+                        form: { style: "display:inline" },
+                        title: t("offer.categories.remove_keyword") %>
+        </span>
+      <% end %>
+    </div>
+
+    <%= form_with url: offer_category_offer_category_keywords_path(cat),
+                  local: true,
+                  html: { style: "display:flex;gap:var(--sp-1);flex-wrap:wrap;align-items:flex-end" } do |f| %>
+      <span style="flex:1 1 12rem">
+        <%= label_tag "offer_category_keyword[keyword]",
+                      t("offer.categories.label_keyword") %><br>
+        <%= text_field_tag "offer_category_keyword[keyword]", nil,
+                           placeholder: t("offer.categories.keyword_placeholder"),
+                           required: true, style: "width:100%" %>
+      </span>
+      <%= f.submit t("offer.categories.add_keyword"), class: "btn btn-sm" %>
+    <% end %>
+
+    <p style="margin-top:var(--sp-2)">
+      <%= button_to t("offer.categories.remove_category"),
+                    offer_category_path(cat), method: :delete,
+                    class: "btn btn-sm warn",
+                    data: { turbo_confirm: t("offer.categories.remove_category_confirm",
+                                              name: cat.name) },
+                    form: { style: "display:inline" } %>
+    </p>
+  </div>
+<% end %>
+
+<h2><%= t("offer.categories.add_category") %></h2>
+<div class="card">
+  <%= form_with model: @new_category, url: offer_categories_path,
+                local: true,
+                html: { style: "display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:flex-end" } do |f| %>
+    <span style="flex:1 1 16rem">
+      <%= f.label :name, t("offer.categories.label_name") %><br>
+      <%= f.text_field :name, required: true,
+                       placeholder: t("offer.categories.name_placeholder"),
+                       style: "width:100%" %>
+    </span>
+    <span style="flex:0 0 6rem">
+      <%= f.label :position, t("offer.categories.label_position") %><br>
+      <%= f.number_field :position, step: 1, style: "width:100%" %>
+    </span>
+    <%= f.submit t("offer.categories.create_button"), class: "btn btn-sm" %>
+  <% end %>
+</div>

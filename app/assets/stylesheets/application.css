@@ -397,6 +397,37 @@ tbody tr:hover td { background: var(--bg-sunken); }
 .chip-soft     { background: var(--accent-soft); color: var(--accent-soft-text); }
 .chip-olive    { background: var(--olive-100); color: var(--olive-700); }
 
+/* Collapsible category sections on /offers. We swap the browser's
+   default disclosure triangle for a custom chevron span that rotates
+   to indicate state, so the heading row stays clean and on-brand. */
+.offer-category > summary { user-select: none; }
+.offer-category > summary::-webkit-details-marker { display: none; }
+.offer-category > summary .offer-category__chevron {
+  display: inline-block;
+  transition: transform .15s ease;
+  color: var(--clay-600, #6b6b6b);
+}
+.offer-category:not([open]) > summary .offer-category__chevron {
+  transform: rotate(-90deg);
+}
+
+/* Watchlist match on /offers — soft terracotta tint + accent border so
+   matched offers stand out without screaming. The pill in the top-right
+   corner repeats the signal redundantly (color blindness, scanning). */
+.offer-card--watched {
+  border-left: 4px solid var(--terracotta-500);
+  background: linear-gradient(90deg, var(--terracotta-50), transparent 55%);
+  position: relative;
+}
+.offer-card__watched-pill {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  background: var(--terracotta-500);
+  color: white;
+  font-size: var(--fs-xs);
+}
+
 .badge {
   display: inline-flex; align-items: center; gap: var(--sp-1);
   font-size: 11px; font-weight: 500;

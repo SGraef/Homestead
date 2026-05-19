@@ -20,7 +20,11 @@ Rails.application.routes.draw do
   root to: "dashboard#index"
 
   resources :households, only: %i[index show new create edit update destroy] do
-    resources :memberships, only: %i[create destroy]
+    member do
+      post :switch       # set session[:household_id] and use this household
+      delete :leave      # current_user removes their own membership
+    end
+    resources :memberships, only: %i[create update destroy]
   end
 
   resources :stores
@@ -63,6 +67,30 @@ Rails.application.routes.draw do
   end
 
   resources :expenses, only: :index
+
+  resources :offers, only: :index do
+    collection do
+      post :sync
+      post :reset
+    end
+    post :add_to_list, on: :member
+  end
+  resources :offer_blocklist_entries, only: %i[create destroy], path: "offers/blocklist"
+  resources :offer_retailer_filters,  only: %i[create destroy], path: "offers/retailers"
+  resources :offer_watchlist_entries, only: %i[create destroy], path: "offers/watchlist"
+  resources :offer_categories, only: %i[index create update destroy], path: "offers/categories" do
+    post :reset_defaults, on: :collection
+    resources :offer_category_keywords, only: %i[create destroy], path: "keywords"
+  end
+  resources :manual_offers, only: %i[new create edit update destroy], path: "offers/manual"
+
+  # Solid Queue dashboard. The mounted engine doesn't run through
+  # ApplicationController, so the require-login gate is enforced as a
+  # routing constraint instead -- anonymous requests get a 404 (no
+  # redirect, since this surface is intended for logged-in users only).
+  constraints LoggedInConstraint do
+    mount SolidQueueDashboard::Engine, at: "/jobs"
+  end
 
   # `resource :freezer` defaults to FreezersController (Rails always
   # pluralises the controller class) but we have a singular FreezerController

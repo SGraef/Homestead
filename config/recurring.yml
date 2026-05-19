@@ -7,6 +7,14 @@ default: &default
     queue: default
     description: "Pull each connected household's Bring! list and reconcile."
 
+  sync_all_offers:
+    class: SyncAllOffersJob
+    # Marktguru flyers refresh weekly; once a day is plenty and keeps us
+    # well below any unwritten rate-limit ceiling.
+    schedule: every day at 4am
+    queue: default
+    description: "Pull current Marktguru offers for every household with a postcode."
+
 development:
   <<: *default
 
