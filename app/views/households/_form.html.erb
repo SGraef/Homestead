@@ -9,5 +9,10 @@
     <%= f.text_field :postal_code, placeholder: "10115" %><br>
     <span class="caption"><%= t("household.postal_code_hint") %></span>
   </p>
+  <p>
+    <%= f.label :flaschenpost_warehouse_id, t("household.flaschenpost_warehouse_id") %><br>
+    <%= f.number_field :flaschenpost_warehouse_id, min: 1, placeholder: "1" %><br>
+    <span class="caption"><%= t("household.flaschenpost_warehouse_id_hint") %></span>
+  </p>
   <p><%= f.submit class: "btn" %></p>
 <% end %>

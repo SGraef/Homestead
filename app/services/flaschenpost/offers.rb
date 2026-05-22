@@ -12,10 +12,11 @@ module Flaschenpost
   # Their site is a Vue SPA that resolves products via a session-bound
   # warehouse_id derived from the user's delivery ZIP. The mapping
   # ZIP -> warehouse_id isn't exposed via a clean lookup endpoint, so
-  # this adapter is opt-in: set FLASCHENPOST_WAREHOUSE_ID once after
-  # finding the right value in your browser's network tab (filter for
-  # any request to /php-product-api/v1/products/.../warehouse/<N>/...
-  # while browsing flaschenpost.de with your ZIP set).
+  # this adapter is opt-in per household: a member finds the right
+  # integer once in their browser's network tab (filter for any request
+  # to /php-product-api/v1/products/.../warehouse/<N>/... while browsing
+  # flaschenpost.de with their ZIP set) and saves it on the Household
+  # record. OfferSyncer reads it and passes it in here.
   #
   # Discovery flow per sync:
   #   1. Pull sitemap_p.xml (one fetch, ~540 KB, 4k+ product URLs).
@@ -61,11 +62,16 @@ module Flaschenpost
     )
 
     class << self
+      # @param warehouse_id [Integer] required -- the region-specific
+      #   warehouse that owns the product+price catalog. Coming from
+      #   Household#flaschenpost_warehouse_id via OfferSyncer.
+      # @param max_products [Integer, nil] cap on slugs resolved per
+      #   run. Defaults to FLASCHENPOST_MAX_PRODUCTS or {DEFAULT_MAX}.
       # @return [Array<OfferData>]
-      def pull_all(warehouse_id: nil, max_products: nil)
-        wh = (warehouse_id || ENV["FLASCHENPOST_WAREHOUSE_ID"]).to_i
+      def pull_all(warehouse_id:, max_products: nil)
+        wh = warehouse_id.to_i
         if wh.zero?
-          Rails.logger.info("[Flaschenpost::Offers] FLASCHENPOST_WAREHOUSE_ID not set; skipping")
+          Rails.logger.info("[Flaschenpost::Offers] warehouse_id missing; skipping")
           return []
         end
 

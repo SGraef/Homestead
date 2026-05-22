@@ -54,12 +54,16 @@ class OfferSyncer
       created += c; updated += u
     end
 
-    # Flaschenpost (beverage delivery). Opt-in via FLASCHENPOST_WAREHOUSE_ID
-    # -- the adapter no-ops without it. Their API is session-bound to a
-    # warehouse derived from the user's ZIP, so the ID has to be found
-    # once via browser devtools. See app/services/flaschenpost/offers.rb.
-    process(Flaschenpost::Offers.pull_all, source: "flaschenpost") do |c, u|
-      created += c; updated += u
+    # Flaschenpost (beverage delivery). Opt-in per-household via the
+    # household's flaschenpost_warehouse_id setting -- their product
+    # API is region-locked to that integer, and the ZIP -> warehouse
+    # mapping has to be looked up once via browser devtools (see
+    # app/services/flaschenpost/offers.rb). Skip cleanly if unset.
+    fp_warehouse = @household.flaschenpost_warehouse_id
+    if fp_warehouse.present?
+      process(Flaschenpost::Offers.pull_all(warehouse_id: fp_warehouse), source: "flaschenpost") do |c, u|
+        created += c; updated += u
+      end
     end
 
     expired = sweep_expired

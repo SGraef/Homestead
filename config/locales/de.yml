@@ -568,6 +568,8 @@ de:
     role_label:  "Deine Rolle"
     role:        "Rolle"
     postal_code_hint: "Optional — wird genutzt, um regionale Marktguru-Angebote zu laden (5-stellige PLZ)."
+    flaschenpost_warehouse_id:      "Flaschenpost Warehouse-ID"
+    flaschenpost_warehouse_id_hint: "Optional — Ganzzahl für das Flaschenpost-Liefergebiet. Einmalig im Browser-Devtools-Netzwerktab abgreifen (mit deiner PLZ Flaschenpost öffnen, nach /php-product-api/.../warehouse/<N>/ suchen)."
     roles:
       admin:  "Administrator"
       member: "Mitglied"

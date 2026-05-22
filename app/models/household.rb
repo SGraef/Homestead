@@ -32,6 +32,12 @@ class Household < ApplicationRecord
   validates :postal_code, allow_blank: true, length: { maximum: 16 },
                           format: { with: /\A[A-Z0-9 \-]+\z/i }
 
+  # Flaschenpost's product API is locked behind a region-specific
+  # warehouse_id. Nullable -- households that don't set it just skip
+  # the Flaschenpost source during sync.
+  validates :flaschenpost_warehouse_id, allow_nil: true,
+                                        numericality: { only_integer: true, greater_than: 0 }
+
   # @return [ActiveRecord::Relation<StorageItem>] items expiring within `days`.
   def expiring_storage(days: 7)
     storage_items.where(expires_on: Date.current..Date.current + days.days)

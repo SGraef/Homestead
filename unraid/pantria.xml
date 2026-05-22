@@ -104,7 +104,5 @@
 
   <Config Name="RECEIPT_IMAP_EXPUNGE" Target="RECEIPT_IMAP_EXPUNGE" Default="false" Mode="" Description="Set to 'true' to permanently delete processed mail. Default 'false' just marks it Seen." Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
 
-  <Config Name="FLASCHENPOST_WAREHOUSE_ID" Target="FLASCHENPOST_WAREHOUSE_ID" Default="" Mode="" Description="Numeric warehouse_id served by Flaschenpost for your delivery ZIP. Find it via browser devtools (Network tab) while loading a Flaschenpost category page -- look for /php-product-api/.../warehouse/&lt;N&gt;/. Leave empty to disable the Flaschenpost source." Type="Variable" Display="advanced" Required="false" Mask="false"/>
-
-  <Config Name="FLASCHENPOST_MAX_PRODUCTS" Target="FLASCHENPOST_MAX_PRODUCTS" Default="200" Mode="" Description="Hard cap on how many sitemap entries the daily Flaschenpost sync resolves into product IDs. Raise once you've confirmed warehouse_id is right; lowering keeps the daily run snappy." Type="Variable" Display="advanced" Required="false" Mask="false">200</Config>
+  <Config Name="FLASCHENPOST_MAX_PRODUCTS" Target="FLASCHENPOST_MAX_PRODUCTS" Default="200" Mode="" Description="Hard cap on how many sitemap entries the daily Flaschenpost sync resolves into product IDs (applies across all households). Each household sets its own Flaschenpost warehouse ID via Settings -> Household." Type="Variable" Display="advanced" Required="false" Mask="false">200</Config>
 </Container>

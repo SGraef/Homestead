@@ -569,6 +569,8 @@ en:
     postcode:    "Postcode"
     role_label:  "Your role"
     postal_code_hint: "Optional — used to fetch local Marktguru offers (DE 5-digit code)."
+    flaschenpost_warehouse_id:      "Flaschenpost warehouse ID"
+    flaschenpost_warehouse_id_hint: "Optional — integer ID for Flaschenpost's delivery warehouse. Find it once in your browser's devtools (Network tab) while loading a Flaschenpost category page with your ZIP set; look for /php-product-api/.../warehouse/<N>/."
     role:        "Role"
     roles:
       admin:  "Admin"

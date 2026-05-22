@@ -82,6 +82,6 @@ class HouseholdsController < ApplicationController
   end
 
   def household_params
-    params.require(:household).permit(:name, :timezone, :postal_code)
+    params.require(:household).permit(:name, :timezone, :postal_code, :flaschenpost_warehouse_id)
   end
 end

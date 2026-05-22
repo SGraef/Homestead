@@ -57,7 +57,6 @@ RSpec.describe Flaschenpost::Offers do
   end
 
   before do
-    ENV["FLASCHENPOST_WAREHOUSE_ID"] = warehouse_id.to_s
     Rails.cache.clear
 
     stub_request(:get, "https://www.flaschenpost.de/sitemap_p.xml")
@@ -71,12 +70,8 @@ RSpec.describe Flaschenpost::Offers do
                  headers: { "Content-Type" => "application/json" })
   end
 
-  after do
-    ENV["FLASCHENPOST_WAREHOUSE_ID"] = nil
-  end
-
   it "walks sitemap -> HTML -> PDP and returns OfferData" do
-    offers = described_class.pull_all
+    offers = described_class.pull_all(warehouse_id: warehouse_id)
     expect(offers.size).to eq(1)
 
     o = offers.first
@@ -96,9 +91,9 @@ RSpec.describe Flaschenpost::Offers do
     )
   end
 
-  it "no-ops when FLASCHENPOST_WAREHOUSE_ID is unset" do
-    ENV["FLASCHENPOST_WAREHOUSE_ID"] = nil
-    expect(described_class.pull_all).to eq([])
+  it "no-ops when warehouse_id is nil or zero" do
+    expect(described_class.pull_all(warehouse_id: nil)).to eq([])
+    expect(described_class.pull_all(warehouse_id: 0)).to eq([])
   end
 
   it "memoises slug->productId resolution in Rails.cache" do
@@ -108,8 +103,8 @@ RSpec.describe Flaschenpost::Offers do
     original_cache = Rails.cache
     Rails.cache = ActiveSupport::Cache::MemoryStore.new
 
-    described_class.pull_all
-    described_class.pull_all
+    described_class.pull_all(warehouse_id: warehouse_id)
+    described_class.pull_all(warehouse_id: warehouse_id)
 
     expect(WebMock).to have_requested(:get, "https://www.flaschenpost.de/p/mio/mio-mio-mate-zero").once
   ensure
