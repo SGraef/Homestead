@@ -1,0 +1,63 @@
+<%= form_with model: @source, url: form_url, local: true do |f| %>
+  <% if @source.errors.any? %>
+    <div class="flash alert"><%= @source.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <p>
+    <%= f.label :label %><br>
+    <%= f.text_field :label, required: true, placeholder: t("inbound_email.placeholders.label") %>
+  </p>
+
+  <p>
+    <%= f.label :imap_host %><br>
+    <%= f.text_field :imap_host, required: true,
+                                  placeholder: t("inbound_email.placeholders.host") %>
+  </p>
+
+  <p style="display:flex;gap:var(--sp-3);align-items:end;flex-wrap:wrap">
+    <span>
+      <%= f.label :imap_port %><br>
+      <%= f.number_field :imap_port, min: 1, max: 65535, required: true, style: "width:8rem" %>
+    </span>
+    <span>
+      <%= f.label :imap_ssl, t("inbound_email.fields.ssl") %><br>
+      <%= f.check_box :imap_ssl %>
+      <span class="caption"><%= t("inbound_email.fields.ssl_hint") %></span>
+    </span>
+  </p>
+
+  <p>
+    <%= f.label :imap_username %><br>
+    <%= f.text_field :imap_username, required: true, autocomplete: "off" %>
+  </p>
+
+  <p>
+    <%= f.label :imap_password %><br>
+    <%# never echo a stored password back into the page even for the
+        owner — Rails 7+ encrypts deters that anyway, but defence in
+        depth. On edit, blank input = keep existing. %>
+    <%= f.password_field :imap_password,
+                         value: "",
+                         required: @source.new_record?,
+                         autocomplete: "new-password",
+                         placeholder: @source.new_record? ? nil : t("inbound_email.placeholders.keep_password") %>
+    <% unless @source.new_record? %>
+      <br><span class="caption"><%= t("inbound_email.placeholders.keep_password") %></span>
+    <% end %>
+  </p>
+
+  <p>
+    <%= f.label :folder %><br>
+    <%= f.text_field :folder, required: true,
+                              placeholder: t("inbound_email.placeholders.folder") %><br>
+    <span class="caption"><%= t("inbound_email.fields.folder_hint") %></span>
+  </p>
+
+  <p>
+    <%= f.check_box :expunge %>
+    <%= f.label :expunge, t("inbound_email.fields.expunge") %><br>
+    <span class="caption"><%= t("inbound_email.fields.expunge_hint") %></span>
+  </p>
+
+  <p><%= f.submit class: "btn" %></p>
+<% end %>

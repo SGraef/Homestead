@@ -557,6 +557,41 @@ en:
     add_existing_button:  "Add"
     match_found:          "Match: %{name}"
 
+  inbound_email:
+    title:        "Inbound email"
+    nav_link:     "Inbound email"
+    new_title:    "Add inbound mailbox"
+    edit_title:   "Edit mailbox '%{label}'"
+    intro:        "Each household member can hook up their own mailboxes here. Forwarded receipts land as pending entries owned by the household and attributed to whoever configured the source."
+    add:          "Add mailbox"
+    empty:        "No mailboxes configured yet."
+    created:      "Mailbox '%{label}' added."
+    updated:      "Mailbox '%{label}' updated."
+    deleted:      "Mailbox '%{label}' removed."
+    not_owner:    "Only the user who added this mailbox can edit or delete it."
+    not_owner_short: "owned by another user"
+    you:          "you"
+    error_pill:   "error"
+    never_polled: "never polled"
+    table:
+      label:        "Label"
+      host:         "Host"
+      username:     "User"
+      folder:       "Folder"
+      owner:        "Owner"
+      last_polled:  "Last polled"
+    fields:
+      ssl:          "Use TLS"
+      ssl_hint:     "On for 993 (implicit TLS), off for 143 plain IMAP."
+      expunge:      "Permanently delete processed mail"
+      expunge_hint: "Off (default) marks processed mail as Seen. On expunges it from the server."
+      folder_hint:  "Single folder. Use the exact server path including any prefix and delimiter (e.g. INBOX, INBOX/Receipts, INBOX.Pantria — depends on your provider)."
+    placeholders:
+      label:         "Gmail – personal"
+      host:          "imap.gmail.com"
+      folder:        "INBOX"
+      keep_password: "Leave blank to keep the saved password"
+
   household:
     title:       "Households"
     intro:       "You can belong to several households — switch which one is active or invite people to share storage and shopping."

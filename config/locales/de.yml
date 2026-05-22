@@ -555,6 +555,41 @@ de:
     add_existing_button:  "Hinzufügen"
     match_found:          "Treffer: %{name}"
 
+  inbound_email:
+    title:        "Mail-Empfang"
+    nav_link:     "Mail-Empfang"
+    new_title:    "Postfach hinzufügen"
+    edit_title:   "Postfach '%{label}' bearbeiten"
+    intro:        "Jedes Haushaltsmitglied kann hier eigene Postfächer einrichten. Weitergeleitete Belege landen als ausstehende Einträge im Haushalt, zugeordnet zur Person, die das Postfach angelegt hat."
+    add:          "Postfach hinzufügen"
+    empty:        "Noch keine Postfächer angelegt."
+    created:      "Postfach '%{label}' hinzugefügt."
+    updated:      "Postfach '%{label}' aktualisiert."
+    deleted:      "Postfach '%{label}' entfernt."
+    not_owner:    "Nur die Person, die dieses Postfach angelegt hat, darf es bearbeiten oder löschen."
+    not_owner_short: "anderem Nutzer zugeordnet"
+    you:          "du"
+    error_pill:   "Fehler"
+    never_polled: "noch nie abgerufen"
+    table:
+      label:        "Bezeichnung"
+      host:         "Server"
+      username:     "Benutzer"
+      folder:       "Ordner"
+      owner:        "Eigentümer"
+      last_polled:  "Zuletzt abgerufen"
+    fields:
+      ssl:          "TLS verwenden"
+      ssl_hint:     "An für 993 (implizites TLS), aus für 143 (Klartext-IMAP)."
+      expunge:      "Verarbeitete Mails endgültig löschen"
+      expunge_hint: "Aus (Standard) markiert Mails als gelesen. An löscht sie vom Server."
+      folder_hint:  "Genau ein Ordner. Pfad exakt so eintragen, wie der Server ihn liefert (z. B. INBOX, INBOX/Belege, INBOX.Pantria — anbieterabhängig)."
+    placeholders:
+      label:         "Gmail – privat"
+      host:          "imap.gmail.com"
+      folder:        "INBOX"
+      keep_password: "Leer lassen, um das gespeicherte Passwort zu behalten"
+
   household:
     title:       "Haushalte"
     intro:       "Du kannst Mitglied mehrerer Haushalte sein — wechsle den aktiven Haushalt oder lade weitere Personen ein."

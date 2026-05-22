@@ -1,0 +1,63 @@
+<% content_for :title, t("inbound_email.title") %>
+<h1><%= t("inbound_email.title") %></h1>
+
+<p class="caption"><%= t("inbound_email.intro") %></p>
+
+<p>
+  <%= link_to t("inbound_email.add"), new_inbound_email_source_path, class: "btn" %>
+</p>
+
+<% if @sources.empty? %>
+  <p class="caption"><%= t("inbound_email.empty") %></p>
+<% else %>
+  <table>
+    <thead>
+      <tr>
+        <th><%= t("inbound_email.table.label") %></th>
+        <th><%= t("inbound_email.table.host") %></th>
+        <th><%= t("inbound_email.table.username") %></th>
+        <th><%= t("inbound_email.table.folder") %></th>
+        <th><%= t("inbound_email.table.owner") %></th>
+        <th><%= t("inbound_email.table.last_polled") %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @sources.each do |s| %>
+        <tr>
+          <td><%= s.label %></td>
+          <td><code><%= s.imap_host %>:<%= s.imap_port %></code></td>
+          <td><%= s.imap_username %></td>
+          <td><code><%= s.folder %></code></td>
+          <td>
+            <%= s.user.email %>
+            <% if s.user_id == current_user.id %>
+              <span class="pill chip-soft"><%= t("inbound_email.you") %></span>
+            <% end %>
+          </td>
+          <td>
+            <% if s.last_error.present? %>
+              <span class="pill warn"
+                    title="<%= s.last_error %>"><%= t("inbound_email.error_pill") %></span>
+            <% elsif s.last_polled_at %>
+              <%= time_ago_in_words(s.last_polled_at) %>
+            <% else %>
+              <span class="caption"><%= t("inbound_email.never_polled") %></span>
+            <% end %>
+          </td>
+          <td>
+            <% if s.manageable_by?(current_user) %>
+              <%= link_to t("common.edit"), edit_inbound_email_source_path(s),
+                          class: "btn btn-sm tertiary" %>
+              <%= button_to t("common.delete"), inbound_email_source_path(s),
+                            method: :delete, class: "btn btn-sm warn",
+                            data: { turbo_confirm: t("common.delete_confirm") } %>
+            <% else %>
+              <span class="caption"><%= t("inbound_email.not_owner_short") %></span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

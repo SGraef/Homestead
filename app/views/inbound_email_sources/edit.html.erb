@@ -1,0 +1,3 @@
+<% content_for :title, t("inbound_email.edit_title", label: @source.label) %>
+<h1><%= t("inbound_email.edit_title", label: @source.label) %></h1>
+<%= render "form", form_url: inbound_email_source_path(@source) %>

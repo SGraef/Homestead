@@ -5,121 +5,94 @@ require "net/imap"
 require "mail"
 
 module InboundReceipts
-  # Polls a configured IMAP mailbox for unread mail, turns each
-  # supported attachment into a Receipt (one per attachment),
-  # enqueues ProcessReceiptJob, and marks the message Seen so it
-  # isn't picked up next tick.
+  # Drains every configured {InboundEmailSource} into pending Receipt
+  # rows + a ProcessReceiptJob per attachment.
   #
-  # Mapping email -> household:
-  # The sender's address must match a known User.email; the receipt is
-  # filed under that user's default_household. This means forwarding
-  # only works from an address the recipient has registered with
-  # Pantria -- the most common case for a personal Unraid install.
+  # Sources are managed in the UI (one per (user, household)), so this
+  # service takes no env vars. It loops over each source, opens that
+  # mailbox's IMAP connection with its own credentials, polls the
+  # configured folder, and credits each created Receipt to the
+  # source's owning user and household.
   #
-  # Configuration (all env-driven, all optional so the job no-ops in
-  # environments that haven't set anything up):
-  #
-  #   RECEIPT_IMAP_HOST       e.g. "imap.fastmail.com"
-  #   RECEIPT_IMAP_PORT       default 993
-  #   RECEIPT_IMAP_SSL        "true" (default) / "false"
-  #   RECEIPT_IMAP_USERNAME
-  #   RECEIPT_IMAP_PASSWORD
-  #   RECEIPT_IMAP_FOLDER     default "INBOX"
-  #   RECEIPT_IMAP_EXPUNGE    "true" deletes processed mail, "false"
-  #                           (default) just flags it \Seen
+  # Per-source last_polled_at and last_error are written back on each
+  # tick so the UI can surface health.
   class ImapPoller
-    Result = Struct.new(:scanned, :created, :skipped, :errors, keyword_init: true) do
-      def to_s = "scanned=#{scanned} created=#{created} skipped=#{skipped} errors=#{errors}"
+    Result = Struct.new(:sources, :scanned, :created, :skipped, :errors, keyword_init: true) do
+      def to_s
+        "sources=#{sources} scanned=#{scanned} created=#{created} " \
+          "skipped=#{skipped} errors=#{errors}"
+      end
     end
 
-    DEFAULT_FOLDER  = "INBOX"
-    DEFAULT_PORT    = 993
     SEARCH_CRITERIA = %w[UNSEEN].freeze
 
-    def initialize(host: nil, port: nil, ssl: nil, username: nil, password: nil,
-                   folder: nil, expunge: nil)
-      @host     = (host     || ENV["RECEIPT_IMAP_HOST"]).to_s
-      @port     = (port     || ENV["RECEIPT_IMAP_PORT"] || DEFAULT_PORT).to_i
-      @ssl      = ssl.nil?  ? ENV.fetch("RECEIPT_IMAP_SSL", "true") != "false" : !!ssl
-      @username = (username || ENV["RECEIPT_IMAP_USERNAME"]).to_s
-      @password = (password || ENV["RECEIPT_IMAP_PASSWORD"]).to_s
-      @folder   = (folder   || ENV["RECEIPT_IMAP_FOLDER"] || DEFAULT_FOLDER).to_s
-      @expunge  = expunge.nil? ? ENV["RECEIPT_IMAP_EXPUNGE"] == "true" : !!expunge
-    end
-
-    # @return [Result, nil] nil when not configured.
+    # @return [Result]
     def call
-      return nil unless configured?
+      sources = InboundEmailSource.includes(:user, :household).to_a
+      stats   = { sources: sources.size, scanned: 0, created: 0, skipped: 0, errors: 0 }
 
-      scanned = created = skipped = errors = 0
-
-      imap = open_connection
-      begin
-        imap.select(@folder)
-        message_ids = imap.search(SEARCH_CRITERIA)
-
-        message_ids.each do |uid|
-          scanned += 1
-          begin
-            raw   = imap.fetch(uid, "RFC822").first.attr["RFC822"]
-            mail  = Mail.read_from_string(raw)
-            built = process_message(mail)
-            if built.positive?
-              created += built
-              flag_message(imap, uid)
-            else
-              skipped += 1
-            end
-          rescue StandardError => e
-            errors += 1
-            Rails.logger.warn("[InboundReceipts] message uid=#{uid} failed: #{e.class}: #{e.message}")
-          end
-        end
-
-        imap.expunge if @expunge && created.positive?
-      ensure
-        safe_logout(imap)
+      sources.each do |source|
+        drain(source, stats)
       end
 
-      Result.new(scanned: scanned, created: created, skipped: skipped, errors: errors)
+      Result.new(**stats)
     end
 
     private
 
-    def configured?
-      [@host, @username, @password].none?(&:empty?)
+    def drain(source, stats)
+      imap = open_connection(source)
+      begin
+        imap.select(source.folder)
+        uids = imap.search(SEARCH_CRITERIA)
+
+        uids.each do |uid|
+          stats[:scanned] += 1
+          begin
+            raw   = imap.fetch(uid, "RFC822").first.attr["RFC822"]
+            mail  = Mail.read_from_string(raw)
+            built = process_message(mail, source)
+            if built.positive?
+              stats[:created] += built
+              imap.store(uid, "+FLAGS", [:Seen])
+            else
+              stats[:skipped] += 1
+            end
+          rescue StandardError => e
+            stats[:errors] += 1
+            Rails.logger.warn("[InboundReceipts] source=#{source.id} uid=#{uid} " \
+                              "failed: #{e.class}: #{e.message}")
+          end
+        end
+
+        imap.expunge if source.expunge && stats[:created].positive?
+        source.update_columns(last_polled_at: Time.current, last_error: nil)
+      ensure
+        safe_logout(imap)
+      end
+    rescue StandardError => e
+      stats[:errors] += 1
+      source.update_columns(last_polled_at: Time.current,
+                            last_error: "#{e.class}: #{e.message}".first(1000))
+      Rails.logger.warn("[InboundReceipts] source=#{source.id} #{source.label.inspect} " \
+                        "drain failed: #{e.class}: #{e.message}")
     end
 
-    def open_connection
-      Net::IMAP.new(@host, port: @port, ssl: @ssl).tap do |imap|
-        imap.login(@username, @password)
+    def open_connection(source)
+      Net::IMAP.new(source.imap_host, port: source.imap_port, ssl: source.imap_ssl).tap do |imap|
+        imap.login(source.imap_username, source.imap_password)
       end
     end
 
     # @return [Integer] number of receipts created from this message
-    def process_message(mail)
-      sender = Array(mail.from).first.to_s.downcase
-      return 0 if sender.empty?
-
-      user = User.find_by("LOWER(email) = ?", sender)
-      unless user
-        Rails.logger.info("[InboundReceipts] dropping mail from #{sender.inspect} — no matching user")
-        return 0
-      end
-
-      household = user.default_household
-      unless household
-        Rails.logger.info("[InboundReceipts] user #{user.id} has no household — skipping")
-        return 0
-      end
-
+    def process_message(mail, source)
       attachments = supported_attachments(mail)
       return 0 if attachments.empty?
 
       created = 0
       attachments.each do |part|
         Receipt.transaction do
-          receipt = household.receipts.build(user: user, status: "pending")
+          receipt = source.household.receipts.build(user: source.user, status: "pending")
           receipt.image.attach(
             io:           StringIO.new(part.body.decoded),
             filename:     attachment_filename(part),
@@ -141,10 +114,6 @@ module InboundReceipts
 
     def attachment_filename(part)
       part.filename.presence || "receipt-#{SecureRandom.hex(4)}"
-    end
-
-    def flag_message(imap, uid)
-      imap.store(uid, "+FLAGS", [:Seen])
     end
 
     def safe_logout(imap)

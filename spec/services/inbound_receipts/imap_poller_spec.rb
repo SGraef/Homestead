@@ -4,101 +4,111 @@
 require "rails_helper"
 
 RSpec.describe InboundReceipts::ImapPoller do
-  let(:user)      { create(:user, email: "demo@example.com") }
-  let!(:household) { create(:household, admin: user) }
-
-  # Minimal stand-in for Net::IMAP. We don't talk to a real server in
-  # specs; instead we stub `Net::IMAP.new` to return one of these and
-  # record the calls.
+  # A fake the spec installs in place of Net::IMAP. Records calls so we
+  # can assert on the wiring (login args, fetched UIDs, store flags).
   class FakeImap
-    attr_accessor :selected_folder, :stored, :expunged, :logged_out
+    attr_reader :selected_folder, :stored, :expunged, :logged_in_as
     def initialize(messages: {}, search_results: [])
-      @messages = messages       # uid => raw RFC822
+      @messages = messages
       @search   = search_results
       @stored   = []
-      @logged_out = false
+      @expunged = false
     end
-    def login(_user, _pass); end
-    def select(folder)
-      self.selected_folder = folder
-    end
+    def login(user, password); @logged_in_as = [user, password]; end
+    def select(folder); @selected_folder = folder; end
     def search(_criteria) = @search
     def fetch(uid, _attr)
-      data = @messages.fetch(uid)
-      # Wrap the hash in braces so Ruby doesn't mistake `"RFC822" => data`
-      # for keyword args -- Struct.new(:attr).new accepts a positional hash,
-      # not kwargs, on Ruby 3+.
-      [Struct.new(:attr).new({ "RFC822" => data })]
+      [Struct.new(:attr).new({ "RFC822" => @messages.fetch(uid) })]
     end
-    def store(uid, op, flags) = @stored << [uid, op, flags]
-    def expunge = self.expunged = true
-    def logout = self.logged_out = true
+    def store(uid, op, flags); @stored << [uid, op, flags]; end
+    def expunge; @expunged = true; end
+    def logout; end
     def disconnect; end
   end
 
-  let(:env) do
-    {
-      "RECEIPT_IMAP_HOST"     => "imap.example.com",
-      "RECEIPT_IMAP_USERNAME" => "rxpantria",
-      "RECEIPT_IMAP_PASSWORD" => "secret"
-    }
+  let(:owner)         { create(:user, email: "owner@example.com") }
+  let!(:household)    { create(:household, admin: owner) }
+
+  let!(:source) do
+    InboundEmailSource.create!(
+      household:     household,
+      user:          owner,
+      label:         "Personal mailbox",
+      imap_host:     "imap.example.com",
+      imap_username: "receipts@household.tld",
+      imap_password: "shh-very-secret",
+      folder:        "INBOX/Receipts"
+    )
   end
 
-  around do |ex|
-    keep = env.keys.to_h { |k| [k, ENV[k]] }
-    env.each { |k, v| ENV[k] = v }
-    ex.run
-    keep.each { |k, v| ENV[k] = v }
-  end
-
-  def make_mail(from:, body: "hello", files: [])
-    # Build outside the DSL block so `files` (and `attachments` on the
-    # mail itself) don't get shadowed by Mail's own methods.
+  def make_mail(from: "anyone@somewhere.com", file:)
     mail = Mail.new
     mail.from    = from
-    mail.to      = "rxpantria@example.com"
+    mail.to      = "receipts@household.tld"
     mail.subject = "Receipt"
-    mail.body    = body
-    files.each do |f|
-      mail.add_file(filename: f[:name], content: f[:bytes])
-      mail.parts.last.content_type = "#{f[:mime]}; name=\"#{f[:name]}\""
-    end
+    mail.body    = "see attached"
+    mail.add_file(filename: file[:name], content: file[:bytes])
+    mail.parts.last.content_type = "#{file[:mime]}; name=\"#{file[:name]}\""
     mail
   end
 
-  it "creates a Receipt + enqueues OCR for a known sender with a JPEG attachment" do
+  it "selects the source's folder and creates a Receipt for each attachment" do
+    mail = make_mail(file: { name: "rewe.jpg", bytes: "fake-jpg", mime: "image/jpeg" })
+    fake = FakeImap.new(messages: { "1" => mail.encoded }, search_results: ["1"])
+    allow(Net::IMAP).to receive(:new).and_return(fake)
+
+    expect { described_class.new.call }
+      .to change(Receipt, :count).by(1)
+
+    expect(fake.selected_folder).to eq("INBOX/Receipts")
+    expect(fake.logged_in_as).to eq(["receipts@household.tld", "shh-very-secret"])
+    expect(fake.stored).to eq([["1", "+FLAGS", [:Seen]]])
+
+    r = Receipt.last
+    expect(r).to have_attributes(status: "pending", user: owner, household: household)
+  end
+
+  it "credits receipts to the source's user even when the From: address doesn't match a User" do
     mail = make_mail(
-      from: user.email,
-      files: [{ name: "rewe.jpg", bytes: "fake-jpg-bytes", mime: "image/jpeg" }]
+      from: "stranger@somewhere.com",
+      file: { name: "x.png", bytes: "x", mime: "image/png" }
     )
     fake = FakeImap.new(messages: { "1" => mail.encoded }, search_results: ["1"])
     allow(Net::IMAP).to receive(:new).and_return(fake)
 
-    expect {
-      result = described_class.new.call
-      expect(result.scanned).to eq(1)
-      expect(result.created).to eq(1)
-    }.to change(Receipt, :count).by(1)
-     .and have_enqueued_job(ProcessReceiptJob)
+    described_class.new.call
 
-    expect(fake.stored).to eq([["1", "+FLAGS", [:Seen]]])
-    expect(Receipt.last).to have_attributes(status: "pending", household: household, user: user)
+    expect(Receipt.last.user).to eq(owner)
   end
 
-  it "ignores mail from senders without a matching user" do
-    mail = make_mail(
-      from: "stranger@example.com",
-      files: [{ name: "x.png", bytes: "x", mime: "image/png" }]
-    )
-    fake = FakeImap.new(messages: { "9" => mail.encoded }, search_results: ["9"])
+  it "writes last_polled_at on success" do
+    fake = FakeImap.new(messages: {}, search_results: [])
     allow(Net::IMAP).to receive(:new).and_return(fake)
 
-    expect { described_class.new.call }.not_to change(Receipt, :count)
-    expect(fake.stored).to be_empty
+    described_class.new.call
+
+    expect(source.reload.last_polled_at).to be_within(5.seconds).of(Time.current)
+    expect(source.last_error).to be_nil
   end
 
-  it "no-ops when env vars aren't set" do
-    %w[RECEIPT_IMAP_HOST RECEIPT_IMAP_USERNAME RECEIPT_IMAP_PASSWORD].each { |k| ENV[k] = nil }
-    expect(described_class.new.call).to be_nil
+  it "records last_error when the connection blows up and doesn't crash the run" do
+    allow(Net::IMAP).to receive(:new).and_raise(Errno::ECONNREFUSED, "boom")
+
+    result = described_class.new.call
+
+    expect(result.errors).to be >= 1
+    expect(source.reload.last_error).to include("ECONNREFUSED")
+  end
+
+  it "encrypts the password column at rest" do
+    raw = ActiveRecord::Base.connection
+                            .select_value("SELECT imap_password FROM inbound_email_sources WHERE id=#{source.id}")
+    expect(raw).not_to include("shh-very-secret")
+    expect(source.reload.imap_password).to eq("shh-very-secret")
+  end
+
+  it "no-ops cleanly with no sources" do
+    InboundEmailSource.delete_all
+    expect { described_class.new.call }.not_to raise_error
   end
 end

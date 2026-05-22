@@ -89,6 +89,13 @@ Rails.application.routes.draw do
   end
   resources :manual_offers, only: %i[new create edit update destroy], path: "offers/manual"
 
+  # Inbound email sources are scoped to a household; the controller
+  # uses current_household + current_user to gate visibility and edit
+  # rights. Nested under /households to keep the URLs readable.
+  resources :inbound_email_sources,
+            only: %i[index new create edit update destroy],
+            path: "households/inbound_emails"
+
   # Solid Queue dashboard. The mounted engine doesn't run through
   # ApplicationController, so the require-login gate is enforced as a
   # routing constraint instead -- anonymous requests get a 404 (no

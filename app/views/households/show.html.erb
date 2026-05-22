@@ -22,6 +22,10 @@
   <% end %>
   <%= link_to t("common.edit"), edit_household_path(@household),
               class: "btn btn-sm secondary" %>
+  <% if is_current %>
+    <%= link_to t("inbound_email.nav_link"), inbound_email_sources_path,
+                class: "btn btn-sm secondary" %>
+  <% end %>
   <% unless is_admin && @household.memberships.where(role: "admin").count == 1 %>
     <%= button_to t("household.leave"), leave_household_path(@household),
                   method: :delete, class: "btn btn-sm warn",

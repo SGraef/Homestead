@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000025) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000026) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -93,6 +93,26 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000025) do
     t.datetime "updated_at", null: false
     t.string "postal_code", limit: 16
     t.integer "flaschenpost_warehouse_id"
+  end
+
+  create_table "inbound_email_sources", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "user_id", null: false
+    t.string "label", limit: 80, null: false
+    t.string "imap_host", limit: 255, null: false
+    t.integer "imap_port", default: 993, null: false
+    t.boolean "imap_ssl", default: true, null: false
+    t.string "imap_username", limit: 255, null: false
+    t.text "imap_password", null: false
+    t.string "folder", limit: 255, default: "INBOX", null: false
+    t.boolean "expunge", default: false, null: false
+    t.datetime "last_polled_at"
+    t.string "last_error", limit: 1000
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "imap_host", "imap_username", "folder"], name: "idx_inbound_email_sources_unique_per_household", unique: true
+    t.index ["household_id"], name: "index_inbound_email_sources_on_household_id"
+    t.index ["user_id"], name: "index_inbound_email_sources_on_user_id"
   end
 
   create_table "locations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -483,5 +503,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000025) do
   add_foreign_key "storage_items", "households"
   add_foreign_key "storage_items", "locations"
   add_foreign_key "storage_items", "products"
+  add_foreign_key "inbound_email_sources", "households", on_delete: :cascade
+  add_foreign_key "inbound_email_sources", "users", on_delete: :cascade
   add_foreign_key "stores", "households"
 end
