@@ -15,7 +15,14 @@
 class ProcessReceiptJob < ApplicationJob
   MAX_ATTEMPTS = 3
 
-  queue_as :default
+  # Receipt OCR is CPU-bound (tesseract per page) and slow enough that
+  # one job can hog a worker thread for tens of seconds. Pinning it
+  # to a dedicated queue means the worker pool sized for `receipts`
+  # in config/queue.yml (1 thread by default) caps concurrent OCR
+  # runs, while the `default` queue keeps draining fast recurring
+  # stuff (Bring sync, IMAP poll, offer sync) without head-of-line
+  # blocking from a long-running scan.
+  queue_as :receipts
 
   retry_on StandardError, attempts: MAX_ATTEMPTS, wait: :polynomially_longer
   # Row was deleted between enqueue and execution -- nothing to retry.
