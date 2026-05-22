@@ -12,8 +12,14 @@ class StorageItemsController < ApplicationController
     @location = lookup_location(params[:location_id])
     scope     = scope.where(location: @location) if @location
 
+    @query = params[:q].to_s.strip
+    scope  = filter_by_query(scope, @query) if @query.present?
+
     @items     = scope.order(:expires_on)
     @expiring  = @items.expiring_within(7)
+    # Counts are unfiltered by `q` on purpose -- the chips are a
+    # navigation aid, and dimming them based on the current search
+    # would make a missed-match feel like a missing location.
     @counts    = current_household.storage_items.group(:location_id).count
     @counts.default = 0
     @locations = current_household.locations.ordered
@@ -140,6 +146,16 @@ class StorageItemsController < ApplicationController
   end
 
   private
+
+  # Substring match against product name OR brand. The products table
+  # is utf8mb4_0900_ai_ci, so the LIKE is already case- and
+  # accent-insensitive at the collation level -- no need to lowercase
+  # or strip diacritics ourselves.
+  def filter_by_query(scope, query)
+    needle = "%#{ActiveRecord::Base.sanitize_sql_like(query)}%"
+    scope.joins(:product)
+         .where("products.name LIKE :n OR products.brand LIKE :n", n: needle)
+  end
 
   def redirect_filter
     @location ? { location_id: @location.id } : {}

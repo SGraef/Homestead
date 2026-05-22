@@ -61,6 +61,18 @@
               class: "btn btn-sm secondary" %>
 </div>
 
+<%= form_with url: freezer_path, method: :get, local: true,
+              html: { style: "display:flex;gap:var(--sp-2);margin-bottom:var(--sp-3)" } do |f| %>
+  <%= text_field_tag :q, @query,
+                     placeholder: t("freezer.search_placeholder"),
+                     style: "flex:1;max-width:24rem",
+                     autocomplete: "off" %>
+  <%= submit_tag t("common.search"), class: "btn btn-sm" %>
+  <% if @query.present? %>
+    <%= link_to t("common.clear"), freezer_path, class: "btn btn-sm tertiary" %>
+  <% end %>
+<% end %>
+
 <% if @items.any? %>
   <table>
     <thead>

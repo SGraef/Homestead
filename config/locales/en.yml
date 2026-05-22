@@ -44,6 +44,8 @@ en:
     none: "—"
     yes: "Yes"
     no: "No"
+    search: "Search"
+    clear: "Clear"
 
   nav:
     storage: "Storage"
@@ -434,6 +436,7 @@ en:
     add_homemade_help: "Record a meal or sauce that has no barcode — it lands as an entry in your freezer."
     add_bought:        "Add a bought item"
     homemade_label:    "Homemade"
+    search_placeholder: "Search freezer by name or brand…"
     empty:             "Nothing in the freezer yet."
     days:
       one:   "1 day"
@@ -459,6 +462,7 @@ en:
   storage:
     title:        "Storage"
     add_item:     "Add item"
+    search_placeholder: "Search products by name or brand…"
     expiring_within_days: "Expiring within the next %{days} days"
     expiring_soon_html:
       one:   "<strong>1</strong> item expires in the next %{days} days."

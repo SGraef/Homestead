@@ -50,6 +50,8 @@ de:
     none: "—"
     yes: "Ja"
     no: "Nein"
+    search: "Suchen"
+    clear: "Zurücksetzen"
 
   nav:
     storage: "Vorrat"
@@ -432,6 +434,7 @@ de:
     add_homemade_help: "Lege eine Mahlzeit oder Soße ohne Barcode an — landet als Eintrag in deinem Tiefkühler."
     add_bought:      "Gekauften Artikel hinzufügen"
     homemade_label:  "Selbstgemacht"
+    search_placeholder: "Tiefkühler nach Name oder Marke durchsuchen…"
     empty:           "Noch nichts im Tiefkühler."
     days:
       one:   "1 Tag"
@@ -457,6 +460,7 @@ de:
   storage:
     title:        "Vorrat"
     add_item:     "Eintrag hinzufügen"
+    search_placeholder: "Vorrat nach Name oder Marke durchsuchen…"
     expiring_within_days: "Läuft in den nächsten %{days} Tagen ab"
     expiring_soon_html:
       one:   "<strong>1</strong> Eintrag läuft in den nächsten %{days} Tagen ab."

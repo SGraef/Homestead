@@ -6,18 +6,35 @@
 </p>
 
 <%# Location filter chips. "Alle" clears, the rest scope the table. Each
-    chip shows the live count from @counts. %>
-<div style="display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-bottom:var(--sp-4)">
+    chip shows the live count from @counts. Chip links preserve the
+    active search so the user can flip locations without retyping. %>
+<div style="display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-bottom:var(--sp-3)">
   <%= link_to t("storage.filter.all"),
-              storage_items_path,
+              storage_items_path(q: @query.presence),
               class: ("chip #{'chip-active' if @location.nil?}").strip %>
   <% @locations.each do |loc| %>
     <% next if @counts[loc.id].zero? && @location&.id != loc.id %>
     <%= link_to "#{loc.name} (#{@counts[loc.id]})",
-                storage_items_path(location_id: loc.id),
+                storage_items_path(location_id: loc.id, q: @query.presence),
                 class: ("chip #{'chip-active' if @location&.id == loc.id}").strip %>
   <% end %>
 </div>
+
+<%= form_with url: storage_items_path, method: :get, local: true,
+              html: { style: "display:flex;gap:var(--sp-2);margin-bottom:var(--sp-4)" } do |f| %>
+  <%# Keep the active location chip when submitting search. %>
+  <%= hidden_field_tag :location_id, @location&.id if @location %>
+  <%= text_field_tag :q, @query,
+                     placeholder: t("storage.search_placeholder"),
+                     style: "flex:1;max-width:24rem",
+                     autocomplete: "off" %>
+  <%= submit_tag t("common.search"), class: "btn btn-sm" %>
+  <% if @query.present? %>
+    <%= link_to t("common.clear"),
+                storage_items_path(location_id: @location&.id),
+                class: "btn btn-sm tertiary" %>
+  <% end %>
+<% end %>
 
 <% if @expiring.any? %>
   <div class="card card-warn">

@@ -15,10 +15,19 @@ class FreezerController < ApplicationController
   def show
     # Qualify columns -- `freezer_items` joins `locations` (also has its
     # own `created_at`), so a bare `created_at` is ambiguous to MySQL.
-    @items = current_household.freezer_items
-                              .order(Arel.sql(
-                                "COALESCE(storage_items.frozen_on, DATE(storage_items.created_at)) ASC"
-                              ))
+    scope = current_household.freezer_items
+                             .order(Arel.sql(
+                               "COALESCE(storage_items.frozen_on, DATE(storage_items.created_at)) ASC"
+                             ))
+
+    @query = params[:q].to_s.strip
+    if @query.present?
+      needle = "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%"
+      scope  = scope.where("products.name LIKE :n OR products.brand LIKE :n", n: needle)
+                    .references(:products)
+    end
+
+    @items = scope
     @stale = current_household.stale_freezer_items
     @stale_threshold_days = StorageItem::STALE_FREEZER_DAYS
   end
