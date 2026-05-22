@@ -15,6 +15,15 @@ default: &default
     queue: default
     description: "Pull current Marktguru offers for every household with a postcode."
 
+  poll_inbound_receipts:
+    class: PollInboundReceiptsJob
+    # Forwarding-via-email cadence -- short enough that uploads feel
+    # snappy, long enough not to hammer the IMAP server. No-ops when
+    # RECEIPT_IMAP_* env vars aren't configured.
+    schedule: every 5 minutes
+    queue: default
+    description: "Drain the configured IMAP mailbox into pending receipts."
+
 development:
   <<: *default
 
