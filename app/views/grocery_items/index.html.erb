@@ -41,8 +41,22 @@
   </thead>
   <tbody>
     <% @items.each do |i| %>
+      <% offer = @best_offer_by_product[i.product_id] %>
       <tr id="grocery_item_<%= i.id %>">
-        <td><%= i.product.name %></td>
+        <td>
+          <%= i.product.name %>
+          <% if offer %>
+            <%= link_to offers_path(anchor: "offer-#{offer.id}"),
+                        class: "chip success",
+                        title: t("grocery.offer_match.tooltip",
+                                 retailer: offer.retailer_name,
+                                 until: l(offer.valid_until)) do %>
+              <%= t("grocery.offer_match.label",
+                    price: number_to_currency(offer.price_cents / 100.0, unit: offer.currency),
+                    retailer: offer.retailer_name) %>
+            <% end %>
+          <% end %>
+        </td>
         <td><%= i.quantity %> <%= t("product.units.#{i.product.unit}", default: i.product.unit) %></td>
         <td><span class="pill <%= 'warn' if i.status == 'needed' %>">
           <%= t("grocery.statuses.#{i.status}", default: i.status) %>

@@ -513,6 +513,9 @@ de:
     purchased:        "Als gekauft markiert."
     scan_unknown:     "Barcode %{code} entspricht keinem Produkt."
     mark_purchased:   "Als gekauft markieren"
+    offer_match:
+      label:          "%{price} @ %{retailer}"
+      tooltip:        "Im Angebot bei %{retailer} bis %{until} — klicken für Details."
     table:
       product:  "Produkt"
       quantity: "Menge"

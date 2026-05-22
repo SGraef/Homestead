@@ -515,6 +515,9 @@ en:
     purchased:        "Marked as purchased."
     scan_unknown:     "Barcode %{code} did not match any product."
     mark_purchased:   "Mark purchased"
+    offer_match:
+      label:          "%{price} @ %{retailer}"
+      tooltip:        "On offer at %{retailer} until %{until} — click for details."
     table:
       product:  "Product"
       quantity: "Qty"

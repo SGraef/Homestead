@@ -13,6 +13,7 @@ class GroceryItemsController < ApplicationController
 
     @items = scope.order(status: :asc, created_at: :desc)
     @purchased_count = current_household.grocery_items.where(status: "purchased").count
+    @best_offer_by_product = best_offers_for(@items)
   end
 
   def show
@@ -112,5 +113,21 @@ class GroceryItemsController < ApplicationController
 
   def item_params
     params.require(:grocery_item).permit(:product_id, :store_id, :quantity, :status)
+  end
+
+  # Build { product_id => cheapest current Offer } for the displayed
+  # rows so the view can flag rows that have a matching offer without
+  # an N+1. Picks the lowest price_cents per product across all
+  # retailers; ties broken by earliest valid_until.
+  def best_offers_for(items)
+    product_ids = items.map(&:product_id).uniq.compact
+    return {} if product_ids.empty?
+
+    current_household.offers.current
+                     .where(product_id: product_ids)
+                     .order(:price_cents, :valid_until)
+                     .each_with_object({}) do |o, acc|
+      acc[o.product_id] ||= o
+    end
   end
 end
