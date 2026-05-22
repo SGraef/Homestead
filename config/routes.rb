@@ -138,6 +138,17 @@ Rails.application.routes.draw do
           post :reprocess
         end
       end
+
+      # POST /api/v1/inbound_emails/poll          — drain all sources owned by the caller
+      # POST /api/v1/inbound_emails/:id/poll      — drain one specific source
+      # GET  /api/v1/inbound_emails                — list caller's sources + their health
+      # Intended for external triggers (n8n, Home Assistant, anything
+      # with an HTTP request node) — see Bearer token setup in
+      # API docs / ApiToken model.
+      resources :inbound_emails, only: %i[index], controller: "inbound_emails" do
+        collection { post :poll }
+        member     { post :poll }
+      end
     end
   end
 

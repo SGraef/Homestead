@@ -26,15 +26,18 @@ module InboundReceipts
 
     SEARCH_CRITERIA = %w[UNSEEN].freeze
 
+    # Drain every configured source.
     # @return [Result]
     def call
-      sources = InboundEmailSource.includes(:user, :household).to_a
-      stats   = { sources: sources.size, scanned: 0, created: 0, skipped: 0, errors: 0 }
+      call_for(InboundEmailSource.includes(:user, :household).to_a)
+    end
 
-      sources.each do |source|
-        drain(source, stats)
-      end
-
+    # Drain a specific subset (used by the API trigger).
+    # @param sources [Array<InboundEmailSource>]
+    # @return [Result]
+    def call_for(sources)
+      stats = { sources: sources.size, scanned: 0, created: 0, skipped: 0, errors: 0 }
+      sources.each { |s| drain(s, stats) }
       Result.new(**stats)
     end
 

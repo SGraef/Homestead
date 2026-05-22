@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 # typed: false
 
-# Recurring job that drains the configured IMAP mailbox into Receipt rows.
-# Wired up in config/recurring.yml; no-ops when IMAP isn't configured so
-# the schedule can stay enabled in environments that don't use it.
+# Drains inbound mailboxes into Receipt rows.
+#
+# Two callers:
+# * config/recurring.yml fires this every 5 minutes with no args -> all
+#   configured sources are drained.
+# * Api::V1::InboundEmailsController#poll enqueues this with
+#   `source_id:` when called with `X-Async: 1` -> only that one source.
 class PollInboundReceiptsJob < ApplicationJob
   queue_as :default
 
@@ -12,10 +16,21 @@ class PollInboundReceiptsJob < ApplicationJob
   # stack jobs while the IMAP server is unreachable.
   discard_on ActiveJob::DeserializationError
 
-  def perform
-    result = InboundReceipts::ImapPoller.new.call
-    return if result.nil? # not configured
+  # @param source_id [Integer, nil] when given, drain only that one
+  #   InboundEmailSource; otherwise drain all of them.
+  def perform(source_id: nil)
+    poller = InboundReceipts::ImapPoller.new
+    result =
+      if source_id
+        source = InboundEmailSource.find_by(id: source_id)
+        return unless source
 
+        poller.call_for([source])
+      else
+        poller.call
+      end
+
+    return if result.nil?
     if result.created.positive? || result.errors.positive?
       Rails.logger.info("[InboundReceipts] #{result}")
     end
