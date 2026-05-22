@@ -89,4 +89,22 @@
   <Config Name="SMTP_STARTTLS" Target="SMTP_STARTTLS" Default="true" Mode="" Description="Set to 'false' for implicit-TLS (port 465) or unencrypted SMTP." Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
 
   <Config Name="TZ" Target="TZ" Default="Europe/Berlin" Mode="" Description="Container timezone. Affects log timestamps and scheduled-job firing times." Type="Variable" Display="advanced" Required="false" Mask="false">Europe/Berlin</Config>
+
+  <Config Name="RECEIPT_IMAP_HOST" Target="RECEIPT_IMAP_HOST" Default="" Mode="" Description="IMAP hostname for forwarding receipts via email. Leave empty to disable the inbound mailbox poller." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+
+  <Config Name="RECEIPT_IMAP_PORT" Target="RECEIPT_IMAP_PORT" Default="993" Mode="" Description="IMAP port (993 = implicit TLS, 143 = STARTTLS)." Type="Variable" Display="advanced" Required="false" Mask="false">993</Config>
+
+  <Config Name="RECEIPT_IMAP_SSL" Target="RECEIPT_IMAP_SSL" Default="true" Mode="" Description="Use TLS on connect. Set to 'false' only for plain IMAP (port 143)." Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+
+  <Config Name="RECEIPT_IMAP_USERNAME" Target="RECEIPT_IMAP_USERNAME" Default="" Mode="" Description="IMAP login. Forward receipts to this mailbox from an email address registered with Pantria; matching User -> default_household decides ownership." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+
+  <Config Name="RECEIPT_IMAP_PASSWORD" Target="RECEIPT_IMAP_PASSWORD" Default="" Mode="" Description="IMAP password / app token." Type="Variable" Display="advanced" Required="false" Mask="true"/>
+
+  <Config Name="RECEIPT_IMAP_FOLDER" Target="RECEIPT_IMAP_FOLDER" Default="INBOX" Mode="" Description="Folder to scan. Leave at INBOX unless you've set up a server-side filter that moves forwarded receipts elsewhere." Type="Variable" Display="advanced" Required="false" Mask="false">INBOX</Config>
+
+  <Config Name="RECEIPT_IMAP_EXPUNGE" Target="RECEIPT_IMAP_EXPUNGE" Default="false" Mode="" Description="Set to 'true' to permanently delete processed mail. Default 'false' just marks it Seen." Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+
+  <Config Name="FLASCHENPOST_WAREHOUSE_ID" Target="FLASCHENPOST_WAREHOUSE_ID" Default="" Mode="" Description="Numeric warehouse_id served by Flaschenpost for your delivery ZIP. Find it via browser devtools (Network tab) while loading a Flaschenpost category page -- look for /php-product-api/.../warehouse/&lt;N&gt;/. Leave empty to disable the Flaschenpost source." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+
+  <Config Name="FLASCHENPOST_MAX_PRODUCTS" Target="FLASCHENPOST_MAX_PRODUCTS" Default="200" Mode="" Description="Hard cap on how many sitemap entries the daily Flaschenpost sync resolves into product IDs. Raise once you've confirmed warehouse_id is right; lowering keeps the daily run snappy." Type="Variable" Display="advanced" Required="false" Mask="false">200</Config>
 </Container>
