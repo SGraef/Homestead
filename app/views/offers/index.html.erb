@@ -200,37 +200,36 @@
   </summary>
   <p class="caption"><%= t("offer.retailer_filter.intro") %></p>
 
-  <% rfilters = current_household.offer_retailer_filters.ordered %>
-  <% if rfilters.any? %>
-    <ul style="list-style:none;padding:0">
-      <% rfilters.each do |f| %>
-        <li class="card card-flat" style="margin-bottom:var(--sp-1);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--sp-2)">
-          <code><%= f.retailer %></code>
-          <%= button_to t("offer.retailer_filter.remove"),
-                        offer_retailer_filter_path(f),
-                        method: :delete, class: "btn btn-sm secondary",
-                        form: { style: "display:inline" } %>
-        </li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p class="caption"><%= t("offer.retailer_filter.empty") %></p>
-  <% end %>
+  <%
+    # Union of (already-stored offer retailers) and (retailers in the
+    # allow-list but not currently surfacing offers) so a user who
+    # pre-selected something gone from the feed still sees it ticked.
+    known_retailers = current_household.offers.distinct.pluck(:retailer_name).compact
+    selected_set    = current_household.offer_retailer_filters.pluck(:retailer).to_set
+    options         = (known_retailers + selected_set.to_a).uniq.sort_by(&:downcase)
+  %>
 
-  <%= form_with url: offer_retailer_filters_path, local: true,
-                style: "display:flex;gap:var(--sp-1);flex-wrap:wrap;align-items:flex-end;margin-top:var(--sp-2)" do |f| %>
-    <span style="flex:1 1 12rem">
-      <%= label_tag "filter[retailer]", t("offer.retailer_filter.label") %><br>
-      <%= text_field_tag "filter[retailer]", nil,
-                         placeholder: t("offer.retailer_filter.placeholder"),
-                         required: true, list: "known-retailers", style: "width:100%" %>
-      <datalist id="known-retailers">
-        <% current_household.offers.distinct.pluck(:retailer_name).compact.sort.each do |name| %>
-          <option value="<%= name %>"></option>
+  <% if options.empty? %>
+    <p class="caption"><%= t("offer.retailer_filter.no_known") %></p>
+  <% else %>
+    <%= form_with url: bulk_offer_retailer_filters_path, method: :put, local: true do %>
+      <%# Always send at least the empty marker so an unchecked-everything
+          submission still clears the allow-list (without this, the
+          `retailers[]` param would be missing entirely). %>
+      <%= hidden_field_tag "retailers[]", "" %>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));gap:var(--sp-1);margin:var(--sp-2) 0">
+        <% options.each do |name| %>
+          <label class="card card-flat" style="display:flex;gap:var(--sp-2);align-items:center;padding:var(--sp-1) var(--sp-2);margin:0;cursor:pointer">
+            <%= check_box_tag "retailers[]", name, selected_set.include?(name) %>
+            <span><%= name %></span>
+          </label>
         <% end %>
-      </datalist>
-    </span>
-    <%= f.submit t("offer.retailer_filter.add"), class: "btn btn-sm" %>
+      </div>
+
+      <p class="caption"><%= t("offer.retailer_filter.bulk_hint") %></p>
+      <%= submit_tag t("offer.retailer_filter.save"), class: "btn btn-sm" %>
+    <% end %>
   <% end %>
 </details>
 

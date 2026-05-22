@@ -236,13 +236,17 @@ de:
 
     retailer_filter:
       title:                "Händler"
-      intro:                "Beschränke die Angebote auf bestimmte Händler (REWE, Lidl, Edeka, …). Leere Liste = alle Händler aus den konfigurierten Branchen werden geladen."
+      intro:                "Wähle die Händler, von denen du Angebote sehen willst. Nichts ausgewählt = alle Händler, die der Sync findet."
       empty:                "Kein Filter gesetzt — Angebote aller Händler aus den konfigurierten Branchen werden geladen."
       empty_input:          "Händler darf nicht leer sein."
+      no_known:             "Noch keine Händler bekannt. Starte einen Sync, dann erscheinen sie hier."
       label:                "Händler (Name oder Marktguru-Slug)"
       placeholder:          "REWE"
       add:                  "Hinzufügen"
       remove:               "Entfernen"
+      save:                 "Auswahl speichern"
+      bulk_hint:            "Alle Häkchen entfernen = wieder 'alle Händler'."
+      bulk_saved:           "Händler-Auswahl gespeichert (%{count} aktiv). %{removed} Angebot(e) außerhalb der neuen Auswahl wurden ausgeblendet."
       added:                "Es werden nur noch Angebote von '%{retailer}' (und ggf. weiteren) geladen. %{removed} nicht passende Angebot(e) ausgeblendet."
       removed:              "'%{retailer}' aus Händler-Filter entfernt."
       count:

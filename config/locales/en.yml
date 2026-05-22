@@ -238,13 +238,17 @@ en:
 
     retailer_filter:
       title:                "Retailers"
-      intro:                "Limit the offer feed to specific retailers (REWE, Lidl, Edeka, …). Empty list = include every retailer the syncer finds."
+      intro:                "Tick the retailers you want offers from. Nothing ticked = every retailer the syncer finds."
       empty:                "No filter set — offers from every retailer in the configured industries are pulled."
       empty_input:          "Retailer can't be blank."
+      no_known:             "No retailers seen yet. Run a sync first, then come back to pick from the list."
       label:                "Retailer (name or Marktguru slug)"
       placeholder:          "REWE"
       add:                  "Add"
       remove:               "Remove"
+      save:                 "Save selection"
+      bulk_hint:            "Untick everything to go back to 'all retailers'."
+      bulk_saved:           "Retailer selection saved (%{count} active). %{removed} offer(s) outside the new selection were hidden."
       added:                "Now only pulling offers from '%{retailer}' (and any others in your list). %{removed} non-matching offer(s) hidden."
       removed:              "'%{retailer}' removed from the retailer filter."
       count:

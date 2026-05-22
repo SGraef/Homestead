@@ -37,6 +37,35 @@ class OfferRetailerFiltersController < ApplicationController
                 notice: t("offer.retailer_filter.removed", retailer: entry.retailer)
   end
 
+  # PUT /offers/retailers/bulk
+  # Replace the entire allow-list with the submitted set. Used by the
+  # multi-select checkbox form on /offers. An empty submission clears
+  # the allow-list and returns the household to "all retailers".
+  def bulk
+    incoming = Array(params[:retailers]).map { |r| r.to_s.strip }.uniq.reject(&:empty?)
+
+    OfferRetailerFilter.transaction do
+      current_set = current_household.offer_retailer_filters.pluck(:retailer)
+      to_delete   = current_set - incoming
+      to_create   = incoming    - current_set
+
+      if to_delete.any?
+        current_household.offer_retailer_filters
+                         .where(retailer: to_delete).delete_all
+      end
+      to_create.each do |r|
+        current_household.offer_retailer_filters.create!(retailer: r)
+      end
+    end
+
+    removed = prune_offers_outside_allowlist
+    redirect_to offers_path,
+                notice: t("offer.retailer_filter.bulk_saved",
+                          count: incoming.size, removed: removed)
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to offers_path, alert: e.message
+  end
+
   private
 
   def ensure_household

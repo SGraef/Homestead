@@ -76,7 +76,12 @@ Rails.application.routes.draw do
     post :add_to_list, on: :member
   end
   resources :offer_blocklist_entries, only: %i[create destroy], path: "offers/blocklist"
-  resources :offer_retailer_filters,  only: %i[create destroy], path: "offers/retailers"
+  resources :offer_retailer_filters,  only: %i[create destroy], path: "offers/retailers" do
+    # Bulk-replace endpoint for the multi-select checkbox form on
+    # /offers. Submitting the form sends the full intended allow-list;
+    # the controller diffs against the current rows in one request.
+    collection { put :bulk }
+  end
   resources :offer_watchlist_entries, only: %i[create destroy], path: "offers/watchlist"
   resources :offer_categories, only: %i[index create update destroy], path: "offers/categories" do
     post :reset_defaults, on: :collection
