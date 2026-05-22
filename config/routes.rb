@@ -19,6 +19,14 @@ Rails.application.routes.draw do
   # --- Web (Hotwire / ERB) --------------------------------------------------
   root to: "dashboard#index"
 
+  # Declared above `resources :households` so the literal path
+  # /households/inbound_emails wins against the dynamic
+  # /households/:id pattern that would otherwise try to look up a
+  # Household with id="inbound_emails" and 404.
+  resources :inbound_email_sources,
+            only: %i[index new create edit update destroy],
+            path: "households/inbound_emails"
+
   resources :households, only: %i[index show new create edit update destroy] do
     member do
       post :switch       # set session[:household_id] and use this household
@@ -88,13 +96,6 @@ Rails.application.routes.draw do
     resources :offer_category_keywords, only: %i[create destroy], path: "keywords"
   end
   resources :manual_offers, only: %i[new create edit update destroy], path: "offers/manual"
-
-  # Inbound email sources are scoped to a household; the controller
-  # uses current_household + current_user to gate visibility and edit
-  # rights. Nested under /households to keep the URLs readable.
-  resources :inbound_email_sources,
-            only: %i[index new create edit update destroy],
-            path: "households/inbound_emails"
 
   # Solid Queue dashboard. The mounted engine doesn't run through
   # ApplicationController, so the require-login gate is enforced as a
