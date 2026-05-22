@@ -18,6 +18,11 @@ module ReceiptScanner
       DEFAULT_LANG = ENV.fetch("OCR_LANG", "eng+deu")
       DEFAULT_PSM  = ENV.fetch("OCR_PSM",  "6")
       PDF_DPI      = ENV.fetch("OCR_PDF_DPI", "200").to_i
+      # Tesseract uses OpenMP internally and by default spawns one
+      # worker per available core, which can pin every CPU on a small
+      # box during a scan. Cap it via OMP_THREAD_LIMIT, configurable
+      # so beefy hosts can opt back into parallelism.
+      THREAD_LIMIT = ENV.fetch("OCR_THREAD_LIMIT", "2")
 
       def initialize(lang: DEFAULT_LANG, psm: DEFAULT_PSM, pdf_dpi: PDF_DPI)
         @lang    = lang
@@ -37,6 +42,13 @@ module ReceiptScanner
 
       private
 
+      # Env passed to every OCR subprocess. OMP_THREAD_LIMIT caps the
+      # OpenMP pool tesseract spawns. OMP_DYNAMIC=FALSE stops the
+      # runtime from re-expanding the pool past the limit under load.
+      def ocr_env
+        { "OMP_THREAD_LIMIT" => THREAD_LIMIT.to_s, "OMP_DYNAMIC" => "FALSE" }
+      end
+
       # Detect by file magic rather than extension so misnamed uploads still
       # take the right branch.
       def pdf?(path)
@@ -47,6 +59,7 @@ module ReceiptScanner
 
       def run_tesseract(image_path)
         out, err, status = Open3.capture3(
+          ocr_env,
           "tesseract", image_path, "stdout", "-l", @lang, "--psm", @psm
         )
         unless status.success?
@@ -71,6 +84,7 @@ module ReceiptScanner
 
       def rasterize_pdf!(pdf_path, prefix)
         out, err, status = Open3.capture3(
+          ocr_env,
           "pdftoppm", "-r", @pdf_dpi.to_s, "-png", pdf_path, prefix
         )
         return if status.success?

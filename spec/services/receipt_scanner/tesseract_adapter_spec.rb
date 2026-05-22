@@ -10,12 +10,16 @@ RSpec.describe ReceiptScanner::Adapters::Tesseract do
     let(:tmp) { Dir.mktmpdir("ocr-test") }
     after    { FileUtils.remove_entry(tmp) }
 
+    # OCR subprocesses now take an env hash as the first arg (capping
+    # OpenMP threads). Matchers below ignore the env, just check the
+    # command + args.
+
     it "shells out to tesseract for an image" do
       img_path = File.join(tmp, "img.png")
       File.binwrite(img_path, "\x89PNG\r\n\x1a\nfake")
 
       allow(Open3).to receive(:capture3)
-        .with("tesseract", img_path, "stdout", "-l", anything, "--psm", anything)
+        .with(kind_of(Hash), "tesseract", img_path, "stdout", "-l", anything, "--psm", anything)
         .and_return(["raw image text", "", instance_double(Process::Status, success?: true, exitstatus: 0)])
 
       expect(adapter.extract_text(img_path)).to eq("raw image text")
@@ -26,15 +30,16 @@ RSpec.describe ReceiptScanner::Adapters::Tesseract do
       File.binwrite(pdf_path, "%PDF-1.4\n%%EOF")
 
       allow(Open3).to receive(:capture3) do |*args|
-        case args[0]
+        # First arg is the env hash; the command and its args follow.
+        _env, cmd, *rest = args
+        case cmd
         when "pdftoppm"
-          # Simulate pdftoppm dropping two PNGs in the work dir.
-          prefix = args.last
+          prefix = rest.last
           File.write("#{prefix}-1.png", "x")
           File.write("#{prefix}-2.png", "y")
           ["", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
         when "tesseract"
-          page = args[1]
+          page = rest[0]
           ["text from #{File.basename(page)}", "",
            instance_double(Process::Status, success?: true, exitstatus: 0)]
         end
@@ -51,11 +56,26 @@ RSpec.describe ReceiptScanner::Adapters::Tesseract do
       File.binwrite(pdf_path, "%PDF-1.4\nbroken")
 
       allow(Open3).to receive(:capture3)
-        .with("pdftoppm", any_args)
+        .with(kind_of(Hash), "pdftoppm", any_args)
         .and_return(["", "fatal: not a real PDF", instance_double(Process::Status, success?: false, exitstatus: 1)])
 
       expect { adapter.extract_text(pdf_path) }
         .to raise_error(ReceiptScanner::OcrError, /pdftoppm failed/)
+    end
+
+    it "caps OpenMP threads when calling tesseract" do
+      img_path = File.join(tmp, "img.png")
+      File.binwrite(img_path, "\x89PNG\r\n\x1a\nfake")
+
+      captured_env = nil
+      allow(Open3).to receive(:capture3) do |env, *_args|
+        captured_env = env
+        ["text", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+      end
+
+      adapter.extract_text(img_path)
+      expect(captured_env).to include("OMP_THREAD_LIMIT", "OMP_DYNAMIC")
+      expect(captured_env["OMP_THREAD_LIMIT"]).to match(/\A\d+\z/)
     end
   end
 end

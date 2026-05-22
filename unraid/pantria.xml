@@ -70,6 +70,8 @@
 
   <Config Name="SOLID_QUEUE_DISABLE" Target="SOLID_QUEUE_DISABLE" Default="0" Mode="" Description="Solid Queue (background workers + recurring schedule) starts alongside Puma by default in this container. Set to '1' only if you run a dedicated worker container against the same DB." Type="Variable" Display="advanced" Required="false" Mask="false">0</Config>
 
+  <Config Name="OCR_THREAD_LIMIT" Target="OCR_THREAD_LIMIT" Default="2" Mode="" Description="Cap on cores tesseract may use per receipt scan (OMP_THREAD_LIMIT). Default 2 stops a single OCR job from pinning every CPU on the host. Bump on a beefy box; drop to 1 on a small one." Type="Variable" Display="advanced" Required="false" Mask="false">2</Config>
+
   <Config Name="RAILS_LOG_LEVEL" Target="RAILS_LOG_LEVEL" Default="info" Mode="" Description="One of: debug, info, warn, error, fatal. Stay on info unless you're chasing a bug -- debug is very chatty." Type="Variable" Display="advanced" Required="false" Mask="false">info</Config>
 
   <Config Name="RAILS_MAX_THREADS" Target="RAILS_MAX_THREADS" Default="5" Mode="" Description="Puma threads per worker AND ActiveRecord pool size. Bump together if you raise WEB_CONCURRENCY." Type="Variable" Display="advanced" Required="false" Mask="false">5</Config>
