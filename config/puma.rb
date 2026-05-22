@@ -18,7 +18,7 @@ end
 
 plugin :tmp_restart
 
-# Run Solid Queue in-process when this Puma is the only Pantria process
-# on the host (single-container deployments like the Unraid template).
-# Multi-host setups should leave this off and start `bin/jobs` separately.
-plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"] == "1"
+# Solid Queue is started as an explicit background process from
+# bin/docker-entrypoint (rather than via `plugin :solid_queue`) so
+# worker crashes are visible in container logs instead of swallowed
+# by Puma's plugin runtime.

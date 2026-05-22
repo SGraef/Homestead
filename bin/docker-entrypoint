@@ -7,4 +7,21 @@ if [ "${RAILS_RUN_DB_PREPARE:-1}" = "1" ]; then
   bundle exec rails db:prepare
 fi
 
+# Start Solid Queue alongside the web process unless explicitly
+# disabled (set SOLID_QUEUE_DISABLE=1 only when you run a separate
+# worker container against the same DB).
+#
+# We start it as an explicit background process rather than via Puma's
+# `plugin :solid_queue` so the worker is visible in `ps`, its output
+# interleaves with Puma's stdout, and crashes are immediately obvious
+# from `docker logs` -- the plugin path made worker failures silent
+# and was the most likely culprit for jobs sitting in "pending".
+if [ "${SOLID_QUEUE_DISABLE:-0}" != "1" ]; then
+  echo "[entrypoint] starting Solid Queue worker"
+  bundle exec rake solid_queue:start &
+  SOLID_QUEUE_PID=$!
+  # Forward SIGTERM/SIGINT to the worker so `docker stop` is clean.
+  trap 'kill -TERM "$SOLID_QUEUE_PID" 2>/dev/null || true' TERM INT
+fi
+
 exec "$@"

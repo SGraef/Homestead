@@ -68,7 +68,7 @@
 
   <Config Name="SECRET_KEY_BASE" Target="SECRET_KEY_BASE" Default="" Mode="" Description="Optional. Falls back to credentials if unset. Generate with `ruby -rsecurerandom -e 'puts SecureRandom.hex(64)'`." Type="Variable" Display="advanced" Required="false" Mask="true"/>
 
-  <Config Name="SOLID_QUEUE_IN_PUMA" Target="SOLID_QUEUE_IN_PUMA" Default="1" Mode="" Description="Run background workers in-process inside Puma. Leave on for single-container deployments; turn off (set to 0) only if you run a separate worker container." Type="Variable" Display="advanced" Required="false" Mask="false">1</Config>
+  <Config Name="SOLID_QUEUE_DISABLE" Target="SOLID_QUEUE_DISABLE" Default="0" Mode="" Description="Solid Queue (background workers + recurring schedule) starts alongside Puma by default in this container. Set to '1' only if you run a dedicated worker container against the same DB." Type="Variable" Display="advanced" Required="false" Mask="false">0</Config>
 
   <Config Name="RAILS_LOG_LEVEL" Target="RAILS_LOG_LEVEL" Default="info" Mode="" Description="One of: debug, info, warn, error, fatal. Stay on info unless you're chasing a bug -- debug is very chatty." Type="Variable" Display="advanced" Required="false" Mask="false">info</Config>
 
