@@ -42,4 +42,28 @@ RSpec.describe Price, "normalized per-unit pricing" do
     expect(p.amount_per_normalized_unit).to eq(BigDecimal("0.5"))
     expect(p.normalized_unit).to eq("piece")
   end
+
+  it "divides by pack_quantity so a 500 g pack reports per-kg" do
+    product = create(:product, household: household, unit: "kg")
+    p = create(:price, product: product, store: store,
+                       amount_cents: 249, pack_quantity: 0.5)
+    # €2.49 for 0.5 kg -> €4.98 / kg
+    expect(p.amount_per_normalized_unit).to eq(BigDecimal("4.98"))
+  end
+
+  it "divides 6-pack pricing into per-piece" do
+    product = create(:product, household: household, unit: "pcs")
+    p = create(:price, product: product, store: store,
+                       amount_cents: 360, pack_quantity: 6)
+    # €3.60 for 6 cans -> €0.60 / piece
+    expect(p.amount_per_normalized_unit).to eq(BigDecimal("0.6"))
+  end
+
+  it "rejects pack_quantity <= 0" do
+    product = create(:product, household: household, unit: "kg")
+    bad = build(:price, product: product, store: store,
+                        amount_cents: 100, pack_quantity: 0)
+    expect(bad).not_to be_valid
+    expect(bad.errors[:pack_quantity]).to be_present
+  end
 end

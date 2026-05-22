@@ -59,6 +59,6 @@ class PricesController < ApplicationController
   end
 
   def price_params
-    params.require(:price).permit(:store_id, :amount, :currency, :observed_on, :source)
+    params.require(:price).permit(:store_id, :amount, :currency, :observed_on, :source, :pack_quantity)
   end
 end

@@ -8,6 +8,16 @@
     <%= f.number_field :amount, step: 0.01, value: @price.amount_cents ? @price.amount.to_s : nil, required: true %>
     <%= f.text_field :currency, value: @price.currency || "EUR", maxlength: 3 %>
   </p>
+  <p>
+    <%= f.label :pack_quantity, t("price.fields.pack_quantity",
+                                  unit: t("product.units.#{@product.unit}", default: @product.unit)) %><br>
+    <%= f.number_field :pack_quantity, step: 0.001, min: 0.001,
+                                       value: @price.pack_quantity || 1,
+                                       required: true,
+                                       style: "width:8rem" %>
+    <span class="caption"><%= t("price.fields.pack_quantity_hint",
+                                unit: t("product.units.#{@product.unit}", default: @product.unit)) %></span>
+  </p>
   <p><%= f.label :observed_on %><br><%= f.date_field :observed_on, required: true %></p>
   <p><%= f.label :source %><br>
     <%= f.select :source,

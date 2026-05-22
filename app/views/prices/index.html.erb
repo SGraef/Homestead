@@ -8,6 +8,7 @@
     <tr>
       <th><%= t("price.table.store") %></th>
       <th><%= t("price.table.amount") %></th>
+      <th><%= t("price.table.pack_quantity") %></th>
       <th><%= t("price.table.normalized") %></th>
       <th><%= t("price.table.observed_on") %></th>
       <th><%= t("price.table.source") %></th>
@@ -19,6 +20,10 @@
       <tr>
         <td><%= p.store.name %></td>
         <td><%= number_to_currency(p.amount, unit: p.currency) %></td>
+        <td>
+          <%= number_with_precision(p.pack_quantity, precision: 3, strip_insignificant_zeros: true) %>
+          <span class="caption"><%= t("product.units.#{@product.unit}", default: @product.unit) %></span>
+        </td>
         <td class="mono"><%= normalized_price(p) || "—" %></td>
         <td><%= l(p.observed_on) %></td>
         <td><%= t("price.sources.#{p.source}", default: p.source) %></td>

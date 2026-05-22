@@ -423,9 +423,13 @@ de:
     table:
       store: "Geschäft"
       amount: "Betrag"
+      pack_quantity: "Packungsgröße"
       normalized: "Stückpreis"
       observed_on: "Datum"
       source: "Quelle"
+    fields:
+      pack_quantity:      "Packungsgröße (in %{unit})"
+      pack_quantity_hint: "Wie viel von der Produkteinheit dieser Preis abdeckt — z. B. 0,5 für eine 500-g-Packung bei Einheit kg, oder 6 für ein 6er-Pack bei pcs. Der 'Stückpreis' teilt den Betrag durch diesen Wert."
     sources:
       manual:  "manuell"
       receipt: "Beleg"

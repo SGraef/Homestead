@@ -425,9 +425,13 @@ en:
     table:
       store: "Store"
       amount: "Amount"
+      pack_quantity: "Pack size"
       normalized: "Unit price"
       observed_on: "Date"
       source: "Source"
+    fields:
+      pack_quantity:      "Pack size (in %{unit})"
+      pack_quantity_hint: "How much of the product's unit this price covers — e.g. 0.5 for a 500 g pack when the product is in kg, or 6 for a 6-pack of pcs. The 'unit price' column divides amount by this."
     sources:
       manual:  "manual"
       receipt: "receipt"
