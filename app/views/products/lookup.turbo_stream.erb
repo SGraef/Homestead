@@ -19,6 +19,38 @@
                      include_blank: t("scan.bought_at_unspecified") %>
         <%= f.submit t("grocery.mark_purchased"), class: "btn" %>
       <% end %>
+
+      <%# Add directly to storage -- "I just bought this and I'm putting
+          it on the shelf". Doesn't need a matching grocery list entry.
+          return_to=scan sends the user back to the scan page on success
+          so they can scan the next item. %>
+      <%= form_with url: storage_items_path, method: :post, local: true,
+                    data: { turbo_frame: "_top" },
+                    html: { style: "margin-top:var(--sp-3)" } do |f| %>
+        <%= hidden_field_tag "storage_item[product_id]", @product.id %>
+        <%= hidden_field_tag :return_to, "scan" %>
+        <div style="display:flex;gap:var(--sp-2);align-items:end;flex-wrap:wrap">
+          <span>
+            <label><%= t("scan.add_to_storage_qty") %></label><br>
+            <%= number_field_tag "storage_item[quantity]", 1,
+                                 step: 0.001, min: 0.001,
+                                 required: true, style: "width:5rem" %>
+            <span class="caption"><%= t("product.units.#{@product.unit}", default: @product.unit) %></span>
+          </span>
+          <span>
+            <label><%= t("scan.add_to_storage_location") %></label><br>
+            <%= select_tag "storage_item[location_id]",
+                           options_from_collection_for_select(
+                             current_household.locations.ordered, :id, :name,
+                             current_household.default_storage_location&.id) %>
+          </span>
+          <span>
+            <label><%= t("scan.add_to_storage_expires") %></label><br>
+            <%= date_field_tag "storage_item[expires_on]", nil, style: "width:10rem" %>
+          </span>
+          <%= submit_tag t("scan.add_to_storage"), class: "btn secondary" %>
+        </div>
+      <% end %>
     </div>
 
   <% elsif @remote %>
