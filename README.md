@@ -2,18 +2,21 @@
 
 A household ERP focused on food storage, multi-store grocery price tracking
 and barcode-driven inventory updates. German-first UI with English fallback,
-REST API for mobile clients, and an OCR pipeline that turns supermarket
-receipts into structured products, stores and prices.
+REST API for mobile / automation clients, and an OCR pipeline that turns
+supermarket receipts into structured products, stores and prices.
 
 ## Features
 
-- **Vorrat / Storage** — what's in the pantry, fridge, freezer or cellar; expiry warnings on the dashboard.
+- **Multi-household** — switch between households, invite members, per-household offer/blocklist/retailer settings.
+- **Vorrat / Storage** — what's in the pantry, fridge, freezer or cellar; per-product search; expiry warnings on the dashboard.
 - **Tiefkühler / Freezer** — dedicated page (`/freezer`) for both bought-and-frozen items and homemade meals (g / portions / l). 3-month "stale in the freezer" warning on the dashboard, configurable via `FREEZER_STALE_DAYS`.
-- **Einkaufsliste / Grocery list** — needed → purchased → automatic storage entry. Optional **two-way Bring! sync** (`/bring_connection`): Pantria → Bring on every write (push) plus a Bring → Pantria pull that runs every 5 minutes via Solid Queue's recurring scheduler (manual "Sync now" button on the connection page also available). Loops are prevented by a thread-local skip flag so pull-time writes don't bounce back to Bring!.
-- **Barcode scan (frontend)** — native `BarcodeDetector` API where available (Chrome / Edge / Android), with a ZXing-js fallback (loaded via importmap from jsdelivr) for Safari iOS / Firefox / anything else. On a barcode miss the lookup falls back to Open Food Facts / Open Products Facts and prefills "Add product". **Mobile note:** browsers only grant camera access on `https://` URLs (or `localhost`); to scan from a phone on the LAN, run dev with the bundled self-signed-HTTPS override (see "Self-signed HTTPS for mobile scanning" below).
-- **Receipt OCR** — upload a photo (JPEG/PNG/HEIC) or PDF; Tesseract + a heuristic parser extracts store, date, total and line items. PDFs are rasterized per-page via `pdftoppm` (poppler-utils). User confirms and rows become Stores + Products + Prices.
-- **Multi-store prices** — every price is `(product, store, date)` in cents; cheapest known price surfaces on the product page.
-- **REST API v1** — `/api/v1/{sessions, products, stores, prices, storage_items, grocery_items, receipts}` with bearer-token auth.
+- **Einkaufsliste / Grocery list** — needed → purchased → automatic storage entry. Rows surface a "best current offer" chip when a matching offer exists. Optional **two-way Bring! sync** (`/bring_connection`): Pantria → Bring on every write (push) plus a Bring → Pantria pull every 5 minutes via Solid Queue's recurring scheduler (manual "Sync now" available too). Loops are prevented by a thread-local skip flag so pull-time writes don't bounce back to Bring!.
+- **Barcode scan (frontend)** — native `BarcodeDetector` API where available (Chrome / Edge / Android), with a ZXing-js fallback (loaded via importmap from jsdelivr) for Safari iOS / Firefox / anything else. On a barcode miss the lookup falls back to Open Food Facts / Open Products Facts / Marktguru and prefills "Add product". Direct "add to storage" from the scan result lands you back on the scanner page ready for the next item. **Mobile note:** browsers only grant camera access on `https://` URLs (or `localhost`); to scan from a phone on the LAN, run dev with the bundled self-signed-HTTPS override (see "Self-signed HTTPS for mobile scanning" below).
+- **Receipt OCR** — upload a photo (JPEG/PNG/HEIC) or PDF; Tesseract + a heuristic parser extracts store, date, total and line items. PDFs are rasterized per-page via `pdftoppm` (poppler-utils). User confirms and rows become Stores + Products + Prices. Solid Queue runs OCR on its own queue with `OMP_THREAD_LIMIT` capped so a single scan can't pin every core.
+- **Inbound email receipts** — every household member can configure one or more IMAP mailboxes (subfolders supported, password encrypted at rest); attachments matching the supported MIME set become pending receipts automatically. `POST /api/v1/inbound_emails/poll` triggers a drain on demand (handy for n8n / Home Assistant / cron).
+- **Multi-store prices + per-unit comparison** — every price is `(product, store, date, pack_quantity)` in cents. The `pack_quantity` field lets a €2.49 / 500 g pack render as €4.98 / kg. Cheapest known price surfaces on the product page.
+- **Offer aggregation** — daily sync pulls current offers from **Marktguru**, **kaufDA**, **MeinProspekt** and **Flaschenpost** (per-household warehouse_id). Per-household allow-list of retailers (multi-select), keyword-based categorisation, and a watchlist that highlights matches inline.
+- **REST API v1** — `/api/v1/{sessions, products, stores, prices, storage_items, grocery_items, receipts, inbound_emails}` with bearer-token auth (`Authorization: Bearer …`).
 - **i18n** — German default, English fallback, locale switcher in the header.
 
 ## Stack
@@ -167,12 +170,21 @@ docker run -d --name pantria-worker \
   pantria:local bundle exec rake solid_queue:start
 ```
 
-The image is also produced and pushed automatically by the GitLab CI
-pipeline (`.gitlab-ci.yml`) on every branch:
+The image is also produced and pushed by CI on every push to `main`:
 
-- `$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA`
-- `$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG`
-- `$CI_REGISTRY_IMAGE:latest` — manual job on the default branch.
+- **GitHub Actions** (`.github/workflows/ci.yml`) → pushes to
+  `ghcr.io/sgraef/pantria:{sha,main,latest}`.
+- **GitLab CI** (`.gitlab-ci.yml`) → still works if you prefer to host on a
+  GitLab instance; pushes to `$CI_REGISTRY_IMAGE:{sha,branch,latest}`.
+
+## Deploying on Unraid
+
+A community-template XML lives at [`unraid/pantria.xml`](unraid/pantria.xml).
+Walk-through, env-var reference and MySQL setup notes are in
+[`unraid/README.md`](unraid/README.md). Short version: provision a MySQL
+8.4 container, drop the template into `templates-user/`, fill in
+`APP_HOST` + DB creds + `RAILS_MASTER_KEY`, point a reverse proxy at the
+container (Pantria's `force_ssl = true` in production), done.
 
 ## REST API quickstart
 
@@ -250,6 +262,29 @@ Copy `.env.example` to `.env` for local overrides. Notable variables:
 In **development** the mailer writes rendered emails to `tmp/mails/` —
 read the activation link out of `tmp/mails/<email-address>` after sign-up.
 
+## Contributing
+
+PRs welcome. Quick checklist before opening one:
+
+```bash
+# Format + lint
+docker compose run --rm web bundle exec rubocop
+
+# Type-check
+docker compose run --rm web bundle exec srb tc
+
+# Full test suite
+docker compose run --rm web bundle exec rspec
+```
+
+Commit message style: imperative subject ≤ 70 chars, body wrapped at ~72.
+The existing log is a fair guide. If your change touches a user-visible
+string, add the German translation in `config/locales/de.yml` alongside
+the English one.
+
 ## License
 
-Internal project — no public license set.
+Released under the [MIT License](LICENSE) — see `LICENSE` for the full
+text. Third-party content (icons, locale data, gem dependencies) is
+under each upstream's respective licence; nothing in this repo overrides
+those.
