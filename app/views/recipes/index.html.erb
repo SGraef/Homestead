@@ -6,6 +6,20 @@
   <%= link_to t("meal_plan.nav_link"), meal_plan_path, class: "btn secondary" %>
 </p>
 
+<details class="card" style="margin-bottom:var(--sp-3)">
+  <summary><strong><%= t("recipe.import.title") %></strong></summary>
+  <p class="caption"><%= t("recipe.import.intro") %></p>
+  <%= form_with url: import_recipes_path, method: :post, local: true,
+                html: { style: "display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:end" } do %>
+    <span style="flex:1 1 18rem">
+      <%= label_tag :url, t("recipe.import.url_label") %><br>
+      <%= url_field_tag :url, nil, required: true, style: "width:100%",
+                        placeholder: "https://www.chefkoch.de/rezepte/…" %>
+    </span>
+    <%= submit_tag t("recipe.import.button"), class: "btn" %>
+  <% end %>
+</details>
+
 <% if @recipes.empty? %>
   <p class="caption"><%= t("recipe.empty") %></p>
 <% else %>

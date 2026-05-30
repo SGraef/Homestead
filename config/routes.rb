@@ -100,6 +100,7 @@ Rails.application.routes.draw do
   resources :recipes do
     # Add-an-ingredient form on the show page goes to a flat nested route.
     resources :ingredients, only: %i[create destroy], controller: "recipe_ingredients"
+    collection { post :import } # POST /recipes/import -- Chefkoch URL importer
   end
 
   # Weekly meal-plan grid. Singular resource (one per household,

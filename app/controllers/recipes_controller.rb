@@ -51,6 +51,29 @@ class RecipesController < ApplicationController
     redirect_to recipes_path, notice: t("recipe.deleted", name: name)
   end
 
+  # POST /recipes/import -- pulls a Chefkoch recipe by URL and turns
+  # it into a local Recipe + RecipeIngredients (creating missing
+  # Products on the fly).
+  def import
+    url = params[:url].to_s.strip
+    if url.empty?
+      redirect_to recipes_path, alert: t("recipe.import.url_required")
+      return
+    end
+
+    result = Chefkoch::Importer.call(url: url, household: current_household)
+    redirect_to result.recipe,
+                notice: t("recipe.import.success",
+                          name: result.recipe.name,
+                          ingredients: result.ingredients_created,
+                          products: result.products_created)
+  rescue Chefkoch::Importer::ImportError => e
+    redirect_to recipes_path, alert: e.message
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to recipes_path,
+                alert: t("recipe.import.invalid", error: e.record.errors.full_messages.to_sentence)
+  end
+
   private
 
   def set_recipe
