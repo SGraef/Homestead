@@ -15,6 +15,16 @@
   <%= link_to t("meal_plan.this_week"),
               meal_plan_path, class: "btn btn-sm tertiary" %>
   <span style="margin-left:auto">
+    <%# Auto-fill the dinner slot for the currently-displayed week. Soft
+        guidelines: prefers recipes not used in the last 4 weeks, aims
+        for ≥2 vegetarian, ≥1 fish, ≤4 meat dinners. Leaves slots that
+        already have an entry untouched. %>
+    <%= button_to t("meal_plan.suggest.button"),
+                  suggest_meal_plan_path(date: @monday.iso8601),
+                  method: :post,
+                  class:  "btn btn-sm",
+                  data:   { turbo_confirm: t("meal_plan.suggest.confirm") },
+                  form:   { style: "display:inline" } %>
     <%= link_to t("recipe.title"), recipes_path, class: "btn btn-sm secondary" %>
   </span>
 </p>

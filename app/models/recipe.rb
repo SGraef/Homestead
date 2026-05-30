@@ -35,4 +35,26 @@ class Recipe < ApplicationRecord
   def total_minutes
     (prep_minutes || 0) + (cook_minutes || 0)
   end
+
+  # Comma-split, lowercased, deduped tag list. Robust to nil + whitespace.
+  # @return [Array<String>]
+  def tag_list
+    tags.to_s.downcase.split(",").map(&:strip).reject(&:empty?).uniq
+  end
+
+  # Accepts either an array or a comma-separated string. Canonicalised to
+  # a single comma-space-separated string so plain SQL `LIKE` queries
+  # against the column stay simple.
+  def tag_list=(value)
+    raw = value.is_a?(Array) ? value : value.to_s.split(",")
+    self.tags = raw.map { |t| t.to_s.strip }.reject(&:empty?).uniq.join(", ")
+  end
+
+  # True if any tag in `needles` (case-insensitive) appears on this
+  # recipe. Used by MealPlanSuggester's health-bucket scoring.
+  def tagged_with_any?(needles)
+    return false if tag_list.empty?
+    set = tag_list.to_set
+    Array(needles).any? { |t| set.include?(t.to_s.downcase) }
+  end
 end

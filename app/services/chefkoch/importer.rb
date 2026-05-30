@@ -108,7 +108,7 @@ module Chefkoch
 
       ingredients_attrs, products_created = build_ingredient_attrs(data["ingredientGroups"])
 
-      recipe = @household.recipes.create!(
+      recipe = @household.recipes.build(
         name:         title,
         description:  data["subtitle"].presence,
         servings:     Integer(data["servings"] || 1),
@@ -117,6 +117,11 @@ module Chefkoch
         notes:        compose_notes(data),
         recipe_ingredients_attributes: ingredients_attrs
       )
+      # Pull Chefkoch's flat tag list ("vegetarisch", "schnell",
+      # "italienisch", …). `fullTags` is richer but full of hierarchy
+      # crud the suggester doesn't need.
+      recipe.tag_list = Array(data["tags"]).map(&:to_s)
+      recipe.save!
 
       Result.new(
         recipe:              recipe,

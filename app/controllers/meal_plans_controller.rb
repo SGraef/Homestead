@@ -21,6 +21,24 @@ class MealPlansController < ApplicationController
     @recipes = current_household.recipes.ordered
   end
 
+  # POST /meal_plan/suggest -- auto-fill the week's dinner slots
+  # using MealPlanSuggester.
+  def suggest
+    anchor = parse_anchor_date(params[:date]) || Date.current
+    monday = anchor.beginning_of_week(:monday)
+    result = MealPlanSuggester.new(household: current_household, week_start: monday).call
+
+    if result.reason == :no_recipes
+      redirect_to meal_plan_path(date: monday.iso8601),
+                  alert: t("meal_plan.suggest.no_recipes")
+    else
+      redirect_to meal_plan_path(date: monday.iso8601),
+                  notice: t("meal_plan.suggest.scheduled",
+                            count:   result.scheduled,
+                            skipped: result.skipped_days)
+    end
+  end
+
   private
 
   def parse_anchor_date(raw)

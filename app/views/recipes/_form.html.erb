@@ -25,6 +25,13 @@
     </span>
   </p>
 
+  <p>
+    <%= f.label :tags, t("recipe.fields.tags") %><br>
+    <%= f.text_field :tags, style: "width:100%",
+                            placeholder: t("recipe.fields.tags_placeholder") %><br>
+    <span class="caption"><%= t("recipe.fields.tags_hint") %></span>
+  </p>
+
   <h3 style="margin-top:var(--sp-4)"><%= t("recipe.ingredients_title") %></h3>
   <p class="caption"><%= t("recipe.ingredients_hint") %></p>
 

@@ -114,7 +114,11 @@ Rails.application.routes.draw do
 
   # Weekly meal-plan grid. Singular resource (one per household,
   # navigated by ?date=).
-  resource :meal_plan, only: %i[show]
+  resource :meal_plan, only: %i[show] do
+    # POST /meal_plan/suggest — auto-fill the week's dinner slots
+    # using MealPlanSuggester.
+    post :suggest
+  end
   resources :meal_plan_entries, only: %i[create destroy]
 
   # Solid Queue dashboard. The mounted engine doesn't run through

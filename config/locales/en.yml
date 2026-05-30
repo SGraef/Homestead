@@ -690,6 +690,9 @@ en:
       cook_minutes:      "Cook (min)"
       prep_short:        "prep"
       cook_short:        "cook"
+      tags:              "Tags"
+      tags_placeholder:  "vegetarisch, schnell, italienisch"
+      tags_hint:         "Comma-separated. Used by the weekly meal-plan suggester to balance vegetarian / fish / meat days (recognised: vegetarisch, vegan, fisch, fleisch, …)."
     table:
       name:           "Name"
       servings:       "Servings"
@@ -720,6 +723,11 @@ en:
       planned_on:        "Date"
       slot:              "Meal"
       servings:          "Servings"
+    suggest:
+      button:            "Suggest week"
+      confirm:           "Auto-fill empty dinner slots for this week?"
+      no_recipes:        "Can't suggest — there are no recipes in this household yet."
+      scheduled:         "Scheduled %{count} dinner(s) for the week. %{skipped} day(s) skipped."
 
   receipt:
     title:               "Receipts"

@@ -688,6 +688,9 @@ de:
       cook_minutes:      "Kochzeit (Min)"
       prep_short:        "vorb."
       cook_short:        "kochen"
+      tags:              "Tags"
+      tags_placeholder:  "vegetarisch, schnell, italienisch"
+      tags_hint:         "Kommagetrennt. Wird vom Wochen-Essensplan-Vorschlag genutzt, um Vegetarisch- / Fisch- / Fleisch-Tage auszugleichen (erkannt: vegetarisch, vegan, fisch, fleisch, …)."
     table:
       name:           "Name"
       servings:       "Portionen"
@@ -718,6 +721,11 @@ de:
       planned_on:        "Datum"
       slot:              "Mahlzeit"
       servings:          "Portionen"
+    suggest:
+      button:            "Woche vorschlagen"
+      confirm:           "Leere Abendessen-Slots für diese Woche automatisch füllen?"
+      no_recipes:        "Vorschlag nicht möglich — dieser Haushalt hat noch keine Rezepte."
+      scheduled:         "%{count} Abendessen für die Woche eingeplant. %{skipped} Tag(e) übersprungen."
 
   receipt:
     title:               "Belege"
