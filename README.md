@@ -5,6 +5,26 @@ and barcode-driven inventory updates. German-first UI with English fallback,
 REST API for mobile / automation clients, and an OCR pipeline that turns
 supermarket receipts into structured products, stores and prices.
 
+> ⚠️ **Heads-up: this app is vibe coded.**
+>
+> Pantria was built largely through pair-programming with an LLM rather than
+> hand-rolled line by line. The test suite is reasonably thorough and the
+> code follows Rails conventions, but you should treat it the way you'd
+> treat any vendored library you didn't write:
+>
+> - **Read before you deploy.** Skim the controllers, the OCR pipeline,
+>   the inbound-email poller, and the offer adapters before pointing them
+>   at anything you care about. Security-sensitive paths (auth, IMAP
+>   credential storage, file uploads, external HTTP fetches) deserve a
+>   second pair of eyes.
+> - **Backups are on you.** There's no battle-tested upgrade story and no
+>   data-migration guarantees beyond what the Rails migration files spell
+>   out. Snapshot the database and the Active Storage directory before
+>   pulling a new image.
+> - **Issues / PRs welcome,** but expect the same human + LLM workflow on
+>   the response side. If you find something broken, the fastest fix is
+>   often a PR with a failing test attached.
+
 ## Features
 
 - **Multi-household** — switch between households, invite members, per-household offer/blocklist/retailer settings.
