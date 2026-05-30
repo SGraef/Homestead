@@ -104,6 +104,11 @@ Rails.application.routes.draw do
       # decrement household storage by this ingredient's quantity.
       post :consume, on: :member
     end
+    member do
+      # POST /recipes/:id/shop_missing -- add every short-on-stock
+      # ingredient (by deficit) to the grocery list.
+      post :shop_missing
+    end
     collection { post :import } # POST /recipes/import -- Chefkoch URL importer
   end
 

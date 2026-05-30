@@ -657,6 +657,11 @@ de:
       short:             "%{consumed} %{unit} %{name} entfernt — es fehlen noch %{short} %{unit}."
       nothing_on_hand:   "Kein Vorrat für %{name} zum Entfernen."
       unit_mismatch:     "%{name} kann nicht automatisch abgezogen werden: Rezept nennt '%{row_unit}', Vorrat ist in '%{product_unit}' gelagert. Bitte manuell im Vorrat anpassen."
+    shop_missing:
+      button:            "Fehlende auf die Einkaufsliste"
+      hint:              "Fügt alle Zutaten zur Einkaufsliste hinzu, die der Vorrat nicht abdeckt (nur die Differenz, nicht die gesamte Rezeptmenge). Bestehende 'benötigt'-Einträge für dasselbe Produkt werden aufgestockt statt dupliziert."
+      confirm:           "Fehlende Zutaten zur Einkaufsliste hinzufügen?"
+      summary:           "%{added} hinzugefügt, %{bumped} bestehende(r) Eintrag aufgestockt, %{skipped} bereits vorhanden übersprungen, %{unit_skips} Zutat(en) wegen Einheiten-Konflikt übersprungen."
     back:                "Zurück zur Übersicht"
     empty:               "Noch keine Rezepte angelegt."
     created:             "Rezept '%{name}' hinzugefügt."

@@ -75,6 +75,22 @@
       <% end %>
     </tbody>
   </table>
+
+  <%# Bulk shop-missing: posts every short-on-stock ingredient to the
+      grocery list as a single "needed" item per product. Quantity
+      added is the deficit (recipe quantity - on-hand), so partial
+      coverage doesn't get double-counted. %>
+  <% if @ingredients.any? %>
+    <p style="margin-top:var(--sp-2)">
+      <%= button_to t("recipe.shop_missing.button"),
+                    shop_missing_recipe_path(@recipe),
+                    method: :post,
+                    class:  "btn btn-sm secondary",
+                    data:   { turbo_confirm: t("recipe.shop_missing.confirm") },
+                    form:   { style: "display:inline" } %>
+      <span class="caption"><%= t("recipe.shop_missing.hint") %></span>
+    </p>
+  <% end %>
 <% end %>
 
 <details class="card" style="margin-top:var(--sp-3)">

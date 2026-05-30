@@ -3,7 +3,7 @@
 
 class RecipesController < ApplicationController
   before_action :ensure_household
-  before_action :set_recipe, only: %i[show edit update destroy]
+  before_action :set_recipe, only: %i[show edit update destroy shop_missing]
 
   def index
     @recipes = current_household.recipes.ordered
@@ -72,6 +72,58 @@ class RecipesController < ApplicationController
   rescue ActiveRecord::RecordInvalid => e
     redirect_to recipes_path,
                 alert: t("recipe.import.invalid", error: e.record.errors.full_messages.to_sentence)
+  end
+
+  # POST /recipes/:id/shop_missing -- add every short-on-stock
+  # ingredient (by exact deficit, not the full recipe amount) to the
+  # household's grocery list. Rows already in storage in sufficient
+  # quantity are skipped. Rows whose unit-override doesn't match the
+  # product's storage unit are reported separately because we can't
+  # compare on-hand against the recipe quantity safely.
+  def shop_missing
+    added       = 0
+    bumped      = 0
+    skipped     = 0
+    unit_skips  = 0
+
+    GroceryItem.transaction do
+      @recipe.recipe_ingredients.includes(:product).each do |ing|
+        # Unknown / mismatched units: can't compare on-hand vs recipe
+        # quantity meaningfully; flag separately rather than silently
+        # adding the wrong amount.
+        unless ing.consumable?
+          unit_skips += 1
+          next
+        end
+
+        deficit = ing.quantity.to_d - ing.on_hand
+        if deficit <= 0
+          skipped += 1
+          next
+        end
+
+        existing = current_household.grocery_items
+                                     .find_by(product: ing.product, status: "needed")
+        if existing
+          existing.update!(quantity: existing.quantity + deficit)
+          bumped += 1
+        else
+          current_household.grocery_items.create!(
+            product:  ing.product,
+            quantity: deficit,
+            status:   "needed"
+          )
+          added += 1
+        end
+      end
+    end
+
+    redirect_to @recipe,
+                notice: t("recipe.shop_missing.summary",
+                          added:      added,
+                          bumped:     bumped,
+                          skipped:    skipped,
+                          unit_skips: unit_skips)
   end
 
   private

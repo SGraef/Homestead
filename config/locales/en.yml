@@ -659,6 +659,11 @@ en:
       short:             "Removed %{consumed} %{unit} of %{name} — short by %{short} %{unit}."
       nothing_on_hand:   "Nothing in storage for %{name} to remove."
       unit_mismatch:     "Can't auto-remove %{name}: the recipe says '%{row_unit}' but storage is in '%{product_unit}'. Adjust manually from the storage page."
+    shop_missing:
+      button:            "Add missing to grocery list"
+      hint:              "Adds ingredients that aren't fully covered by storage (just the deficit, not the full recipe amount). Existing 'needed' rows for the same product get bumped instead of duplicated."
+      confirm:           "Add missing ingredients to the grocery list?"
+      summary:           "Added %{added}, bumped %{bumped} existing row(s), skipped %{skipped} already covered, %{unit_skips} ingredient(s) skipped due to unit mismatch."
     back:                "Back to recipes"
     empty:               "No recipes yet."
     created:             "Recipe '%{name}' added."
