@@ -1,0 +1,78 @@
+<% content_for :title, t("meal_plan.title") %>
+<h1><%= t("meal_plan.title") %></h1>
+
+<p style="display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:center">
+  <%= link_to "← " + t("meal_plan.prev_week"),
+              meal_plan_path(date: (@monday - 7.days).iso8601),
+              class: "btn btn-sm secondary" %>
+  <strong>
+    <%= l(@monday, format: :long) %> –
+    <%= l(@monday + 6.days, format: :long) %>
+  </strong>
+  <%= link_to t("meal_plan.next_week") + " →",
+              meal_plan_path(date: (@monday + 7.days).iso8601),
+              class: "btn btn-sm secondary" %>
+  <%= link_to t("meal_plan.this_week"),
+              meal_plan_path, class: "btn btn-sm tertiary" %>
+  <span style="margin-left:auto">
+    <%= link_to t("recipe.title"), recipes_path, class: "btn btn-sm secondary" %>
+  </span>
+</p>
+
+<% if @recipes.empty? %>
+  <p class="flash alert"><%= t("meal_plan.no_recipes") %></p>
+<% else %>
+  <div style="overflow-x:auto">
+    <table style="min-width:100%;table-layout:fixed">
+      <thead>
+        <tr>
+          <th style="width:7rem"></th>
+          <% @days.each do |d| %>
+            <th>
+              <%= l(d, format: "%a") %><br>
+              <span class="caption"><%= l(d, format: "%d.%m.") %></span>
+            </th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @slots.each do |slot| %>
+          <tr>
+            <th><%= t("meal_plan.slots.#{slot}") %></th>
+            <% @days.each do |d| %>
+              <td style="vertical-align:top;min-width:8rem">
+                <% Array(@entries_by_cell[[d, slot]]).each do |e| %>
+                  <div style="margin-bottom:var(--sp-1)">
+                    <%= link_to e.recipe.name, e.recipe %>
+                    <% if e.servings != e.recipe.servings %>
+                      <span class="caption">
+                        × <%= number_with_precision(e.servings, precision: 2, strip_insignificant_zeros: true) %>
+                      </span>
+                    <% end %>
+                    <%= button_to "×", meal_plan_entry_path(e),
+                                  method: :delete,
+                                  class: "btn btn-sm warn",
+                                  data: { turbo_confirm: t("common.delete_confirm") },
+                                  form: { style: "display:inline" } %>
+                  </div>
+                <% end %>
+
+                <%# Inline add-form. Compact: just recipe + submit. %>
+                <%= form_with url: meal_plan_entries_path, method: :post, local: true,
+                              html: { style: "display:flex;gap:var(--sp-1);align-items:center;flex-wrap:wrap" } do %>
+                  <%= hidden_field_tag "meal_plan_entry[planned_on]", d.iso8601 %>
+                  <%= hidden_field_tag "meal_plan_entry[slot]",       slot %>
+                  <%= select_tag "meal_plan_entry[recipe_id]",
+                                 options_from_collection_for_select(@recipes, :id, :name),
+                                 include_blank: t("meal_plan.pick_recipe"),
+                                 style: "max-width:9rem" %>
+                  <%= submit_tag "+", class: "btn btn-sm" %>
+                <% end %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

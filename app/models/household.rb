@@ -19,6 +19,8 @@ class Household < ApplicationRecord
   has_many :offer_watchlist_entries, dependent: :destroy
   has_many :offer_categories, -> { ordered }, dependent: :destroy
   has_many :inbound_email_sources, dependent: :destroy
+  has_many :recipes, dependent: :destroy
+  has_many :meal_plan_entries, dependent: :destroy
 
   after_create :seed_default_offer_categories
 

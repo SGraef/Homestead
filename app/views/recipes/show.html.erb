@@ -1,0 +1,131 @@
+<% content_for :title, @recipe.name %>
+<h1><%= @recipe.name %></h1>
+
+<dl class="kv">
+  <dt><%= t("recipe.table.servings") %></dt><dd><%= @recipe.servings %></dd>
+  <% if @recipe.total_minutes.positive? %>
+    <dt><%= t("recipe.table.time") %></dt>
+    <dd>
+      <%= t("recipe.minutes", count: @recipe.total_minutes) %>
+      <% if @recipe.prep_minutes.present? || @recipe.cook_minutes.present? %>
+        <span class="caption">
+          (<%= t("recipe.fields.prep_short") %> <%= @recipe.prep_minutes || 0 %>
+          / <%= t("recipe.fields.cook_short") %> <%= @recipe.cook_minutes || 0 %>)
+        </span>
+      <% end %>
+    </dd>
+  <% end %>
+</dl>
+
+<% if @recipe.description.present? %>
+  <p><%= simple_format(@recipe.description) %></p>
+<% end %>
+
+<h2><%= t("recipe.ingredients_title") %></h2>
+
+<% if @ingredients.empty? %>
+  <p class="caption"><%= t("recipe.no_ingredients") %></p>
+<% else %>
+  <table>
+    <thead>
+      <tr>
+        <th><%= t("recipe.table.product") %></th>
+        <th><%= t("recipe.table.quantity") %></th>
+        <th><%= t("recipe.table.on_hand") %></th>
+        <th><%= t("recipe.table.notes") %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @ingredients.each do |i| %>
+        <tr>
+          <td><%= link_to i.product.name, i.product %></td>
+          <td>
+            <%= number_with_precision(i.quantity, precision: 3, strip_insignificant_zeros: true) %>
+            <span class="caption">
+              <%= t("product.units.#{i.display_unit}", default: i.display_unit) %>
+            </span>
+          </td>
+          <td>
+            <span class="pill <%= i.covered? ? 'success' : 'warn' %>">
+              <%= number_with_precision(i.on_hand, precision: 3, strip_insignificant_zeros: true) %>
+            </span>
+          </td>
+          <td><%= i.notes %></td>
+          <td>
+            <%= button_to t("common.delete"),
+                          recipe_ingredient_path(@recipe, i),
+                          method: :delete, class: "btn btn-sm warn",
+                          data: { turbo_confirm: t("common.delete_confirm") },
+                          form: { style: "display:inline" } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<details class="card" style="margin-top:var(--sp-3)">
+  <summary><strong><%= t("recipe.add_ingredient") %></strong></summary>
+  <%= form_with url: recipe_ingredients_path(@recipe), method: :post, local: true do |f| %>
+    <div style="display:flex;gap:var(--sp-2);align-items:end;flex-wrap:wrap;margin-top:var(--sp-2)">
+      <span>
+        <label><%= t("recipe.table.product") %></label><br>
+        <%= select_tag "recipe_ingredient[product_id]",
+                       options_from_collection_for_select(
+                         current_household.products.order(:name), :id, :name),
+                       include_blank: t("recipe.product_blank"), required: true %>
+      </span>
+      <span>
+        <label><%= t("recipe.table.quantity") %></label><br>
+        <%= number_field_tag "recipe_ingredient[quantity]", 1,
+                              step: 0.001, min: 0.001, required: true, style: "width:6rem" %>
+      </span>
+      <span>
+        <label><%= t("recipe.table.unit_override") %></label><br>
+        <%= text_field_tag "recipe_ingredient[unit]", nil, style: "width:5rem",
+                            placeholder: t("recipe.product_unit_placeholder") %>
+      </span>
+      <span>
+        <label><%= t("recipe.table.notes") %></label><br>
+        <%= text_field_tag "recipe_ingredient[notes]", nil, style: "width:14rem" %>
+      </span>
+      <%= submit_tag t("recipe.add_ingredient_button"), class: "btn btn-sm" %>
+    </div>
+  <% end %>
+</details>
+
+<details class="card" style="margin-top:var(--sp-3)">
+  <summary><strong><%= t("recipe.plan_button") %></strong></summary>
+  <%= form_with url: meal_plan_entries_path, method: :post, local: true do |f| %>
+    <%= hidden_field_tag "meal_plan_entry[recipe_id]", @recipe.id %>
+    <div style="display:flex;gap:var(--sp-2);align-items:end;flex-wrap:wrap;margin-top:var(--sp-2)">
+      <span>
+        <label><%= t("meal_plan.fields.planned_on") %></label><br>
+        <%= date_field_tag "meal_plan_entry[planned_on]", Date.current, required: true %>
+      </span>
+      <span>
+        <label><%= t("meal_plan.fields.slot") %></label><br>
+        <%= select_tag "meal_plan_entry[slot]",
+                       options_for_select(@plan_slots.map { |s| [t("meal_plan.slots.#{s}"), s] }, "dinner"),
+                       required: true %>
+      </span>
+      <span>
+        <label><%= t("meal_plan.fields.servings") %></label><br>
+        <%= number_field_tag "meal_plan_entry[servings]", @recipe.servings,
+                             step: 0.5, min: 0.5, required: true, style: "width:6rem" %>
+      </span>
+      <%= submit_tag t("recipe.plan_button"), class: "btn btn-sm" %>
+    </div>
+  <% end %>
+</details>
+
+<p style="margin-top:var(--sp-3)">
+  <%= link_to t("common.edit"), edit_recipe_path(@recipe), class: "btn btn-sm secondary" %>
+  <%= link_to t("recipe.back"), recipes_path, class: "btn btn-sm tertiary" %>
+</p>
+
+<% if @recipe.notes.present? %>
+  <h3><%= t("recipe.notes_title") %></h3>
+  <p><%= simple_format(@recipe.notes) %></p>
+<% end %>

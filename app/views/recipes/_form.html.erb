@@ -1,0 +1,74 @@
+<%= form_with model: @recipe, local: true do |f| %>
+  <% if @recipe.errors.any? %>
+    <div class="flash alert"><%= @recipe.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <p><%= f.label :name %><br><%= f.text_field :name, required: true, style: "width:100%" %></p>
+
+  <p>
+    <%= f.label :description %><br>
+    <%= f.text_area :description, rows: 3, style: "width:100%" %>
+  </p>
+
+  <p style="display:flex;gap:var(--sp-3);align-items:end;flex-wrap:wrap">
+    <span>
+      <%= f.label :servings %><br>
+      <%= f.number_field :servings, value: @recipe.servings || 1, min: 1, required: true, style: "width:6rem" %>
+    </span>
+    <span>
+      <%= f.label :prep_minutes, t("recipe.fields.prep_minutes") %><br>
+      <%= f.number_field :prep_minutes, min: 0, style: "width:8rem" %>
+    </span>
+    <span>
+      <%= f.label :cook_minutes, t("recipe.fields.cook_minutes") %><br>
+      <%= f.number_field :cook_minutes, min: 0, style: "width:8rem" %>
+    </span>
+  </p>
+
+  <h3 style="margin-top:var(--sp-4)"><%= t("recipe.ingredients_title") %></h3>
+  <p class="caption"><%= t("recipe.ingredients_hint") %></p>
+
+  <% products = current_household.products.order(:name) %>
+  <% if products.empty? %>
+    <p class="flash alert"><%= t("recipe.no_products_yet") %></p>
+  <% end %>
+
+  <table>
+    <thead>
+      <tr>
+        <th><%= t("recipe.table.product") %></th>
+        <th><%= t("recipe.table.quantity") %></th>
+        <th><%= t("recipe.table.unit_override") %></th>
+        <th><%= t("recipe.table.notes") %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= f.fields_for :recipe_ingredients do |ing| %>
+        <tr>
+          <td>
+            <%= ing.collection_select :product_id, products, :id, :name,
+                                       { include_blank: t("recipe.product_blank") } %>
+          </td>
+          <td><%= ing.number_field :quantity, step: 0.001, min: 0.001, style: "width:6rem" %></td>
+          <td><%= ing.text_field :unit, placeholder: t("recipe.product_unit_placeholder"), style: "width:5rem" %></td>
+          <td><%= ing.text_field :notes, style: "width:14rem" %></td>
+          <td>
+            <% unless ing.object.new_record? %>
+              <%= ing.label :_destroy, t("common.delete") %>
+              <%= ing.check_box :_destroy %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p class="caption"><%= t("recipe.add_more_after_save") %></p>
+
+  <p>
+    <%= f.label :notes %><br>
+    <%= f.text_area :notes, rows: 4, style: "width:100%" %>
+  </p>
+
+  <p><%= f.submit class: "btn" %></p>
+<% end %>

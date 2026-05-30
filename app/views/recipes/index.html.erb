@@ -1,0 +1,45 @@
+<% content_for :title, t("recipe.title") %>
+<h1><%= t("recipe.title") %></h1>
+
+<p>
+  <%= link_to t("recipe.add"), new_recipe_path, class: "btn" %>
+  <%= link_to t("meal_plan.nav_link"), meal_plan_path, class: "btn secondary" %>
+</p>
+
+<% if @recipes.empty? %>
+  <p class="caption"><%= t("recipe.empty") %></p>
+<% else %>
+  <table>
+    <thead>
+      <tr>
+        <th><%= t("recipe.table.name") %></th>
+        <th><%= t("recipe.table.servings") %></th>
+        <th><%= t("recipe.table.time") %></th>
+        <th><%= t("recipe.table.ingredients") %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @recipes.each do |r| %>
+        <tr>
+          <td><%= link_to r.name, r %></td>
+          <td><%= r.servings %></td>
+          <td>
+            <% if r.total_minutes.positive? %>
+              <%= t("recipe.minutes", count: r.total_minutes) %>
+            <% else %>
+              <span class="caption">—</span>
+            <% end %>
+          </td>
+          <td><%= r.recipe_ingredients.size %></td>
+          <td>
+            <%= link_to t("common.edit"), edit_recipe_path(r), class: "btn btn-sm tertiary" %>
+            <%= button_to t("common.delete"), r, method: :delete, class: "btn btn-sm warn",
+                          data: { turbo_confirm: t("common.delete_confirm") },
+                          form: { style: "display:inline" } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

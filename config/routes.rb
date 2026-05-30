@@ -97,6 +97,16 @@ Rails.application.routes.draw do
   end
   resources :manual_offers, only: %i[new create edit update destroy], path: "offers/manual"
 
+  resources :recipes do
+    # Add-an-ingredient form on the show page goes to a flat nested route.
+    resources :ingredients, only: %i[create destroy], controller: "recipe_ingredients"
+  end
+
+  # Weekly meal-plan grid. Singular resource (one per household,
+  # navigated by ?date=).
+  resource :meal_plan, only: %i[show]
+  resources :meal_plan_entries, only: %i[create destroy]
+
   # Solid Queue dashboard. The mounted engine doesn't run through
   # ApplicationController, so the require-login gate is enforced as a
   # routing constraint instead -- anonymous requests get a 404 (no
