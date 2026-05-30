@@ -23,6 +23,41 @@ class RecipeIngredientsController < ApplicationController
     redirect_to @recipe, notice: t("recipe.ingredient_removed")
   end
 
+  # POST /recipes/:recipe_id/ingredients/:id/consume -- "Used" button:
+  # decrement storage_items for this ingredient's product by its
+  # quantity. Walks storage rows soonest-to-expire first; if the
+  # household doesn't have enough on hand, flashes a "short by N"
+  # notice so the user can see what's missing.
+  def consume
+    ingredient = @recipe.recipe_ingredients.find(params[:id])
+    result     = ingredient.consume_from_storage!
+
+    if !result.ok?
+      redirect_to @recipe,
+                  alert: t("recipe.consume.unit_mismatch",
+                            name: ingredient.product.name,
+                            row_unit: ingredient.unit,
+                            product_unit: ingredient.product.unit)
+    elsif result.consumed.to_d.zero?
+      redirect_to @recipe,
+                  alert: t("recipe.consume.nothing_on_hand",
+                            name: ingredient.product.name)
+    elsif result.short?
+      redirect_to @recipe,
+                  notice: t("recipe.consume.short",
+                            name: ingredient.product.name,
+                            consumed: format_qty(result.consumed),
+                            short: format_qty(result.short),
+                            unit: ingredient.display_unit)
+    else
+      redirect_to @recipe,
+                  notice: t("recipe.consume.ok",
+                            name: ingredient.product.name,
+                            consumed: format_qty(result.consumed),
+                            unit: ingredient.display_unit)
+    end
+  end
+
   private
 
   def set_recipe
@@ -31,6 +66,11 @@ class RecipeIngredientsController < ApplicationController
 
   def ingredient_params
     params.require(:recipe_ingredient).permit(:product_id, :quantity, :unit, :notes, :position)
+  end
+
+  # Trim trailing zeros so "2.000" reads as "2" in flashes.
+  def format_qty(value)
+    helpers.number_with_precision(value, precision: 3, strip_insignificant_zeros: true)
   end
 
   def ensure_household

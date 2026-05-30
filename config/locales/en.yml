@@ -652,6 +652,13 @@ en:
       bad_payload:       "Couldn't parse the response from Chefkoch."
       no_title:          "Chefkoch returned a recipe with no title; nothing imported."
       invalid:           "Couldn't save the imported recipe: %{error}"
+    consume:
+      button:            "Used"
+      confirm:           "Remove this amount of %{name} from storage?"
+      ok:                "Removed %{consumed} %{unit} of %{name} from storage."
+      short:             "Removed %{consumed} %{unit} of %{name} — short by %{short} %{unit}."
+      nothing_on_hand:   "Nothing in storage for %{name} to remove."
+      unit_mismatch:     "Can't auto-remove %{name}: the recipe says '%{row_unit}' but storage is in '%{product_unit}'. Adjust manually from the storage page."
     back:                "Back to recipes"
     empty:               "No recipes yet."
     created:             "Recipe '%{name}' added."

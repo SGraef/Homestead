@@ -650,6 +650,13 @@ de:
       bad_payload:       "Antwort von Chefkoch konnte nicht gelesen werden."
       no_title:          "Chefkoch lieferte ein Rezept ohne Titel; nichts importiert."
       invalid:           "Importiertes Rezept konnte nicht gespeichert werden: %{error}"
+    consume:
+      button:            "Verbraucht"
+      confirm:           "Diese Menge %{name} aus dem Vorrat abziehen?"
+      ok:                "%{consumed} %{unit} %{name} aus dem Vorrat entfernt."
+      short:             "%{consumed} %{unit} %{name} entfernt — es fehlen noch %{short} %{unit}."
+      nothing_on_hand:   "Kein Vorrat für %{name} zum Entfernen."
+      unit_mismatch:     "%{name} kann nicht automatisch abgezogen werden: Rezept nennt '%{row_unit}', Vorrat ist in '%{product_unit}' gelagert. Bitte manuell im Vorrat anpassen."
     back:                "Zurück zur Übersicht"
     empty:               "Noch keine Rezepte angelegt."
     created:             "Rezept '%{name}' hinzugefügt."

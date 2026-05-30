@@ -99,7 +99,11 @@ Rails.application.routes.draw do
 
   resources :recipes do
     # Add-an-ingredient form on the show page goes to a flat nested route.
-    resources :ingredients, only: %i[create destroy], controller: "recipe_ingredients"
+    resources :ingredients, only: %i[create destroy], controller: "recipe_ingredients" do
+      # POST /recipes/:recipe_id/ingredients/:id/consume — "Used" button:
+      # decrement household storage by this ingredient's quantity.
+      post :consume, on: :member
+    end
     collection { post :import } # POST /recipes/import -- Chefkoch URL importer
   end
 

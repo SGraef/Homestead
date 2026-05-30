@@ -52,12 +52,24 @@
             </span>
           </td>
           <td><%= i.notes %></td>
-          <td>
+          <td style="display:flex;gap:var(--sp-1);align-items:center;flex-wrap:wrap">
+            <%# "Used" decrements storage by this ingredient's quantity.
+                Disabled when nothing's on hand. Unit-mismatched rows
+                still render the button -- the controller flashes a
+                clear "couldn't convert" message so the user understands
+                why nothing happened. %>
+            <%= button_to t("recipe.consume.button"),
+                          consume_recipe_ingredient_path(@recipe, i),
+                          method: :post,
+                          class:  "btn btn-sm",
+                          form:   { style: "display:inline" },
+                          data:   { turbo_confirm: t("recipe.consume.confirm", name: i.product.name) },
+                          disabled: i.on_hand.zero? %>
             <%= button_to t("common.delete"),
                           recipe_ingredient_path(@recipe, i),
                           method: :delete, class: "btn btn-sm warn",
-                          data: { turbo_confirm: t("common.delete_confirm") },
-                          form: { style: "display:inline" } %>
+                          data:   { turbo_confirm: t("common.delete_confirm") },
+                          form:   { style: "display:inline" } %>
           </td>
         </tr>
       <% end %>
