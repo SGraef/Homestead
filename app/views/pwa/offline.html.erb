@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <meta charset="UTF-8">
+    <title><%= t("app_name") %> · <%= t("pwa.offline.title") %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#c97455">
+    <%= stylesheet_link_tag "application" %>
+  </head>
+  <body class="pwa-offline">
+    <main class="pwa-offline__panel">
+      <%= image_tag "mark.svg", alt: "", class: "pwa-offline__mark", width: 96, height: 96 %>
+      <h1><%= t("pwa.offline.heading") %></h1>
+      <p><%= t("pwa.offline.body") %></p>
+      <button type="button" class="btn" onclick="location.reload()">
+        <%= t("pwa.offline.retry") %>
+      </button>
+    </main>
+  </body>
+</html>

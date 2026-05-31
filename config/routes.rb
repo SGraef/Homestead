@@ -176,6 +176,14 @@ Rails.application.routes.draw do
     end
   end
 
+  # --- PWA ------------------------------------------------------------------
+  # Manifest + Service Worker live at the document root so the SW's
+  # default scope ("/") covers the entire app. The offline fallback is a
+  # tiny standalone page the SW serves when a navigation request fails.
+  get "/manifest.json",     to: "pwa#manifest",       as: :pwa_manifest
+  get "/service-worker.js", to: "pwa#service_worker", as: :pwa_service_worker
+  get "/offline",           to: "pwa#offline",        as: :pwa_offline
+
   # --- System ---------------------------------------------------------------
   get "/up", to: "rails/health#show", as: :rails_health_check
 end

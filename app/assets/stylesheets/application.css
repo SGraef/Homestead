@@ -513,3 +513,18 @@ pre {
   .app-header .nav-spacer { display: none; }
   main { padding: 0 var(--sp-3); }
 }
+
+/* ---- PWA offline page --------------------------------------- */
+/* Served by the service worker when navigation requests fail. No
+   header/main chrome -- just a centred panel with a retry button. */
+.pwa-offline {
+  min-height: 100vh; display: grid; place-items: center;
+  background: var(--bg-1); color: var(--fg-1); padding: var(--sp-5);
+}
+.pwa-offline__panel {
+  max-width: 28rem; text-align: center; display: grid; gap: var(--sp-4);
+  padding: var(--sp-5);
+}
+.pwa-offline__mark { margin: 0 auto; }
+.pwa-offline h1 { font-size: var(--fs-xl); }
+.pwa-offline p { color: var(--fg-2); }

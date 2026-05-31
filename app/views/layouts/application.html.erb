@@ -4,7 +4,14 @@
     <title><%= t("app_name") %> · <%= content_for(:title) || t("app_tagline") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="<%= t("app_name") %>">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#c97455">
+    <link rel="manifest" href="<%= pwa_manifest_path %>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= asset_path("pwa/apple-touch-icon.png") %>">
+    <link rel="icon" type="image/png" sizes="192x192" href="<%= asset_path("pwa/icon-192.png") %>">
+    <link rel="icon" type="image/svg+xml" href="<%= asset_path("mark.svg") %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%# Apply persisted theme before stylesheets so we don't flash the wrong palette. %>
@@ -18,6 +25,19 @@
     </script>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <%# Register the service worker. Guarded so it only runs in browsers
+        that support SWs (and skips when serving plain HTTP from
+        anything other than localhost, where the browser would reject
+        the registration anyway). %>
+    <script>
+      if ("serviceWorker" in navigator &&
+          (location.protocol === "https:" || location.hostname === "localhost")) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("<%= pwa_service_worker_path %>", { scope: "/" })
+            .catch(function (err) { console.warn("[pantria] SW registration failed:", err); });
+        });
+      }
+    </script>
   </head>
   <body>
     <header class="app-header" data-controller="theme">

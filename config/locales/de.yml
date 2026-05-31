@@ -71,6 +71,13 @@ de:
     login: "Anmelden"
     sign_up: "Registrieren"
 
+  pwa:
+    offline:
+      title: "Offline"
+      heading: "Du bist offline"
+      body: "Pantria kann den Server gerade nicht erreichen. Prüfe deine Verbindung und versuche es erneut."
+      retry: "Erneut versuchen"
+
   flash:
     signed_in: "Willkommen zurück, %{email}!"
     signed_out: "Du wurdest abgemeldet."

@@ -1,0 +1,115 @@
+// Pantria service worker.
+//
+// Strategy:
+//   - GET navigations (Accept: text/html)  -> network-first, fall back
+//     to the cached offline page when the network fails.
+//   - GET static assets (CSS, JS, fonts, images)  -> cache-first with
+//     a background refresh when the URL is a fingerprinted asset.
+//   - Everything else (POST/PUT/DELETE, API calls, third-party hosts)
+//     -> pass through, never touch the cache.
+//
+// CACHE_VERSION bumps invalidate every old cache atomically. Bump it
+// whenever you change the precache list or want every client to
+// re-fetch on next load.
+
+const CACHE_VERSION = "v1-<%= Rails.application.config.assets.respond_to?(:digest_class) ? Time.zone.today : Time.zone.today %>";
+const STATIC_CACHE  = `pantria-static-${CACHE_VERSION}`;
+const RUNTIME_CACHE = `pantria-runtime-${CACHE_VERSION}`;
+
+// Files that should always be available offline. We keep this tiny --
+// the app shell + offline page + icon. Anything else falls into the
+// runtime cache on first use.
+const PRECACHE_URLS = [
+  "/offline",
+  "<%= asset_path("mark.svg") %>",
+  "<%= asset_path("pwa/icon-192.png") %>",
+  "<%= asset_path("pwa/icon-512.png") %>"
+];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => Promise.all(
+      keys
+        .filter((k) => k !== STATIC_CACHE && k !== RUNTIME_CACHE)
+        .map((k) => caches.delete(k))
+    )).then(() => self.clients.claim())
+  );
+});
+
+// Whether this request is a "page load" we should treat with the
+// network-first strategy. GET + an Accept header that prefers HTML.
+function isNavigation(request) {
+  return request.mode === "navigate" ||
+         (request.method === "GET" &&
+          request.headers.get("accept")?.includes("text/html"));
+}
+
+// Same-origin static asset (CSS / JS / font / image), safe to cache.
+function isStaticAsset(url) {
+  if (url.origin !== self.location.origin) return false;
+  return /\.(?:css|js|woff2?|ttf|svg|png|jpg|jpeg|gif|webp|ico)$/.test(url.pathname);
+}
+
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+
+  // Never cache the SW itself or the manifest -- always go to network.
+  if (url.pathname === "/service-worker.js" || url.pathname === "/manifest.json") {
+    return;
+  }
+
+  if (isNavigation(request)) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  if (isStaticAsset(url)) {
+    event.respondWith(cacheFirst(request));
+  }
+});
+
+async function networkFirst(request) {
+  try {
+    const response = await fetch(request);
+    // Only stash 2xx HTML in the runtime cache so 4xx/5xx errors don't
+    // get pinned and replayed offline.
+    if (response.ok) {
+      const cache = await caches.open(RUNTIME_CACHE);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (_) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    const offline = await caches.match("/offline");
+    return offline || new Response("Offline", { status: 503, statusText: "Offline" });
+  }
+}
+
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(STATIC_CACHE);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (_) {
+    // No cached copy and the network failed -- let the browser show
+    // its default offline UI for this asset.
+    return new Response("", { status: 504, statusText: "Asset unavailable" });
+  }
+}

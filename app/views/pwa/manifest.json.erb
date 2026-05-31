@@ -1,0 +1,57 @@
+<%# Served at /manifest.json with Content-Type: application/manifest+json. %>
+{
+  "name": "<%= t("app_name") %>",
+  "short_name": "<%= t("app_name") %>",
+  "description": "<%= t("app_tagline") %>",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fdfcfa",
+  "theme_color": "#c97455",
+  "lang": "<%= I18n.locale %>",
+  "categories": ["productivity", "food", "shopping"],
+  "icons": [
+    {
+      "src": "<%= asset_path("pwa/icon-192.png") %>",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "<%= asset_path("pwa/icon-512.png") %>",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "<%= asset_path("pwa/icon-maskable-512.png") %>",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "<%= asset_path("mark.svg") %>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "<%= t("nav.scan") %>",
+      "url": "/products/scan",
+      "icons": [{ "src": "<%= asset_path("pwa/icon-192.png") %>", "sizes": "192x192" }]
+    },
+    {
+      "name": "<%= t("nav.grocery_list") %>",
+      "url": "/grocery_items",
+      "icons": [{ "src": "<%= asset_path("pwa/icon-192.png") %>", "sizes": "192x192" }]
+    },
+    {
+      "name": "<%= t("nav.storage") %>",
+      "url": "/storage_items",
+      "icons": [{ "src": "<%= asset_path("pwa/icon-192.png") %>", "sizes": "192x192" }]
+    }
+  ]
+}

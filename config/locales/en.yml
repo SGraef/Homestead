@@ -65,6 +65,13 @@ en:
     login: "Login"
     sign_up: "Sign up"
 
+  pwa:
+    offline:
+      title: "Offline"
+      heading: "You're offline"
+      body: "Pantria can't reach the server right now. Check your connection and try again."
+      retry: "Try again"
+
   flash:
     signed_in: "Welcome back, %{email}!"
     signed_out: "You have been signed out."
