@@ -388,6 +388,14 @@ de:
     barcodes_alternates: "Weitere Marken / Barcodes"
     add_barcode:         "Barcode hinzufügen"
     add_barcode_variant: "Brand-Variante hinzufügen"
+    scan_barcode:
+      button:    "Scannen"
+      scanning:  "Kamera läuft — auf einen Barcode richten…"
+      detected:  "%{value} erkannt — prüfen und speichern."
+      loading:   "Scanner wird geladen…"
+      denied:    "Kamera-Zugriff abgelehnt. Bitte in den Browser-Einstellungen erlauben."
+      no_camera: "Keine Kamera verfügbar — Barcode manuell eingeben."
+      in_use:    "Kamera wird von einer anderen App benutzt."
     delete_confirm:      "%{name} wirklich entfernen? Vorrat-Einträge, Preise und Einkaufslisten-Zeilen werden mit gelöscht."
     units:
       pcs:      "Stk"

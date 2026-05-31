@@ -390,6 +390,14 @@ en:
     barcodes_alternates:    "Other brands / barcodes"
     add_barcode:            "Add barcode"
     add_barcode_variant:    "Add brand variant"
+    scan_barcode:
+      button:    "Scan"
+      scanning:  "Camera running — point at a barcode…"
+      detected:  "Detected %{value} — review and save."
+      loading:   "Loading scanner…"
+      denied:    "Camera access denied. Allow it in the browser settings."
+      no_camera: "No camera available — type the barcode manually."
+      in_use:    "Camera is in use by another app."
     delete_confirm:         "Really remove %{name}? Storage entries, prices and grocery list rows will be deleted with it."
     units:
       pcs:      "pcs"

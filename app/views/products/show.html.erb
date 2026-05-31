@@ -71,20 +71,44 @@
     </div>
   <% end %>
 
-  <%= form_with url: product_product_barcodes_path(@product), local: true,
-                html: { style: "display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap;padding:var(--sp-3) 0;border-top:1px solid var(--border-subtle)" } do |f| %>
-    <input type="text" name="product_barcode[barcode]"
-           placeholder="<%= t("product.table.barcode") %>"
-           inputmode="numeric" pattern="\d*" required
-           style="flex:0 0 160px">
-    <input type="text" name="product_barcode[brand]"
-           placeholder="<%= t("product.table.brand") %>"
-           style="flex:0 0 160px">
-    <input type="text" name="product_barcode[quantity_text]"
-           placeholder="250 g"
-           style="flex:0 0 120px">
-    <%= f.submit t("product.add_barcode"), class: "btn btn-sm" %>
-  <% end %>
+  <div data-controller="scan-to-input"
+       data-i18n-scanning="<%= t("product.scan_barcode.scanning") %>"
+       data-i18n-detected="<%= t("product.scan_barcode.detected") %>"
+       data-i18n-loading="<%= t("product.scan_barcode.loading") %>"
+       data-i18n-denied="<%= t("product.scan_barcode.denied") %>"
+       data-i18n-no_camera="<%= t("product.scan_barcode.no_camera") %>"
+       data-i18n-in_use="<%= t("product.scan_barcode.in_use") %>"
+       style="padding:var(--sp-3) 0;border-top:1px solid var(--border-subtle)">
+    <%= form_with url: product_product_barcodes_path(@product), local: true,
+                  html: { style: "display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap" } do |f| %>
+      <input type="text" name="product_barcode[barcode]"
+             placeholder="<%= t("product.table.barcode") %>"
+             inputmode="numeric" pattern="\d*" required
+             data-scan-to-input-target="input"
+             style="flex:0 0 160px">
+      <input type="text" name="product_barcode[brand]"
+             placeholder="<%= t("product.table.brand") %>"
+             style="flex:0 0 160px">
+      <input type="text" name="product_barcode[quantity_text]"
+             placeholder="250 g"
+             style="flex:0 0 120px">
+      <%= f.submit t("product.add_barcode"), class: "btn btn-sm" %>
+      <button type="button"
+              class="btn btn-sm secondary"
+              data-action="scan-to-input#toggle"
+              data-scan-to-input-target="toggle">
+        📷 <%= t("product.scan_barcode.button") %>
+      </button>
+    <% end %>
+
+    <div data-scan-to-input-target="panel" hidden
+         style="margin-top:var(--sp-3);display:grid;gap:var(--sp-2)">
+      <video data-scan-to-input-target="video"
+             style="width:100%;max-width:480px;background:#000;border-radius:var(--radius-md)"
+             autoplay muted playsinline></video>
+      <p class="caption" data-scan-to-input-target="status"></p>
+    </div>
+  </div>
 </div>
 
 <% if @product.cheapest_price %>
