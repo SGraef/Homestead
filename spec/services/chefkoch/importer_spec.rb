@@ -10,15 +10,15 @@ RSpec.describe Chefkoch::Importer do
 
   let(:api_payload) do
     {
-      "title"           => "Tolle Pizza",
-      "subtitle"        => "Klassiker mit Tomate und Mozzarella",
-      "servings"        => 2,
-      "preparationTime" => 15,
-      "cookingTime"     => 10,
-      "instructions"    => "Teig kneten, ruhen lassen, belegen, backen.",
+      "title"            => "Tolle Pizza",
+      "subtitle"         => "Klassiker mit Tomate und Mozzarella",
+      "servings"         => 2,
+      "preparationTime"  => 15,
+      "cookingTime"      => 10,
+      "instructions"     => "Teig kneten, ruhen lassen, belegen, backen.",
       "ingredientGroups" => [
         {
-          "header" => nil,
+          "header"      => nil,
           "ingredients" => [
             { "name" => "Öl",       "unit" => "EL",        "amount" => 4.0, "usageInfo" => "" },
             { "name" => "Wasser",   "unit" => "ml",        "amount" => 250.0, "usageInfo" => "lauwarm" },
@@ -26,10 +26,10 @@ RSpec.describe Chefkoch::Importer do
           ]
         },
         {
-          "header" => "Belag",
+          "header"      => "Belag",
           "ingredients" => [
-            { "name" => "Mehl",      "unit" => "g",     "amount" => 500.0, "usageInfo" => "" },
-            { "name" => "Mozzarella","unit" => "Stück", "amount" => 1.0,   "usageInfo" => "" }
+            { "name" => "Mehl", "unit" => "g", "amount" => 500.0, "usageInfo" => "" },
+            { "name" => "Mozzarella", "unit" => "Stück", "amount" => 1.0, "usageInfo" => "" }
           ]
         }
       ]
@@ -58,9 +58,9 @@ RSpec.describe Chefkoch::Importer do
     end
 
     it "creates products for ingredients it hasn't seen before" do
-      expect {
+      expect do
         described_class.call(url: url, household: household)
-      }.to change(Product, :count).by(5)
+      end.to change(Product, :count).by(5)
 
       # Mehl mapped to canonical kg/g unit, Stück mapped to pcs, EL/Prise(n) -> pcs default
       mehl = household.products.find_by("LOWER(name) = ?", "mehl")
@@ -91,7 +91,7 @@ RSpec.describe Chefkoch::Importer do
     it "leaves the row unit blank when the Chefkoch unit matches the product's unit" do
       result = described_class.call(url: url, household: household)
       water = result.recipe.recipe_ingredients.find { |i| i.product.name == "Wasser" }
-      expect(water.unit).to be_blank   # display falls back to the product's "ml"
+      expect(water.unit).to be_blank # display falls back to the product's "ml"
       expect(water.product.unit).to eq("ml")
     end
 
@@ -100,13 +100,28 @@ RSpec.describe Chefkoch::Importer do
       water = result.recipe.recipe_ingredients.find { |i| i.product.name == "Wasser" }
       expect(water.notes).to eq("lauwarm")
     end
+
+    it "imports to-taste ingredients (amount: 0) as quantity 1 instead of failing" do
+      to_taste_payload = api_payload.deep_dup
+      to_taste_payload["ingredientGroups"].first["ingredients"] << {
+        "name" => "Pfeffer", "unit" => "", "amount" => 0, "usageInfo" => "nach Geschmack"
+      }
+      stub_request(:get, "https://api.chefkoch.de/v2/recipes/9876543210")
+        .to_return(status: 200, body: to_taste_payload.to_json,
+                   headers: { "Content-Type" => "application/json" })
+
+      result = described_class.call(url: url, household: household)
+      pepper = result.recipe.recipe_ingredients.find { |i| i.product.name == "Pfeffer" }
+      expect(pepper.quantity).to eq(1)
+      expect(pepper.notes).to eq("nach Geschmack")
+    end
   end
 
   describe "URL parsing" do
     it "rejects URLs that don't carry a recipe ID" do
-      expect {
+      expect do
         described_class.call(url: "https://www.chefkoch.de/", household: household)
-      }.to raise_error(Chefkoch::Importer::ImportError, /chefkoch/i)
+      end.to raise_error(Chefkoch::Importer::ImportError, /chefkoch/i)
     end
   end
 
@@ -114,9 +129,9 @@ RSpec.describe Chefkoch::Importer do
     it "surfaces a clean 404 message" do
       stub_request(:get, "https://api.chefkoch.de/v2/recipes/9876543210")
         .to_return(status: 404, body: "{}")
-      expect {
+      expect do
         described_class.call(url: url, household: household)
-      }.to raise_error(Chefkoch::Importer::ImportError, /404/i)
+      end.to raise_error(Chefkoch::Importer::ImportError, /404/i)
     end
   end
 end

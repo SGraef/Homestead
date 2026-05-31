@@ -32,10 +32,10 @@ module Chefkoch
     # not in this set is kept on the RecipeIngredient as the row-level
     # `unit` override; the Product itself defaults to "pcs".
     PRODUCT_UNIT_MAP = {
-      "g"   => "g",
-      "kg"  => "kg",
-      "ml"  => "ml",
-      "l"   => "l"
+      "g"  => "g",
+      "kg" => "kg",
+      "ml" => "ml",
+      "l"  => "l"
     }.freeze
 
     PIECE_UNITS = ["Stück", "Stk.", "Stk", "St.", "St"].freeze
@@ -109,12 +109,12 @@ module Chefkoch
       ingredients_attrs, products_created = build_ingredient_attrs(data["ingredientGroups"])
 
       recipe = @household.recipes.build(
-        name:         title,
-        description:  data["subtitle"].presence,
-        servings:     Integer(data["servings"] || 1),
-        prep_minutes: data["preparationTime"],
-        cook_minutes: data["cookingTime"],
-        notes:        compose_notes(data),
+        name:                          title,
+        description:                   data["subtitle"].presence,
+        servings:                      Integer(data["servings"] || 1),
+        prep_minutes:                  data["preparationTime"],
+        cook_minutes:                  data["cookingTime"],
+        notes:                         compose_notes(data),
         recipe_ingredients_attributes: ingredients_attrs
       )
       # Pull Chefkoch's flat tag list ("vegetarisch", "schnell",
@@ -146,9 +146,17 @@ module Chefkoch
           product, was_new = resolve_product(ing_name, ing["unit"])
           created += 1 if was_new
 
+          # Chefkoch returns `amount: 0` for to-taste rows ("Salz nach
+          # Geschmack", "1 Prise Pfeffer"). RecipeIngredient validates
+          # quantity > 0, so fall back to 1 -- the recipe row still
+          # reads sensibly ("1 Prise Salz") and `usageInfo` carries any
+          # qualifier through.
+          qty = ing["amount"].to_d
+          qty = BigDecimal(1) if qty <= 0
+
           attrs << {
             product_id: product.id,
-            quantity:   ing["amount"].presence || 0,
+            quantity:   qty,
             unit:       row_unit_for(ing["unit"]),
             notes:      ing["usageInfo"].presence,
             position:   position
@@ -178,6 +186,7 @@ module Chefkoch
       cu = chefkoch_unit.to_s.strip
       return PRODUCT_UNIT_MAP[cu] if PRODUCT_UNIT_MAP.key?(cu)
       return "pcs" if PIECE_UNITS.include?(cu)
+
       "pcs"
     end
 
@@ -190,6 +199,7 @@ module Chefkoch
       cu = chefkoch_unit.to_s.strip
       return nil if cu.empty?
       return nil if PRODUCT_UNIT_MAP.key?(cu)
+
       cu
     end
 
