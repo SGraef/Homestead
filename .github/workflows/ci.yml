@@ -91,7 +91,11 @@ jobs:
 
   cypress:
     runs-on: ubuntu-latest
-    needs: rspec
+    # No `needs:` -- cypress fans out in parallel with rspec. The two
+    # cost roughly the same wall-clock and have no shared state (rspec
+    # uses a GitHub-services MySQL; cypress brings up its own stack
+    # via docker-compose.test.yml), so chaining them just doubled the
+    # pipeline length for no gain.
     steps:
       - uses: actions/checkout@v4
       - name: Run e2e stack via docker compose
