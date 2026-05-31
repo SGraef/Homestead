@@ -42,17 +42,17 @@ class Product < ApplicationRecord
   has_many :receipt_line_items, dependent: :nullify
   accepts_nested_attributes_for :product_barcodes,
                                 allow_destroy: true,
-                                reject_if: ->(attrs) { attrs["barcode"].to_s.gsub(/\D/, "").blank? }
+                                reject_if:     ->(attrs) { attrs["barcode"].to_s.gsub(/\D/, "").blank? }
 
   validates :name, presence: true, length: { maximum: 200 }
   validates :unit, inclusion: { in: UNITS }
   validates :barcode,
             uniqueness: { scope: :household_id, allow_nil: true },
-            format: { with: /\A\d{8,14}\z/, allow_nil: true }
+            format:     { with: /\A\d{8,14}\z/, allow_nil: true }
 
   # Match either the primary barcode column or any alternate barcode row.
   # Used by the scan / lookup flow.
-  scope :by_barcode, ->(code) {
+  scope :by_barcode, lambda { |code|
     code = code.to_s.strip
     next none if code.empty?
 

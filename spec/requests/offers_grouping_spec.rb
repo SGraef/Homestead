@@ -59,7 +59,7 @@ RSpec.describe "GET /offers — category grouping" do
     get offers_path
     expect(response.body).to include("Joghurt-Curated")
     headings = response.body.scan(%r{<h2[^>]*>(.+?)</h2>}m).flatten
-                          .map { |s| s.gsub(/<[^>]+>/, "").strip }
+                       .map { |s| s.gsub(/<[^>]+>/, "").strip }
     expect(headings).to include(a_string_starting_with("Joghurt-Curated"))
     expect(headings).not_to include(a_string_starting_with("Milch & Käse"))
   end

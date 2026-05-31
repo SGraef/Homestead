@@ -29,7 +29,7 @@ RSpec.describe "GET /grocery_items — offer-match badge" do
 
     get grocery_items_path
 
-    expect(response.body).to include("0,99")    # German number format from locale
+    expect(response.body).to include("0,99") # German number format from locale
     expect(response.body).to include("REWE")
   end
 
@@ -46,7 +46,7 @@ RSpec.describe "GET /grocery_items — offer-match badge" do
   it "picks the cheapest offer across retailers" do
     household.grocery_items.create!(product: milk, quantity: 1, status: "needed")
     make_offer(product: milk, retailer: "REWE",  price_cents: 119)
-    make_offer(product: milk, retailer: "Lidl",  price_cents:  89)
+    make_offer(product: milk, retailer: "Lidl",  price_cents: 89)
     make_offer(product: milk, retailer: "Edeka", price_cents: 129)
 
     get grocery_items_path

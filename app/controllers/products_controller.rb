@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 class ProductsController < ApplicationController
   before_action :ensure_household
@@ -18,18 +18,18 @@ class ProductsController < ApplicationController
     authorize @product
   end
 
+  def edit
+    authorize @product
+  end
+
   def create
     @product = current_household.products.build(product_params)
     authorize @product
     if @product.save
       redirect_to @product, notice: t("notices.product_saved")
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
-  end
-
-  def edit
-    authorize @product
   end
 
   def update
@@ -37,7 +37,7 @@ class ProductsController < ApplicationController
     if @product.update(product_params)
       redirect_to @product, notice: t("notices.product_updated")
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -154,8 +154,8 @@ class ProductsController < ApplicationController
 
   def lookup_payload
     if @product
-      { source: "local",
-        product: ProductSerializer.call(@product),
+      { source:   "local",
+        product:  ProductSerializer.call(@product),
         edit_url: edit_product_path(@product) }
     elsif @remote
       { source: "remote", suggestion: @remote.to_h }

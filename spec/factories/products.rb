@@ -12,7 +12,7 @@ FactoryBot.define do
     household
     sequence(:name) { |n| "Product #{n}" }
     sequence(:barcode) { |n| (4_000_000_000_000 + n).to_s }
-    unit            { "pcs" }
+    unit { "pcs" }
   end
 
   factory :price do
@@ -36,9 +36,9 @@ FactoryBot.define do
 
     location do
       household.locations.find_by(kind: location_kind || "pantry") ||
-        household.locations.find_or_create_by!(name: location_kind || "pantry") { |l|
+        household.locations.find_or_create_by!(name: location_kind || "pantry") do |l|
           l.kind = location_kind || "pantry"
-        }
+        end
     end
   end
 

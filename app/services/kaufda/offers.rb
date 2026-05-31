@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 require "net/http"
 require "json"
@@ -25,7 +25,7 @@ module Kaufda
   #   KAUFDA_RETAILERS=Aldi-Nord,Aldi-Sued,Action
   class Offers
     BASE_URL          = "https://www.kaufda.de"
-    PAGE_URL_TEMPLATE = "#{BASE_URL}/Geschaefte/%s"
+    PAGE_URL_TEMPLATE = "#{BASE_URL}/Geschaefte/%s".freeze
     OPEN_TIMEOUT      = 6
     READ_TIMEOUT      = 12
     USER_AGENT        = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:124.0) " \
@@ -51,7 +51,7 @@ module Kaufda
       #   localized at the URL level, so we ignore it.
       # @param retailers [Array<String>, nil] override default slug list
       # @return [Array<OfferData>]
-      def pull_all(postal_code: nil, retailers: nil)
+      def pull_all(postal_code: nil, retailers: nil) # rubocop:disable Lint/UnusedMethodArgument
         slugs = retailers ||
                 ENV["KAUFDA_RETAILERS"]&.split(",")&.map(&:strip)&.compact_blank
         slugs = DEFAULT_RETAILERS if slugs.blank?
@@ -100,7 +100,7 @@ module Kaufda
         # price or UVP). Only treat it as a regular price when it's
         # actually higher than the sale.
         secondary    = to_cents(raw.dig("prices", "secondaryPrice"))
-        regular_cts  = (secondary && secondary > price_cents) ? secondary : nil
+        regular_cts  = secondary && secondary > price_cents ? secondary : nil
 
         OfferData.new(
           external_id:         ext_id,
@@ -157,7 +157,7 @@ module Kaufda
         http.open_timeout = OPEN_TIMEOUT
         http.read_timeout = READ_TIMEOUT
 
-        req  = Net::HTTP::Get.new(
+        req = Net::HTTP::Get.new(
           uri.request_uri,
           "User-Agent"      => USER_AGENT,
           "Accept"          => "text/html,application/xhtml+xml",

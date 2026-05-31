@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # A time-bounded promotional offer from a third-party flyer aggregator
 # (Marktguru today; design leaves room for more sources). Imported by
@@ -14,7 +14,7 @@ class Offer < ApplicationRecord
   validates :external_id, uniqueness: { scope: %i[household_id source] }
 
   # Currently-running offers in a household.
-  scope :current, ->(today = Date.current) {
+  scope :current, lambda { |today = Date.current|
     where("(valid_from IS NULL OR valid_from <= ?) AND " \
           "(valid_until IS NULL OR valid_until >= ?)", today, today)
   }

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Add / remove individual keywords inside an {OfferCategory}. Scoped
 # through the household to keep cross-tenant lookups impossible.

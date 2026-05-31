@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # CRUD for the household's offer-category mapping that drives
 # {OfferCategorizer}. The index page is a one-stop edit surface:
@@ -25,7 +25,7 @@ class OfferCategoriesController < ApplicationController
       flash.now[:alert] = @category.errors.full_messages.to_sentence
       @categories = current_household.offer_categories.ordered.includes(:offer_category_keywords)
       @new_category = @category
-      render :index, status: :unprocessable_entity
+      render :index, status: :unprocessable_content
     end
   end
 

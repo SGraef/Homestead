@@ -95,16 +95,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000031) do
     t.integer "flaschenpost_warehouse_id"
   end
 
-  create_table "inbound_email_sources", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "inbound_email_sources", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "user_id", null: false
     t.string "label", limit: 80, null: false
-    t.string "imap_host", limit: 255, null: false
+    t.string "imap_host", null: false
     t.integer "imap_port", default: 993, null: false
     t.boolean "imap_ssl", default: true, null: false
-    t.string "imap_username", limit: 255, null: false
+    t.string "imap_username", null: false
     t.text "imap_password", null: false
-    t.string "folder", limit: 255, default: "INBOX", null: false
+    t.string "folder", default: "INBOX", null: false
     t.boolean "expunge", default: false, null: false
     t.datetime "last_polled_at"
     t.string "last_error", limit: 1000
@@ -125,6 +125,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000031) do
     t.index ["household_id", "kind"], name: "index_locations_on_household_id_and_kind"
     t.index ["household_id", "name"], name: "index_locations_on_household_id_and_name", unique: true
     t.index ["household_id"], name: "index_locations_on_household_id"
+  end
+
+  create_table "meal_plan_entries", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "recipe_id", null: false
+    t.date "planned_on", null: false
+    t.string "slot", limit: 24, null: false
+    t.decimal "servings", precision: 8, scale: 2, default: "1.0", null: false
+    t.string "notes", limit: 200
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "planned_on", "slot"], name: "idx_meal_plan_household_date_slot"
+    t.index ["household_id"], name: "index_meal_plan_entries_on_household_id"
+    t.index ["recipe_id"], name: "index_meal_plan_entries_on_recipe_id"
   end
 
   create_table "memberships", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -222,9 +236,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000031) do
     t.string "currency", limit: 3, default: "EUR", null: false
     t.date "observed_on", null: false
     t.string "source", default: "manual"
-    t.decimal "pack_quantity", precision: 12, scale: 4, default: "1.0", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "pack_quantity", precision: 12, scale: 4, default: "1.0", null: false
     t.index ["product_id", "store_id", "observed_on"], name: "idx_prices_product_store_date"
     t.index ["product_id"], name: "index_prices_on_product_id"
     t.index ["store_id"], name: "index_prices_on_store_id"
@@ -274,49 +288,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000031) do
     t.index ["receipt_id"], name: "index_receipt_line_items_on_receipt_id"
   end
 
-  create_table "meal_plan_entries", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "household_id", null: false
-    t.bigint "recipe_id", null: false
-    t.date "planned_on", null: false
-    t.string "slot", limit: 24, null: false
-    t.decimal "servings", precision: 8, scale: 2, default: "1.0", null: false
-    t.string "notes", limit: 200
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["household_id", "planned_on", "slot"], name: "idx_meal_plan_household_date_slot"
-    t.index ["household_id"], name: "index_meal_plan_entries_on_household_id"
-    t.index ["recipe_id"], name: "index_meal_plan_entries_on_recipe_id"
-  end
-
-  create_table "recipe_ingredients", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "recipe_id", null: false
-    t.bigint "product_id", null: false
-    t.decimal "quantity", precision: 12, scale: 3, null: false
-    t.string "unit", limit: 16
-    t.string "notes", limit: 200
-    t.integer "position", default: 0, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["product_id"], name: "index_recipe_ingredients_on_product_id"
-    t.index ["recipe_id", "position"], name: "index_recipe_ingredients_on_recipe_id_and_position"
-    t.index ["recipe_id"], name: "index_recipe_ingredients_on_recipe_id"
-  end
-
-  create_table "recipes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "household_id", null: false
-    t.string "name", limit: 200, null: false
-    t.text "description"
-    t.integer "servings", default: 1, null: false
-    t.integer "prep_minutes"
-    t.integer "cook_minutes"
-    t.text "notes"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "tags", limit: 500
-    t.index ["household_id", "name"], name: "idx_recipes_household_name"
-    t.index ["household_id"], name: "index_recipes_on_household_id"
-  end
-
   create_table "receipts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "store_id"
@@ -336,6 +307,35 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000031) do
     t.index ["household_id"], name: "index_receipts_on_household_id"
     t.index ["store_id"], name: "index_receipts_on_store_id"
     t.index ["user_id"], name: "index_receipts_on_user_id"
+  end
+
+  create_table "recipe_ingredients", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "recipe_id", null: false
+    t.bigint "product_id", null: false
+    t.decimal "quantity", precision: 12, scale: 3, null: false
+    t.string "unit", limit: 16
+    t.string "notes", limit: 200
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_recipe_ingredients_on_product_id"
+    t.index ["recipe_id", "position"], name: "index_recipe_ingredients_on_recipe_id_and_position"
+    t.index ["recipe_id"], name: "index_recipe_ingredients_on_recipe_id"
+  end
+
+  create_table "recipes", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "name", limit: 200, null: false
+    t.text "description"
+    t.integer "servings", default: 1, null: false
+    t.integer "prep_minutes"
+    t.integer "cook_minutes"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "tags", limit: 500
+    t.index ["household_id", "name"], name: "idx_recipes_household_name"
+    t.index ["household_id"], name: "index_recipes_on_household_id"
   end
 
   create_table "solid_queue_blocked_executions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -518,7 +518,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000031) do
   add_foreign_key "grocery_items", "households"
   add_foreign_key "grocery_items", "products"
   add_foreign_key "grocery_items", "stores"
+  add_foreign_key "inbound_email_sources", "households", on_delete: :cascade
+  add_foreign_key "inbound_email_sources", "users", on_delete: :cascade
   add_foreign_key "locations", "households"
+  add_foreign_key "meal_plan_entries", "households", on_delete: :cascade
+  add_foreign_key "meal_plan_entries", "recipes", on_delete: :cascade
   add_foreign_key "memberships", "households"
   add_foreign_key "memberships", "users"
   add_foreign_key "offer_blocklist_entries", "households", on_delete: :cascade
@@ -532,17 +536,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000031) do
   add_foreign_key "prices", "products"
   add_foreign_key "prices", "stores"
   add_foreign_key "product_barcodes", "products"
-  add_foreign_key "meal_plan_entries", "households", on_delete: :cascade
-  add_foreign_key "meal_plan_entries", "recipes", on_delete: :cascade
-  add_foreign_key "recipe_ingredients", "products", on_delete: :cascade
-  add_foreign_key "recipe_ingredients", "recipes", on_delete: :cascade
-  add_foreign_key "recipes", "households", on_delete: :cascade
   add_foreign_key "products", "households"
   add_foreign_key "receipt_line_items", "products"
   add_foreign_key "receipt_line_items", "receipts"
   add_foreign_key "receipts", "households"
   add_foreign_key "receipts", "stores"
   add_foreign_key "receipts", "users"
+  add_foreign_key "recipe_ingredients", "products", on_delete: :cascade
+  add_foreign_key "recipe_ingredients", "recipes", on_delete: :cascade
+  add_foreign_key "recipes", "households", on_delete: :cascade
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
@@ -552,7 +554,5 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000031) do
   add_foreign_key "storage_items", "households"
   add_foreign_key "storage_items", "locations"
   add_foreign_key "storage_items", "products"
-  add_foreign_key "inbound_email_sources", "households", on_delete: :cascade
-  add_foreign_key "inbound_email_sources", "users", on_delete: :cascade
   add_foreign_key "stores", "households"
 end

@@ -4,32 +4,32 @@
 require "rails_helper"
 
 RSpec.describe "Recipes" do
-  let(:user)      { create(:user) }
+  let(:user) { create(:user) }
   let!(:household) { create(:household, admin: user) }
   let!(:milk)     { create(:product, household: household, name: "Vollmilch", unit: "l") }
-  let!(:flour)    { create(:product, household: household, name: "Mehl",       unit: "kg") }
+  let!(:flour)    { create(:product, household: household, name: "Mehl", unit: "kg") }
 
   before { login_via_post(user) }
 
   describe "CRUD" do
     it "creates a recipe with ingredients" do
-      expect {
+      expect do
         post recipes_path, params: {
           recipe: {
             name: "Pancakes", servings: 4, prep_minutes: 10, cook_minutes: 15,
             recipe_ingredients_attributes: {
               "0" => { product_id: milk.id,  quantity: "0.5" },
               "1" => { product_id: flour.id, quantity: "0.3" },
-              "2" => { product_id: "",        quantity: "" } # blank row -> reject_if
+              "2" => { product_id: "", quantity: "" } # blank row -> reject_if
             }
           }
         }
-      }.to change(Recipe, :count).by(1)
-       .and change(RecipeIngredient, :count).by(2)
+      end.to change(Recipe, :count).by(1)
+                                   .and change(RecipeIngredient, :count).by(2)
 
       r = Recipe.last
       expect(r.name).to eq("Pancakes")
-      expect(r.recipe_ingredients.pluck(:product_id)).to match_array([milk.id, flour.id])
+      expect(r.recipe_ingredients.pluck(:product_id)).to contain_exactly(milk.id, flour.id)
       expect(response).to redirect_to(r)
     end
 
@@ -50,10 +50,10 @@ RSpec.describe "Recipes" do
     it "destroys + cascades the ingredients" do
       r = Recipe.create!(household: household, name: "Soup", servings: 4)
       r.recipe_ingredients.create!(product: milk, quantity: 1)
-      expect {
+      expect do
         delete recipe_path(r)
-      }.to change(Recipe, :count).by(-1)
-       .and change(RecipeIngredient, :count).by(-1)
+      end.to change(Recipe, :count).by(-1)
+                                   .and change(RecipeIngredient, :count).by(-1)
     end
 
     it "rejects a product from another household" do
@@ -72,18 +72,18 @@ RSpec.describe "Recipes" do
     let(:recipe) { Recipe.create!(household: household, name: "Pizza", servings: 2) }
 
     it "adds an ingredient from the show page" do
-      expect {
+      expect do
         post recipe_ingredients_path(recipe),
              params: { recipe_ingredient: { product_id: flour.id, quantity: 0.4 } }
-      }.to change(RecipeIngredient, :count).by(1)
+      end.to change(RecipeIngredient, :count).by(1)
       expect(response).to redirect_to(recipe)
     end
 
     it "removes an ingredient" do
       ing = recipe.recipe_ingredients.create!(product: milk, quantity: 1)
-      expect {
+      expect do
         delete recipe_ingredient_path(recipe, ing)
-      }.to change(RecipeIngredient, :count).by(-1)
+      end.to change(RecipeIngredient, :count).by(-1)
     end
   end
 end

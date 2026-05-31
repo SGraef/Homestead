@@ -5,7 +5,7 @@ require "rails_helper"
 
 RSpec.describe "Offer-category management" do
   let(:user)      { create(:user) }
-  let(:household) { create(:household, admin: user) }  # auto-seeds defaults
+  let(:household) { create(:household, admin: user) } # auto-seeds defaults
 
   before do
     household
@@ -25,21 +25,21 @@ RSpec.describe "Offer-category management" do
 
   describe "POST /offers/categories" do
     it "creates a category" do
-      expect {
+      expect do
         post offer_categories_path, params: {
           offer_category: { name: "Custom Bucket", position: 5 }
         }
-      }.to change(household.offer_categories, :count).by(1)
+      end.to change(household.offer_categories, :count).by(1)
       expect(response).to redirect_to(offer_categories_path)
     end
 
     it "rejects a duplicate name (case-insensitive)" do
       household.offer_categories.create!(name: "Käse", position: 999)
-      expect {
+      expect do
         post offer_categories_path, params: {
           offer_category: { name: "KÄSE", position: 1000 }
         }
-      }.not_to change(OfferCategory, :count)
+      end.not_to change(OfferCategory, :count)
       expect(response).to have_http_status(:unprocessable_entity)
     end
   end
@@ -63,7 +63,7 @@ RSpec.describe "Offer-category management" do
 
       expect { delete offer_category_path(cat) }
         .to change(OfferCategory, :count).by(-1)
-         .and change(OfferCategoryKeyword, :count).by(-1)
+                                         .and change(OfferCategoryKeyword, :count).by(-1)
     end
   end
 
@@ -82,10 +82,10 @@ RSpec.describe "Offer-category management" do
   describe "POST /offers/categories/:id/keywords" do
     it "adds a keyword (downcased + trimmed)" do
       cat = household.offer_categories.first
-      expect {
+      expect do
         post offer_category_offer_category_keywords_path(cat),
              params: { offer_category_keyword: { keyword: "  KATZE  " } }
-      }.to change(cat.offer_category_keywords, :count).by(1)
+      end.to change(cat.offer_category_keywords, :count).by(1)
       expect(cat.offer_category_keywords.find_by(keyword: "katze")).to be_present
     end
 
@@ -93,10 +93,10 @@ RSpec.describe "Offer-category management" do
       cat = household.offer_categories.first
       cat.offer_category_keywords.create!(keyword: "dup")
 
-      expect {
+      expect do
         post offer_category_offer_category_keywords_path(cat),
              params: { offer_category_keyword: { keyword: "DUP" } }
-      }.not_to change(cat.offer_category_keywords, :count)
+      end.not_to change(cat.offer_category_keywords, :count)
     end
   end
 
@@ -105,9 +105,9 @@ RSpec.describe "Offer-category management" do
       cat = household.offer_categories.first
       kw  = cat.offer_category_keywords.create!(keyword: "toremove")
 
-      expect {
+      expect do
         delete offer_category_offer_category_keyword_path(cat, kw)
-      }.to change(cat.offer_category_keywords, :count).by(-1)
+      end.to change(cat.offer_category_keywords, :count).by(-1)
     end
   end
 end

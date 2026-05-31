@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # An entry on the household's grocery list. After purchase the item is
 # typically converted into a {StorageItem} via {#mark_purchased!}.
@@ -54,11 +54,11 @@ class GroceryItem < ApplicationRecord
   def mark_purchased!(store: nil, paid_amount: nil, expires_on: nil, location: nil)
     transaction do
       assign_attributes(
-        status:        "purchased",
-        purchased_at:  Time.current,
-        store:         store || self.store,
+        status:            "purchased",
+        purchased_at:      Time.current,
+        store:             store || self.store,
         paid_amount_cents: paid_amount && (BigDecimal(paid_amount.to_s) * 100).to_i,
-        paid_currency: paid_amount ? "EUR" : nil
+        paid_currency:     paid_amount ? "EUR" : nil
       )
       save!
 
@@ -77,7 +77,7 @@ class GroceryItem < ApplicationRecord
     case value
     when Location       then value
     when String, Symbol then household.locations.find_by(kind: value.to_s) ||
-                              household.default_storage_location
+      household.default_storage_location
     else                     household.default_storage_location
     end
   end

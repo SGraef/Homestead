@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # An observed price for a {Product} at a specific {Store} on a specific date.
 # Stored in minor units (cents) to avoid float drift.
@@ -37,6 +37,7 @@ class Price < ApplicationRecord
   # @return [BigDecimal, nil]
   def amount_per_normalized_unit
     return nil unless product && amount_cents
+
     qty = BigDecimal((pack_quantity || 1).to_s)
     return nil if qty.zero?
 

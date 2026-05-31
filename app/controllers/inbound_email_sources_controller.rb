@@ -23,6 +23,8 @@ class InboundEmailSourcesController < ApplicationController
     )
   end
 
+  def edit; end
+
   def create
     @source = current_household.inbound_email_sources.build(create_params)
     @source.user = current_user
@@ -30,11 +32,9 @@ class InboundEmailSourcesController < ApplicationController
       redirect_to inbound_email_sources_path,
                   notice: t("inbound_email.created", label: @source.label)
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
-
-  def edit; end
 
   def update
     @source.assign_attributes(update_params.except(:imap_password))
@@ -43,7 +43,7 @@ class InboundEmailSourcesController < ApplicationController
       redirect_to inbound_email_sources_path,
                   notice: t("inbound_email.updated", label: @source.label)
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

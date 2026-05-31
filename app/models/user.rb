@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # A user authenticates with email + password (Sorcery) and may belong to one or
 # many households via {Membership}. All Pundit checks scope through the user's
@@ -17,13 +17,13 @@ class User < ApplicationRecord
   has_many :api_tokens, dependent: :destroy
 
   validates :email,
-            presence: true,
+            presence:   true,
             uniqueness: { case_sensitive: false },
-            format: { with: URI::MailTo::EMAIL_REGEXP }
+            format:     { with: URI::MailTo::EMAIL_REGEXP }
   validates :password,
-            length: { minimum: 8 },
+            length:       { minimum: 8 },
             confirmation: true,
-            if: -> { new_record? || changes[:crypted_password] }
+            if:           -> { new_record? || changes[:crypted_password] }
   validates :password_confirmation, presence: true, if: -> { new_record? }
 
   before_save { self.email = email&.downcase&.strip }

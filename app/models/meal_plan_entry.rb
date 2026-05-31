@@ -16,7 +16,7 @@ class MealPlanEntry < ApplicationRecord
   validates :servings, numericality: { greater_than: 0 }
   validate  :recipe_must_match_household
 
-  scope :for_week_of, ->(date) {
+  scope :for_week_of, lambda { |date|
     monday = date.beginning_of_week(:monday)
     where(planned_on: monday..(monday + 6.days))
   }

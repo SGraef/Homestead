@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Lists currently-running Marktguru offers for the household and exposes a
 # manual "Sync now" button. Background sync runs daily via Solid Queue
@@ -10,7 +10,7 @@ class OffersController < ApplicationController
   def index
     @postal_code = current_household.postal_code
     scope = current_household.offers.current.ordered
-                              .includes(:product, :store)
+                             .includes(:product, :store)
     if (q = params[:q].presence)
       like = "%#{Offer.sanitize_sql_like(q)}%"
       scope = scope.where("title LIKE ? OR retailer_name LIKE ? OR brand LIKE ?",
@@ -18,7 +18,7 @@ class OffersController < ApplicationController
     end
 
     @watch_patterns = current_household.offer_watchlist_entries
-                                        .pluck(:pattern).map { |p| p.to_s.downcase }
+                                       .pluck(:pattern).map { |p| p.to_s.downcase }
 
     # Pull into memory so the watchlist re-rank can run; capped at 200
     # to keep the page bounded.
@@ -39,9 +39,9 @@ class OffersController < ApplicationController
     end
 
     # Stable category order: named buckets alphabetical, no-category last.
-    @offers_by_category = grouped.sort_by { |cat, _|
+    @offers_by_category = grouped.sort_by do |cat, _|
       [cat.nil? ? 1 : 0, cat.to_s.downcase]
-    }
+    end
     # Backwards-compatible flat list for any view branch still using it.
     @offers = @offers_by_category.flat_map { |_, arr| arr }
   end
@@ -89,7 +89,7 @@ class OffersController < ApplicationController
     offer = current_household.offers.find(params[:id])
 
     Offer.transaction do
-      product       = offer.product || create_product_from(offer)
+      product = offer.product || create_product_from(offer)
       offer.update!(product: product) if offer.product.nil?
       add_or_bump_grocery_item(product)
     end

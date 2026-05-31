@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Runs OCR + parsing for a single {Receipt} asynchronously, persisting the
 # raw OCR output and creating one {ReceiptLineItem} per detected line.

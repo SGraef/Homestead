@@ -12,9 +12,9 @@ RSpec.describe GroceryItem do
 
   context "without a Bring connection" do
     it "does not enqueue any job on create" do
-      expect {
+      expect do
         create(:grocery_item, household: household, product: product, status: "needed")
-      }.not_to have_enqueued_job(SyncGroceryToBringJob)
+      end.not_to have_enqueued_job(SyncGroceryToBringJob)
     end
   end
 
@@ -33,28 +33,28 @@ RSpec.describe GroceryItem do
     end
 
     it "enqueues a push when a needed item is created" do
-      expect {
+      expect do
         create(:grocery_item, household: household, product: product, status: "needed")
-      }.to have_enqueued_job(SyncGroceryToBringJob)
-            .with(household.id, action: "push", name: "Vollmilch")
+      end.to have_enqueued_job(SyncGroceryToBringJob)
+        .with(household.id, action: "push", name: "Vollmilch")
     end
 
     it "enqueues a remove when an item flips from needed to purchased" do
       gi = create(:grocery_item, household: household, product: product, status: "needed")
 
-      expect {
+      expect do
         gi.update!(status: "purchased", purchased_at: Time.current)
-      }.to have_enqueued_job(SyncGroceryToBringJob)
-            .with(household.id, action: "remove", name: "Vollmilch")
+      end.to have_enqueued_job(SyncGroceryToBringJob)
+        .with(household.id, action: "remove", name: "Vollmilch")
     end
 
     it "enqueues a remove on destroy" do
       gi = create(:grocery_item, household: household, product: product, status: "needed")
 
-      expect {
+      expect do
         gi.destroy!
-      }.to have_enqueued_job(SyncGroceryToBringJob)
-            .with(household.id, action: "remove", name: "Vollmilch")
+      end.to have_enqueued_job(SyncGroceryToBringJob)
+        .with(household.id, action: "remove", name: "Vollmilch")
     end
   end
 end

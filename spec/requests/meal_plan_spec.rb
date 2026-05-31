@@ -4,9 +4,9 @@
 require "rails_helper"
 
 RSpec.describe "Meal plan" do
-  let(:user)      { create(:user) }
+  let(:user) { create(:user) }
   let!(:household) { create(:household, admin: user) }
-  let!(:recipe)   { Recipe.create!(household: household, name: "Pancakes", servings: 2) }
+  let!(:recipe) { Recipe.create!(household: household, name: "Pancakes", servings: 2) }
 
   before { login_via_post(user) }
 
@@ -34,13 +34,13 @@ RSpec.describe "Meal plan" do
 
   describe "POST /meal_plan_entries" do
     it "schedules a recipe at the chosen (date, slot)" do
-      expect {
+      expect do
         post meal_plan_entries_path, params: {
           meal_plan_entry: {
             recipe_id: recipe.id, planned_on: "2026-06-15", slot: "dinner", servings: 3
           }
         }
-      }.to change(MealPlanEntry, :count).by(1)
+      end.to change(MealPlanEntry, :count).by(1)
 
       entry = MealPlanEntry.last
       expect(entry).to have_attributes(recipe: recipe, planned_on: Date.new(2026, 6, 15),
@@ -49,13 +49,13 @@ RSpec.describe "Meal plan" do
     end
 
     it "rejects unknown slots" do
-      expect {
+      expect do
         post meal_plan_entries_path, params: {
           meal_plan_entry: {
             recipe_id: recipe.id, planned_on: "2026-06-15", slot: "brunch"
           }
         }
-      }.not_to change(MealPlanEntry, :count)
+      end.not_to change(MealPlanEntry, :count)
     end
   end
 
@@ -64,9 +64,9 @@ RSpec.describe "Meal plan" do
       entry = household.meal_plan_entries.create!(
         recipe: recipe, planned_on: Date.current, slot: "lunch"
       )
-      expect {
+      expect do
         delete meal_plan_entry_path(entry)
-      }.to change(MealPlanEntry, :count).by(-1)
+      end.to change(MealPlanEntry, :count).by(-1)
     end
   end
 end

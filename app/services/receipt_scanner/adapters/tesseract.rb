@@ -75,7 +75,7 @@ module ReceiptScanner
         Dir.mktmpdir("pantria-ocr") do |dir|
           prefix = File.join(dir, "page")
           rasterize_pdf!(pdf_path, prefix)
-          pages = Dir.glob("#{prefix}-*.png").sort
+          pages = Dir.glob("#{prefix}-*.png")
           raise OcrError, "PDF rasterized to zero pages" if pages.empty?
 
           pages.map { |p| run_tesseract(p) }.join("\n\n")

@@ -45,7 +45,7 @@ module Bring
         end
 
         recent.each do |name|
-          marked_purchased += 1 if sync_recent(name)
+          marked_purchased += 1 if sync_recent?(name)
         end
       end
 
@@ -81,7 +81,7 @@ module Bring
     end
 
     # @return [Boolean] true if a row was flipped
-    def sync_recent(name)
+    def sync_recent?(name)
       product = @household.products.find_by(name: name)
       return false unless product
 

@@ -22,9 +22,9 @@ RSpec.describe Bring::Pull do
   def stub_list(purchase: [], recently: [])
     stub_request(:get, "https://api.getbring.com/rest/v2/bringlists/l-1")
       .to_return(
-        status: 200,
+        status:  200,
         headers: { "Content-Type" => "application/json" },
-        body: {
+        body:    {
           uuid: "l-1", status: "REGISTERED",
           purchase: purchase.map { |n| { name: n, specification: "" } },
           recently: recently.map { |n| { name: n, specification: "" } }
@@ -33,7 +33,7 @@ RSpec.describe Bring::Pull do
   end
 
   it "creates a Product + needed GroceryItem for each Bring item that's new locally" do
-    stub_list(purchase: ["Vollmilch", "Brot"])
+    stub_list(purchase: %w[Vollmilch Brot])
 
     outcome = described_class.new(connection).call
 
@@ -78,9 +78,9 @@ RSpec.describe Bring::Pull do
   it "does not echo pull-time writes back to Bring (no push job enqueued)" do
     stub_list(purchase: ["Vollmilch"])
 
-    expect {
+    expect do
       described_class.new(connection).call
-    }.not_to have_enqueued_job(SyncGroceryToBringJob)
+    end.not_to have_enqueued_job(SyncGroceryToBringJob)
   end
 
   it "stamps last_synced_at on success" do

@@ -34,6 +34,7 @@ class RecipeIngredient < ApplicationRecord
   # subtracting `4` from the ml row would corrupt inventory.
   def consumable?
     return true if unit.blank?
+
     unit.to_s.casecmp(product&.unit.to_s).zero?
   end
 

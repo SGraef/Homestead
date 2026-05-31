@@ -22,18 +22,18 @@ class RecipesController < ApplicationController
     5.times { @recipe.recipe_ingredients.build }
   end
 
+  def edit
+    pad_empty_ingredient_rows
+  end
+
   def create
     @recipe = current_household.recipes.build(recipe_params)
     if @recipe.save
       redirect_to @recipe, notice: t("recipe.created", name: @recipe.name)
     else
       pad_empty_ingredient_rows
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
-  end
-
-  def edit
-    pad_empty_ingredient_rows
   end
 
   def update
@@ -41,7 +41,7 @@ class RecipesController < ApplicationController
       redirect_to @recipe, notice: t("recipe.updated", name: @recipe.name)
     else
       pad_empty_ingredient_rows
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -64,9 +64,9 @@ class RecipesController < ApplicationController
     result = Chefkoch::Importer.call(url: url, household: current_household)
     redirect_to result.recipe,
                 notice: t("recipe.import.success",
-                          name: result.recipe.name,
+                          name:        result.recipe.name,
                           ingredients: result.ingredients_created,
-                          products: result.products_created)
+                          products:    result.products_created)
   rescue Chefkoch::Importer::ImportError => e
     redirect_to recipes_path, alert: e.message
   rescue ActiveRecord::RecordInvalid => e
@@ -103,7 +103,7 @@ class RecipesController < ApplicationController
         end
 
         existing = current_household.grocery_items
-                                     .find_by(product: ing.product, status: "needed")
+                                    .find_by(product: ing.product, status: "needed")
         if existing
           existing.update!(quantity: existing.quantity + deficit)
           bumped += 1
@@ -134,7 +134,8 @@ class RecipesController < ApplicationController
 
   def pad_empty_ingredient_rows
     return unless @recipe
-    needed = 3 - @recipe.recipe_ingredients.select { |i| i.new_record? }.size
+
+    needed = 3 - @recipe.recipe_ingredients.select(&:new_record?).size
     needed.positive? && needed.times { @recipe.recipe_ingredients.build }
   end
 

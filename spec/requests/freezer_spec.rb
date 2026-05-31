@@ -32,12 +32,12 @@ RSpec.describe "Freezer page" do
 
   describe "POST /freezer/homemade" do
     it "creates a homemade product + a freezer storage row in one transaction" do
-      expect {
+      expect do
         post homemade_freezer_path,
              params: { name: "Bolognese", unit: "portions",
                        quantity: "4", frozen_on: Date.current.to_s }
-      }.to change(Product, :count).by(1)
-       .and change(StorageItem, :count).by(1)
+      end.to change(Product, :count).by(1)
+                                    .and change(StorageItem, :count).by(1)
 
       product = Product.last
       expect(product.name).to eq("Bolognese")
@@ -51,20 +51,20 @@ RSpec.describe "Freezer page" do
     end
 
     it "rejects an invalid unit" do
-      expect {
+      expect do
         post homemade_freezer_path,
              params: { name: "Tomatensoße", unit: "kg", quantity: "1" }
-      }.not_to change(StorageItem, :count)
+      end.not_to change(StorageItem, :count)
 
       expect(response).to redirect_to(freezer_path)
       expect(flash[:alert]).to be_present
     end
 
     it "rejects a blank name" do
-      expect {
+      expect do
         post homemade_freezer_path,
              params: { name: " ", unit: "portions", quantity: "1" }
-      }.not_to change(Product, :count)
+      end.not_to change(Product, :count)
 
       expect(response).to redirect_to(freezer_path)
       expect(flash[:alert]).to be_present

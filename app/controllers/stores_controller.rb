@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 class StoresController < ApplicationController
   before_action :ensure_household
@@ -19,18 +19,18 @@ class StoresController < ApplicationController
     authorize @store
   end
 
+  def edit
+    authorize @store
+  end
+
   def create
     @store = current_household.stores.build(store_params)
     authorize @store
     if @store.save
       redirect_to @store, notice: t("notices.store_added")
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
-  end
-
-  def edit
-    authorize @store
   end
 
   def update
@@ -38,7 +38,7 @@ class StoresController < ApplicationController
     if @store.update(store_params)
       redirect_to @store, notice: t("notices.store_updated")
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

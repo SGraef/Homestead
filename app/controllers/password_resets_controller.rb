@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Standard Sorcery `reset_password` flow:
 #
@@ -12,16 +12,16 @@ class PasswordResetsController < ApplicationController
 
   def new; end
 
+  def edit
+    @user = User.load_from_reset_password_token(params[:token])
+    redirect_to(new_password_reset_path, alert: t("password_reset.invalid")) unless @user
+  end
+
   def create
     user = User.find_by(email: params[:email].to_s.downcase.strip)
     user&.deliver_reset_password_instructions!
     # Don't leak which addresses exist.
     redirect_to login_path, notice: t("password_reset.email_sent")
-  end
-
-  def edit
-    @user = User.load_from_reset_password_token(params[:token])
-    return redirect_to(new_password_reset_path, alert: t("password_reset.invalid")) unless @user
   end
 
   def update
@@ -32,7 +32,7 @@ class PasswordResetsController < ApplicationController
     if @user.change_password(params.dig(:user, :password))
       redirect_to login_path, notice: t("password_reset.success")
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 end

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 class StorageItemsController < ApplicationController
   before_action :ensure_household
@@ -7,7 +7,7 @@ class StorageItemsController < ApplicationController
 
   def index
     scope = policy_scope(current_household.storage_items)
-              .includes(:product, :location)
+            .includes(:product, :location)
 
     @location = lookup_location(params[:location_id])
     scope     = scope.where(location: @location) if @location
@@ -38,6 +38,10 @@ class StorageItemsController < ApplicationController
     authorize @item
   end
 
+  def edit
+    authorize @item
+  end
+
   def create
     @item = current_household.storage_items.build(item_params)
     authorize @item
@@ -50,12 +54,8 @@ class StorageItemsController < ApplicationController
                   notice: t("notices.storage_added_named",
                             name: @item.product.name, qty: @item.quantity)
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
-  end
-
-  def edit
-    authorize @item
   end
 
   def update
@@ -63,7 +63,7 @@ class StorageItemsController < ApplicationController
     if @item.update(item_params)
       redirect_to storage_items_path, notice: t("notices.storage_updated")
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

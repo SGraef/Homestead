@@ -28,7 +28,9 @@ class MealPlanSuggester
   FISH_TAGS = %w[fisch fish meeresfrüchte seafood].freeze
   MEAT_TAGS = %w[fleisch beef rind schwein pork lamm lamb hähnchen huhn chicken pute turkey wild].freeze
 
-  Result = Struct.new(:entries, :scheduled, :skipped_days, :reason, keyword_init: true)
+  # `created_entries` rather than `entries` — Struct already has an
+  # `#entries` accessor and overriding it triggers Lint/StructNewOverride.
+  Result = Struct.new(:created_entries, :scheduled, :skipped_days, :reason, keyword_init: true)
 
   def initialize(household:, week_start: nil, slot: TARGET_SLOT)
     @household   = household
@@ -47,14 +49,16 @@ class MealPlanSuggester
     slots_to_fill = days.reject { |d| existing.key?(d) }
 
     catalog = @household.recipes.to_a
-    return Result.new(entries: [], scheduled: 0, skipped_days: slots_to_fill.size,
-                      reason: :no_recipes) if catalog.empty?
+    if catalog.empty?
+      return Result.new(created_entries: [], scheduled: 0, skipped_days: slots_to_fill.size,
+                        reason: :no_recipes)
+    end
 
     # Pre-load recent picks so the scorer can penalise repeats.
     cooldown_from = @week_start - (COOLDOWN_WEEKS * 7).days
     recent_recipe_ids = @household.meal_plan_entries
-                                   .where("planned_on >= ?", cooldown_from)
-                                   .pluck(:recipe_id)
+                                  .where(planned_on: cooldown_from..)
+                                  .pluck(:recipe_id)
     cooldown_counts = recent_recipe_ids.tally
 
     picks       = {}
@@ -69,10 +73,9 @@ class MealPlanSuggester
 
       scored = candidates.map do |r|
         [r, score_recipe(r, cooldown_counts: cooldown_counts,
-                            chosen_ids: chosen_ids,
-                            veg_count:  veg_count,
-                            fish_count: fish_count,
-                            meat_count: meat_count)]
+                            veg_count:       veg_count,
+                            fish_count:      fish_count,
+                            meat_count:      meat_count)]
       end
 
       # Weighted-random pick from the top quartile so a tie between
@@ -80,7 +83,7 @@ class MealPlanSuggester
       # week-over-week.
       max_score = scored.map(&:last).max
       top       = scored.select { |_, s| s >= max_score - 25 }
-      chosen, _ = top.sample(random: @random)
+      chosen, = top.sample(random: @random)
 
       picks[day] = chosen
       chosen_ids << chosen.id
@@ -104,16 +107,16 @@ class MealPlanSuggester
     end
 
     Result.new(
-      entries:      created,
-      scheduled:    created.size,
-      skipped_days: slots_to_fill.size - created.size,
-      reason:       nil
+      created_entries: created,
+      scheduled:       created.size,
+      skipped_days:    slots_to_fill.size - created.size,
+      reason:          nil
     )
   end
 
   private
 
-  def score_recipe(recipe, cooldown_counts:, chosen_ids:, veg_count:, fish_count:, meat_count:)
+  def score_recipe(recipe, cooldown_counts:, veg_count:, fish_count:, meat_count:)
     score = 100
 
     # Cooldown penalty: heavily disprefer recipes already cooked

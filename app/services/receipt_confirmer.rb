@@ -109,10 +109,10 @@ class ReceiptConfirmer
 
   def create_new(line, decision)
     product = @household.products.create!(
-      name:    decision[:name].presence    || line.parsed_name,
-      brand:   decision[:brand].presence,
-      barcode: decision[:barcode].presence,
-      unit:    decision[:unit].presence    || "pcs",
+      name:     decision[:name].presence || line.parsed_name,
+      brand:    decision[:brand].presence,
+      barcode:  decision[:barcode].presence,
+      unit:     decision[:unit].presence || "pcs",
       category: decision[:category].presence
     )
     record_price(product, line, decision)

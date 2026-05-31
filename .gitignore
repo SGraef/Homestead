@@ -24,10 +24,9 @@
 /config/master.key
 /config/credentials/*.key
 
-# Sorbet generated
-/sorbet/rbi/gems
-/sorbet/rbi/dsl
-/sorbet/rbi/annotations
+# Sorbet generated RBIs are committed so CI doesn't need to run
+# `tapioca gems` / `tapioca dsl` (which requires the DB) before
+# `srb tc`. Regenerate locally after gem upgrades.
 
 # Tests / coverage
 /coverage

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 require "net/http"
 require "json"
@@ -82,7 +82,7 @@ module MeinProspekt
 
       # Paginates one query until either a short page (< PAGE_SIZE) or
       # MAX_PAGES, yielding each offer hash to the block.
-      def fetch_query(query, lat:, lng:)
+      def fetch_query(query, lat:, lng:, &block)
         MAX_PAGES.times do |i|
           offset = i * PAGE_SIZE
           params = { query: query, lat: lat, lng: lng,
@@ -93,7 +93,7 @@ module MeinProspekt
           offers = Array(data&.dig("searchResults", "contents", "offers"))
           break if offers.empty?
 
-          offers.each { |o| yield o }
+          offers.each(&block)
           break if offers.size < PAGE_SIZE
         end
       end
@@ -111,7 +111,7 @@ module MeinProspekt
         return nil unless price_cents
 
         secondary   = to_cents(raw.dig("prices", "secondaryPrice"))
-        regular_cts = (secondary && secondary > price_cents) ? secondary : nil
+        regular_cts = secondary && secondary > price_cents ? secondary : nil
 
         OfferData.new(
           external_id:         ext_id,

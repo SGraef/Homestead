@@ -48,7 +48,10 @@ module Api
       def lookup
         code    = params[:barcode].to_s.strip
         product = current_household.products.by_barcode(code).first
-        return render(json: { source: "local", product: ProductSerializer.call(product, include_prices: true) }) if product
+        if product
+          return render(json: { source:  "local",
+                                product: ProductSerializer.call(product, include_prices: true) })
+        end
 
         remote = BarcodeLookup.call(code)
         return render_error(:not_found, "Unknown barcode") unless remote

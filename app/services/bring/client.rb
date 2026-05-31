@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 require "net/http"
 require "uri"
@@ -48,15 +48,15 @@ module Bring
     def self.login(email:, password:, country: "DE")
       resp = http_request(:post, "/bringauth",
                           headers: base_headers(country: country, content_type: :form),
-                          body: URI.encode_www_form(email: email, password: password))
+                          body:    URI.encode_www_form(email: email, password: password))
       raise AuthError, "HTTP #{resp.code}: #{resp.body.to_s.first(300)}" unless resp.is_a?(Net::HTTPSuccess)
 
       data = JSON.parse(resp.body)
       Rails.logger.info(
         "[Bring] login OK — fields: #{data.keys.inspect}, " \
-        "access_token=#{data['access_token']&.length}chars, " \
-        "uuid=#{data['uuid']}, bringListUUID=#{data['bringListUUID']}, " \
-        "token_type=#{data['token_type']}, expires_in=#{data['expires_in']}"
+        "access_token=#{data["access_token"]&.length}chars, " \
+        "uuid=#{data["uuid"]}, bringListUUID=#{data["bringListUUID"]}, " \
+        "token_type=#{data["token_type"]}, expires_in=#{data["expires_in"]}"
       )
       data
     end
@@ -75,13 +75,13 @@ module Bring
     def push_item(name:, specification: nil)
       authenticated(:put, "/bringlists/#{@connection.default_list_uuid}",
                     headers: { "Content-Type" => "application/x-www-form-urlencoded" },
-                    body: URI.encode_www_form(purchase: name, specification: specification.to_s))
+                    body:    URI.encode_www_form(purchase: name, specification: specification.to_s))
     end
 
     def remove_item(name:)
       authenticated(:put, "/bringlists/#{@connection.default_list_uuid}",
                     headers: { "Content-Type" => "application/x-www-form-urlencoded" },
-                    body: URI.encode_www_form(recently: name))
+                    body:    URI.encode_www_form(recently: name))
     end
 
     private
@@ -119,14 +119,14 @@ module Bring
       redacted = sent_headers.transform_values do |v|
         case v
         when /\A(Bearer|JWT|Basic) (.+)/i
-          "#{$1} <redacted:#{$2.length}chars>"
+          "#{::Regexp.last_match(1)} <redacted:#{::Regexp.last_match(2).length}chars>"
         else v
         end
       end
       Rails.logger.warn(
-        "[Bring] #{method.upcase} #{path} failed: HTTP #{resp.code}\n" \
-        "  Response: #{body_excerpt}\n" \
-        "  Sent headers: #{redacted.inspect}"
+        "[Bring] #{method.upcase} #{path} failed: HTTP #{resp.code}\n  " \
+        "Response: #{body_excerpt}\n  " \
+        "Sent headers: #{redacted.inspect}"
       )
     end
 
@@ -181,5 +181,7 @@ module Bring
       end
       h
     end
+
+    private_class_method :http_request, :base_headers
   end
 end

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # View helpers used across templates.
 module ApplicationHelper
@@ -9,7 +9,7 @@ module ApplicationHelper
   def format_money(amount_cents, currency = "EUR")
     return "—" unless amount_cents
 
-    "#{currency} #{format('%.2f', amount_cents / 100.0)}"
+    "#{currency} #{format("%.2f", amount_cents / 100.0)}"
   end
 
   # Format a Price as "shelf-tag" value: e.g. "1,99 € / kg" / "0,50 € / Stück".

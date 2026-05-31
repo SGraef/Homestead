@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 class MembershipsController < ApplicationController
   before_action :set_household

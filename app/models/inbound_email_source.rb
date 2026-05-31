@@ -17,7 +17,7 @@ class InboundEmailSource < ApplicationRecord
 
   validates :label,         presence: true, length: { maximum: 80 }
   validates :imap_host,     presence: true, length: { maximum: 255 }
-  validates :imap_port,     presence: true,
+  validates :imap_port,     presence:     true,
                             numericality: { only_integer: true,
                                             greater_than: 0, less_than: 65_536 }
   validates :imap_username, presence: true, length: { maximum: 255 }
@@ -25,9 +25,9 @@ class InboundEmailSource < ApplicationRecord
   validates :folder,        presence: true, length: { maximum: 255 }
 
   validates :imap_username,
-            uniqueness: { scope: %i[household_id imap_host folder],
+            uniqueness: { scope:          %i[household_id imap_host folder],
                           case_sensitive: false,
-                          message: :duplicate_source }
+                          message:        :duplicate_source }
 
   scope :ordered, -> { order(:label, :id) }
 

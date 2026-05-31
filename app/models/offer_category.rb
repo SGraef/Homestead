@@ -12,7 +12,7 @@ class OfferCategory < ApplicationRecord
   belongs_to :household
   has_many :offer_category_keywords,
            -> { order(:keyword) },
-           dependent: :destroy,
+           dependent:  :destroy,
            inverse_of: :offer_category
 
   validates :name, presence: true, length: { maximum: 80 },

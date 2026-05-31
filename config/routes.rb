@@ -3,7 +3,7 @@
 
 Rails.application.routes.draw do
   # --- Auth (Sorcery) -------------------------------------------------------
-  get  "/login",  to: "sessions#new",      as: :login
+  get  "/login",  to: "sessions#new", as: :login
   post "/login",  to: "sessions#create"
   delete "/logout", to: "sessions#destroy", as: :logout
 
@@ -58,7 +58,7 @@ Rails.application.routes.draw do
   resources :locations, only: %i[index new create edit update destroy]
   resources :grocery_items do
     member do
-      patch :purchase   # mark as bought (typically called after a barcode scan)
+      patch :purchase # mark as bought (typically called after a barcode scan)
     end
 
     collection do

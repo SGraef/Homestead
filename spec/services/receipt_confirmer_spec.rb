@@ -33,21 +33,22 @@ RSpec.describe ReceiptConfirmer do
   end
 
   it "creates a new store and products with prices, and marks the receipt confirmed" do
-    milk_line; eggs_line
+    milk_line
+    eggs_line
 
     params = {
       new_store_name: "REWE Mitte",
-      lines: {
+      lines:          {
         milk_line.id.to_s => { action: "create", name: "Whole Milk 1L", unit: "l", barcode: "4006381333924" },
-        eggs_line.id.to_s => { action: "create", name: "Bio Eggs 6",   unit: "pcs" }
+        eggs_line.id.to_s => { action: "create", name: "Bio Eggs 6", unit: "pcs" }
       }
     }
 
-    expect {
+    expect do
       described_class.new(receipt: receipt, user: user, params: params).call
-    }.to change(Store, :count).by(1)
-     .and change(Product, :count).by(2)
-     .and change(Price, :count).by(2)
+    end.to change(Store, :count).by(1)
+                                .and change(Product, :count).by(2)
+                                                            .and change(Price, :count).by(2)
 
     receipt.reload
     expect(receipt.status).to eq("confirmed")
@@ -62,12 +63,12 @@ RSpec.describe ReceiptConfirmer do
 
     params = {
       store_id: store.id,
-      lines: { milk_line.id.to_s => { action: "create", name: "Milk", unit: "l" } }
+      lines:    { milk_line.id.to_s => { action: "create", name: "Milk", unit: "l" } }
     }
 
-    expect {
+    expect do
       described_class.new(receipt: receipt, user: user, params: params).call
-    }.not_to change(Store, :count)
+    end.not_to change(Store, :count)
 
     expect(receipt.reload.store).to eq(store)
   end
@@ -76,21 +77,22 @@ RSpec.describe ReceiptConfirmer do
     milk_line
     params = {
       new_store_name: "REWE",
-      lines: { milk_line.id.to_s => { action: "skip" } }
+      lines:          { milk_line.id.to_s => { action: "skip" } }
     }
-    expect {
+    expect do
       described_class.new(receipt: receipt, user: user, params: params).call
-    }.not_to change(Product, :count)
+    end.not_to change(Product, :count)
     expect(milk_line.reload.status).to eq("ignored")
   end
 
   describe "stocking the storage on confirm" do
     it "creates a StorageItem per matched/created line at the per-line location" do
-      milk_line; eggs_line
+      milk_line
+      eggs_line
 
       params = {
         new_store_name: "REWE Mitte",
-        lines: {
+        lines:          {
           milk_line.id.to_s => { action: "create", name: "Milk", unit: "l",
                                   to_storage: "1",
                                   location: "fridge", expires_on: "2026-05-13" },
@@ -100,9 +102,9 @@ RSpec.describe ReceiptConfirmer do
         }
       }
 
-      expect {
+      expect do
         described_class.new(receipt: receipt, user: user, params: params).call
-      }.to change(StorageItem, :count).by(2)
+      end.to change(StorageItem, :count).by(2)
 
       milk_storage = StorageItem.joins(:product).find_by(products: { name: "Milk" })
       eggs_storage = StorageItem.joins(:product).find_by(products: { name: "Eggs" })
@@ -117,11 +119,12 @@ RSpec.describe ReceiptConfirmer do
     end
 
     it "skips storage for lines whose to_storage box is unchecked" do
-      milk_line; eggs_line
+      milk_line
+      eggs_line
 
       params = {
         new_store_name: "REWE",
-        lines: {
+        lines:          {
           # to_storage "0" mirrors what the unchecked-checkbox + hidden
           # sibling submit -- bought, but not stocked.
           milk_line.id.to_s => { action: "create", name: "Milk", unit: "l",
@@ -131,9 +134,9 @@ RSpec.describe ReceiptConfirmer do
         }
       }
 
-      expect {
+      expect do
         described_class.new(receipt: receipt, user: user, params: params).call
-      }.to change(StorageItem, :count).by(1)
+      end.to change(StorageItem, :count).by(1)
 
       expect(StorageItem.joins(:product).where(products: { name: "Milk" })).to be_empty
     end
@@ -143,12 +146,12 @@ RSpec.describe ReceiptConfirmer do
 
       params = {
         new_store_name: "REWE",
-        lines: { milk_line.id.to_s => { action: "create", name: "Milk", unit: "l" } }
+        lines:          { milk_line.id.to_s => { action: "create", name: "Milk", unit: "l" } }
       }
 
-      expect {
+      expect do
         described_class.new(receipt: receipt, user: user, params: params).call
-      }.not_to change(StorageItem, :count)
+      end.not_to change(StorageItem, :count)
     end
 
     it "skips storage for lines whose action is 'skip'" do
@@ -156,12 +159,12 @@ RSpec.describe ReceiptConfirmer do
 
       params = {
         new_store_name: "REWE",
-        lines: { milk_line.id.to_s => { action: "skip", to_storage: "1" } }
+        lines:          { milk_line.id.to_s => { action: "skip", to_storage: "1" } }
       }
 
-      expect {
+      expect do
         described_class.new(receipt: receipt, user: user, params: params).call
-      }.not_to change(StorageItem, :count)
+      end.not_to change(StorageItem, :count)
     end
 
     it "falls back to 'pantry' when the per-line location is invalid or missing" do
@@ -169,7 +172,7 @@ RSpec.describe ReceiptConfirmer do
 
       params = {
         new_store_name: "REWE",
-        lines: {
+        lines:          {
           milk_line.id.to_s => { action: "create", name: "Milk", unit: "l",
                                   to_storage: "1",
                                   location: "garage" } # not in StorageItem::LOCATIONS
@@ -191,7 +194,7 @@ RSpec.describe ReceiptConfirmer do
 
       params = {
         new_store_name: "REWE",
-        lines: {
+        lines:          {
           apples.id.to_s => { action: "create", name: "Apple", unit: "pcs",
                               pieces: "3", to_storage: "1", location: "fridge" }
         }
@@ -215,7 +218,7 @@ RSpec.describe ReceiptConfirmer do
 
       params = {
         new_store_name: "REWE",
-        lines: {
+        lines:          {
           bananas.id.to_s => { action: "create", name: "Bananas", unit: "kg",
                                pieces: "0,650", to_storage: "1", location: "pantry" }
         }
@@ -235,14 +238,13 @@ RSpec.describe ReceiptConfirmer do
       milk_line
       params = {
         new_store_name: "REWE",
-        lines: {
+        lines:          {
           milk_line.id.to_s => { action: "create", name: "Milk", unit: "l", pieces: "" }
         }
       }
       described_class.new(receipt: receipt, user: user, params: params).call
       expect(Price.last.amount_cents).to eq(milk_line.parsed_total_cents)
     end
-
   end
 
   describe "shopping-list cleanup on confirm" do
@@ -254,7 +256,7 @@ RSpec.describe ReceiptConfirmer do
 
       params = {
         new_store_name: "REWE",
-        lines: {
+        lines:          {
           milk_line.id.to_s => { action: "match", product_id: product.id, pieces: "1" }
         }
       }
@@ -276,15 +278,16 @@ RSpec.describe ReceiptConfirmer do
 
       params = {
         new_store_name: "REWE",
-        lines: {
+        lines:          {
           bread_line.id.to_s => { action: "match", product_id: product.id,
                                   pieces: "1", to_storage: "1", location: "pantry" }
         }
       }
 
-      expect {
+      # exactly one — not two
+      expect do
         described_class.new(receipt: receipt, user: user, params: params).call
-      }.to change(StorageItem, :count).by(1)   # exactly one — not two
+      end.to change(StorageItem, :count).by(1)
     end
 
     it "leaves grocery items for unrelated products alone" do
@@ -294,7 +297,7 @@ RSpec.describe ReceiptConfirmer do
       milk_line
       params = {
         new_store_name: "REWE",
-        lines: { milk_line.id.to_s => { action: "create", name: "Milk", unit: "l" } }
+        lines:          { milk_line.id.to_s => { action: "create", name: "Milk", unit: "l" } }
       }
 
       described_class.new(receipt: receipt, user: user, params: params).call

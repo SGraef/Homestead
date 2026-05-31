@@ -16,7 +16,7 @@ RSpec.describe "PUT /offers/retailers/bulk" do
     household.offer_retailer_filters.create!(retailer: "Edeka")
     household.offer_retailer_filters.create!(retailer: "Penny")
 
-    put bulk_offer_retailer_filters_path, params: { retailers: ["Edeka", "REWE"] }
+    put bulk_offer_retailer_filters_path, params: { retailers: %w[Edeka REWE] }
 
     expect(response).to redirect_to(offers_path)
     expect(household.offer_retailer_filters.pluck(:retailer).sort).to eq(%w[Edeka REWE])
@@ -39,8 +39,8 @@ RSpec.describe "PUT /offers/retailers/bulk" do
 
   it "prunes stored offers outside the new allow-list" do
     create(:product, household: household)
-    rewe_offer  = household.offers.create!(
-      retailer_name: "REWE",  source: "marktguru", external_id: "1",
+    rewe_offer = household.offers.create!(
+      retailer_name: "REWE", source: "marktguru", external_id: "1",
       title: "Apfel", price_cents: 100, currency: "EUR",
       valid_from: Date.current, valid_until: Date.current + 7
     )

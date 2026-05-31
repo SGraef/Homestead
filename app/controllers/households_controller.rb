@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 class HouseholdsController < ApplicationController
   before_action :set_household, only: %i[show edit update destroy switch leave]
@@ -17,6 +17,10 @@ class HouseholdsController < ApplicationController
     authorize @household
   end
 
+  def edit
+    authorize @household
+  end
+
   def create
     @household = Household.new(household_params)
     authorize @household
@@ -25,12 +29,8 @@ class HouseholdsController < ApplicationController
       session[:household_id] = @household.id
       redirect_to @household, notice: t("notices.household_created")
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
-  end
-
-  def edit
-    authorize @household
   end
 
   def update
@@ -38,7 +38,7 @@ class HouseholdsController < ApplicationController
     if @household.update(household_params)
       redirect_to @household, notice: t("notices.household_updated")
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

@@ -13,9 +13,9 @@ RSpec.describe "POST /meal_plan/suggest" do
   it "creates dinner entries and redirects back to the requested week" do
     5.times { |i| household.recipes.create!(name: "Rec #{i}", servings: 2) }
 
-    expect {
+    expect do
       post suggest_meal_plan_path, params: { date: monday.iso8601 }
-    }.to change(MealPlanEntry, :count).by(5)
+    end.to change(MealPlanEntry, :count).by(5)
 
     expect(response).to redirect_to(meal_plan_path(date: monday.iso8601))
   end

@@ -97,7 +97,7 @@ module Flaschenpost
 
       def sitemap_slugs
         xml = get_text(SITEMAP_URL)
-        return [] if xml.nil? || xml.empty?
+        return [] if xml.blank?
 
         REXML::Document.new(xml).get_elements("//url/loc").map do |el|
           URI.parse(el.text).path
@@ -123,9 +123,9 @@ module Flaschenpost
 
       def extract_product_id(slug_path)
         html = get_text(format(PRODUCT_URL, path: slug_path))
-        return nil if html.nil? || html.empty?
+        return nil if html.blank?
 
-        m = html.match(/<script[^>]*type=["']application\/json["'][^>]*>(.*?)<\/script>/m)
+        m = html.match(%r{<script[^>]*type=["']application/json["'][^>]*>(.*?)</script>}m)
         return nil unless m
 
         json = JSON.parse(m[1])
@@ -140,6 +140,7 @@ module Flaschenpost
         url  = format(PDP_URL_FMT, wh: warehouse, ids: product_ids.join(","))
         data = get_json(url)
         return [] unless data.is_a?(Array)
+
         data
       end
 
@@ -182,6 +183,7 @@ module Flaschenpost
 
       def de(localised)
         return nil unless localised.is_a?(Hash)
+
         localised["de-DE"] || localised.values.first
       end
 
@@ -189,16 +191,13 @@ module Flaschenpost
       def brand_from(raw)
         Array(raw["categories"]).each do |c|
           obj = c["obj"] || {}
-          if obj.dig("custom", "type", "key") == "fp-category-brand"
-            return de(obj["name"])
-          end
+          return de(obj["name"]) if obj.dig("custom", "type", "key") == "fp-category-brand"
+
           # Also scan ancestors -- some products only carry the brand
           # category as an ancestor of the leaf subcategory.
           Array(obj["ancestors"]).each do |a|
             aobj = a["obj"] || {}
-            if aobj.dig("custom", "type", "key") == "fp-category-brand"
-              return de(aobj["name"])
-            end
+            return de(aobj["name"]) if aobj.dig("custom", "type", "key") == "fp-category-brand"
           end
         end
         nil
@@ -210,9 +209,7 @@ module Flaschenpost
           obj = c["obj"] || {}
           Array(obj["ancestors"]).reverse_each do |a|
             aobj = a["obj"] || {}
-            if aobj.dig("custom", "type", "key") == "fp-category"
-              return de(aobj["name"])
-            end
+            return de(aobj["name"]) if aobj.dig("custom", "type", "key") == "fp-category"
           end
           return de(obj["name"]) if obj.dig("custom", "type", "key") == "fp-category"
         end
@@ -225,9 +222,7 @@ module Flaschenpost
       def quantity_text_from(attrs)
         attrs.each do |a|
           v = a["value"]
-          if v.is_a?(String) && v.match?(/\d[\d.,]*\s*(L|ml|kg|g|x)/i)
-            return v.strip
-          end
+          return v.strip if v.is_a?(String) && v.match?(/\d[\d.,]*\s*(L|ml|kg|g|x)/i)
         end
         nil
       end
@@ -258,14 +253,16 @@ module Flaschenpost
       def product_url_from(raw)
         slug = de(raw["slug"])
         return nil if slug.blank?
-        "https://www.flaschenpost.de/p/#{raw['key']}/#{slug}"
+
+        "https://www.flaschenpost.de/p/#{raw["key"]}/#{slug}"
       end
 
       # ---- HTTP ------------------------------------------------------------
 
       def get_json(url)
         body = get_text(url, accept: "application/json")
-        return nil if body.nil? || body.empty?
+        return nil if body.blank?
+
         JSON.parse(body)
       rescue JSON::ParserError => e
         Rails.logger.warn("[Flaschenpost::Offers] JSON parse failed for #{url}: #{e.message}")

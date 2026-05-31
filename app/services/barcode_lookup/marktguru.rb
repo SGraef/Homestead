@@ -30,9 +30,9 @@ module BarcodeLookup
   class Marktguru < Source
     SOURCE_NAME    = "marktguru"
     BASE_URL       = "https://www.marktguru.de"
-    EAN_URL        = "#{BASE_URL}/api/v1/products/searchByEan?ean=%s"
-    SEARCH_URL     = "#{BASE_URL}/api/v1/products"
-    PAGE_TEMPLATE  = "#{BASE_URL}/produkte/%s"
+    EAN_URL        = "#{BASE_URL}/api/v1/products/searchByEan?ean=%s".freeze
+    SEARCH_URL     = "#{BASE_URL}/api/v1/products".freeze
+    PAGE_TEMPLATE  = "#{BASE_URL}/produkte/%s".freeze
     BROWSER_UA     = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:124.0) " \
                      "Gecko/20100101 Firefox/124.0"
     BROWSER_HDRS   = { "Origin" => BASE_URL, "Referer" => "#{BASE_URL}/" }.freeze

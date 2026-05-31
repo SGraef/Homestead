@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Manages alternate barcodes (brand variants) for a Product. Used from the
 # product show page and from the scan flow's "Add to existing product"

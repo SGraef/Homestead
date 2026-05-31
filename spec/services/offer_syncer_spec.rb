@@ -48,18 +48,18 @@ RSpec.describe OfferSyncer do
     create(:store,   household: household, name: "REWE")
 
     stub_industries(supermaerkte: [
-      { "id" => 1001, "description" => "je 1 L",
-        "product"  => { "name" => "Bio Vollmilch 1L" },
-        "retailer" => { "name" => "REWE", "uniqueName" => "rewe" },
-        "price" => 0.89, "oldPrice" => 1.19,
-        "validTo" => (Date.current + 4).iso8601 }
-    ], discounter: [
-      { "id" => 1002, "description" => "je 1 Stk",
-        "product"  => { "name" => "Tiefkühl-Pizza Salami" },
-        "retailer" => { "name" => "Lidl" },
-        "price" => 2.49,
-        "validTo" => (Date.current + 2).iso8601 }
-    ])
+                      { "id" => 1001, "description" => "je 1 L",
+                        "product"  => { "name" => "Bio Vollmilch 1L" },
+                        "retailer" => { "name" => "REWE", "uniqueName" => "rewe" },
+                        "price" => 0.89, "oldPrice" => 1.19,
+                        "validTo" => (Date.current + 4).iso8601 }
+                    ], discounter: [
+                      { "id" => 1002, "description" => "je 1 Stk",
+                        "product"  => { "name" => "Tiefkühl-Pizza Salami" },
+                        "retailer" => { "name" => "Lidl" },
+                        "price" => 2.49,
+                        "validTo" => (Date.current + 2).iso8601 }
+                    ])
 
     described_class.new(household).call
 
@@ -77,12 +77,12 @@ RSpec.describe OfferSyncer do
     create(:product, household: household, name: "Bio Vollmilch")
 
     stub_industries(supermaerkte: [
-      { "id" => 7, "description" => "je 1 L",
-        "product"  => { "name" => "Bio Vollmilch 1L Alnatura" },
-        "retailer" => { "name" => "REWE" },
-        "price" => 0.99,
-        "validTo" => (Date.current + 1).iso8601 }
-    ])
+                      { "id" => 7, "description" => "je 1 L",
+                        "product"  => { "name" => "Bio Vollmilch 1L Alnatura" },
+                        "retailer" => { "name" => "REWE" },
+                        "price" => 0.99,
+                        "validTo" => (Date.current + 1).iso8601 }
+                    ])
 
     described_class.new(household).call
     expect(household.offers.last.product.name).to eq("Bio Vollmilch")
@@ -112,7 +112,7 @@ RSpec.describe OfferSyncer do
   it "is a no-op when the household has no postal code" do
     household.update!(postal_code: nil)
     expect(described_class.new(household).call).to be_nil
-    expect(WebMock).not_to have_requested(:get, %r{marktguru})
+    expect(WebMock).not_to have_requested(:get, /marktguru/)
   end
 
   it "sweeps offers whose valid_until is in the past" do
@@ -128,17 +128,17 @@ RSpec.describe OfferSyncer do
     household.offer_retailer_filters.create!(retailer: "REWE")
 
     stub_industries(supermaerkte: [
-      { "id" => 60, "description" => "1 L",
-        "product"  => { "name" => "Milch" },
-        "retailer" => { "name" => "REWE", "uniqueName" => "rewe" },
-        "price" => 0.89,
-        "validTo" => (Date.current + 2).iso8601 },
-      { "id" => 61, "description" => "1 L",
-        "product"  => { "name" => "Milch" },
-        "retailer" => { "name" => "Edeka", "uniqueName" => "edeka" },
-        "price" => 0.99,
-        "validTo" => (Date.current + 2).iso8601 }
-    ])
+                      { "id" => 60, "description" => "1 L",
+                        "product"  => { "name" => "Milch" },
+                        "retailer" => { "name" => "REWE", "uniqueName" => "rewe" },
+                        "price" => 0.89,
+                        "validTo" => (Date.current + 2).iso8601 },
+                      { "id" => 61, "description" => "1 L",
+                        "product"  => { "name" => "Milch" },
+                        "retailer" => { "name" => "Edeka", "uniqueName" => "edeka" },
+                        "price" => 0.99,
+                        "validTo" => (Date.current + 2).iso8601 }
+                    ])
 
     described_class.new(household).call
     expect(household.offers.pluck(:external_id)).to eq(["60"])
@@ -146,12 +146,12 @@ RSpec.describe OfferSyncer do
 
   it "still allows all retailers when the allow-list is empty (default)" do
     stub_industries(supermaerkte: [
-      { "id" => 70, "description" => "1 L",
-        "product"  => { "name" => "Milch" },
-        "retailer" => { "name" => "Aldi" },
-        "price" => 0.79,
-        "validTo" => (Date.current + 2).iso8601 }
-    ])
+                      { "id" => 70, "description" => "1 L",
+                        "product"  => { "name" => "Milch" },
+                        "retailer" => { "name" => "Aldi" },
+                        "price" => 0.79,
+                        "validTo" => (Date.current + 2).iso8601 }
+                    ])
 
     described_class.new(household).call
     expect(household.offers.count).to eq(1)
@@ -159,19 +159,19 @@ RSpec.describe OfferSyncer do
 
   it "merges kaufDA offers alongside Marktguru, distinguished by source" do
     stub_industries(supermaerkte: [
-      { "id" => 100, "description" => "1 L",
-        "product"  => { "name" => "Vollmilch" },
-        "retailer" => { "name" => "REWE" }, "price" => 0.89,
-        "validTo" => (Date.current + 3).iso8601 }
-    ])
+                      { "id" => 100, "description" => "1 L",
+                        "product"  => { "name" => "Vollmilch" },
+                        "retailer" => { "name" => "REWE" }, "price" => 0.89,
+                        "validTo" => (Date.current + 3).iso8601 }
+                    ])
     stub_kaufda(retailers: {
-      "Aldi-Nord" => [
-        { "id" => "kd-1", "title" => "Schinkengulasch",
-          "publisherName" => "ALDI Nord",
-          "validUntil" => (Date.current + 4).iso8601,
-          "prices" => { "mainPrice" => 2.99, "secondaryPrice" => 3.89 } }
-      ]
-    })
+                  "Aldi-Nord" => [
+                    { "id" => "kd-1", "title" => "Schinkengulasch",
+                      "publisherName" => "ALDI Nord",
+                      "validUntil" => (Date.current + 4).iso8601,
+                      "prices" => { "mainPrice" => 2.99, "secondaryPrice" => 3.89 } }
+                  ]
+                })
 
     described_class.new(household).call
 
@@ -187,11 +187,11 @@ RSpec.describe OfferSyncer do
   it "backfills the offer's category from OfferCategorizer when blank" do
     stub_industries  # Marktguru returns nothing
     stub_kaufda(retailers: { "Aldi-Nord" => [
-      { "id" => "kdb-1", "title" => "Bio Vollmilch 1L",
-        "publisherName" => "ALDI Nord",
-        "validUntil" => (Date.current + 4).iso8601,
-        "prices" => { "mainPrice" => 0.99 } }
-    ] })
+                  { "id" => "kdb-1", "title" => "Bio Vollmilch 1L",
+                    "publisherName" => "ALDI Nord",
+                    "validUntil" => (Date.current + 4).iso8601,
+                    "prices" => { "mainPrice" => 0.99 } }
+                ] })
     allow(OfferCategorizer).to receive(:classify)
       .with("Bio Vollmilch 1L", household: household).and_return("Milchprodukte")
 
@@ -203,12 +203,12 @@ RSpec.describe OfferSyncer do
 
   it "does NOT touch a category the adapter already set (Marktguru industry)" do
     stub_industries(supermaerkte: [
-      { "id" => 999, "description" => "1 L",
-        "product" => { "name" => "Milch" },
-        "retailer" => { "name" => "REWE" },
-        "price" => 0.89,
-        "validTo" => (Date.current + 2).iso8601 }
-    ])
+                      { "id" => 999, "description" => "1 L",
+                        "product" => { "name" => "Milch" },
+                        "retailer" => { "name" => "REWE" },
+                        "price" => 0.89,
+                        "validTo" => (Date.current + 2).iso8601 }
+                    ])
     # Default before-hook stubs classify → nil. Override the
     # expectation explicitly: it must not even be called.
     expect(OfferCategorizer).not_to receive(:classify)
@@ -224,15 +224,15 @@ RSpec.describe OfferSyncer do
     household.offer_blocklist_entries.create!(pattern: "Katzenfutter")
 
     stub_industries(supermaerkte: [
-      { "id" => 50, "description" => "1 kg",
-        "product"  => { "name" => "Whiskas Katzenfutter" },
-        "retailer" => { "name" => "REWE" }, "price" => 1.99,
-        "validTo" => (Date.current + 2).iso8601 },
-      { "id" => 51, "description" => "1 L",
-        "product"  => { "name" => "Vollmilch" },
-        "retailer" => { "name" => "REWE" }, "price" => 0.89,
-        "validTo" => (Date.current + 2).iso8601 }
-    ])
+                      { "id" => 50, "description" => "1 kg",
+                        "product"  => { "name" => "Whiskas Katzenfutter" },
+                        "retailer" => { "name" => "REWE" }, "price" => 1.99,
+                        "validTo" => (Date.current + 2).iso8601 },
+                      { "id" => 51, "description" => "1 L",
+                        "product"  => { "name" => "Vollmilch" },
+                        "retailer" => { "name" => "REWE" }, "price" => 0.89,
+                        "validTo" => (Date.current + 2).iso8601 }
+                    ])
 
     described_class.new(household).call
     expect(household.offers.pluck(:external_id)).to eq(["51"])

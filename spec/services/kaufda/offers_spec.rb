@@ -27,15 +27,16 @@ RSpec.describe Kaufda::Offers do
     it "extracts offers from the Geschaefte/<slug> page's __NEXT_DATA__" do
       stub_request(:get, "https://www.kaufda.de/Geschaefte/Aldi-Nord")
         .to_return(status: 200, body: page_html([
-          { "id"            => "abc-123",
-            "publisherName" => "ALDI Nord",
-            "title"         => "Schinkengulasch",
-            "description"   => "500 g Pkg.",
-            "validFrom"     => "2026-05-04T00:00:00.000+0000",
-            "validUntil"    => "2026-05-09T20:00:00.000+0000",
-            "prices"        => { "mainPrice" => 2.99, "secondaryPrice" => 3.89 },
-            "offerImages"   => { "url" => { "normal" => "https://x/y.jpg" } } }
-        ]))
+                                                  { "id"            => "abc-123",
+                                                    "publisherName" => "ALDI Nord",
+                                                    "title"         => "Schinkengulasch",
+                                                    "description"   => "500 g Pkg.",
+                                                    "validFrom"     => "2026-05-04T00:00:00.000+0000",
+                                                    "validUntil"    => "2026-05-09T20:00:00.000+0000",
+                                                    "prices"        => { "mainPrice"      => 2.99,
+                                                                         "secondaryPrice" => 3.89 },
+                                                    "offerImages"   => { "url" => { "normal" => "https://x/y.jpg" } } }
+                                                ]))
 
       results = described_class.pull_all
       expect(results.size).to eq(1)
@@ -45,7 +46,7 @@ RSpec.describe Kaufda::Offers do
       expect(o.retailer_name).to eq("ALDI Nord")
       expect(o.retailer_slug).to eq("aldi-nord")
       expect(o.price_cents).to eq(299)
-      expect(o.regular_price_cents).to eq(389)  # secondaryPrice > mainPrice
+      expect(o.regular_price_cents).to eq(389) # secondaryPrice > mainPrice
       expect(o.image_url).to eq("https://x/y.jpg")
       expect(o.valid_until).to eq(Date.new(2026, 5, 9))
     end
@@ -53,21 +54,22 @@ RSpec.describe Kaufda::Offers do
     it "ignores secondaryPrice when it isn't strictly higher than mainPrice" do
       stub_request(:get, "https://www.kaufda.de/Geschaefte/Aldi-Nord")
         .to_return(status: 200, body: page_html([
-          { "id" => "x", "title" => "Brot", "publisherName" => "ALDI Nord",
-            "prices" => { "mainPrice" => 1.50, "secondaryPrice" => 1.50 } }
-        ]))
+                                                  { "id" => "x", "title" => "Brot", "publisherName" => "ALDI Nord",
+                                                    "prices" => { "mainPrice" => 1.50, "secondaryPrice" => 1.50 } }
+                                                ]))
       expect(described_class.pull_all.first.regular_price_cents).to be_nil
     end
 
     it "drops malformed rows without raising" do
       stub_request(:get, "https://www.kaufda.de/Geschaefte/Aldi-Nord")
         .to_return(status: 200, body: page_html([
-          { "id" => nil, "title" => "no id",   "prices" => { "mainPrice" => 1.0 } },
-          { "id" => "1", "title" => "no price" },
-          { "id" => "2", "prices" => { "mainPrice" => 1.0 } },           # no title
-          { "id" => "3", "title" => "ok", "prices" => { "mainPrice" => 0.50 },
-            "publisherName" => "X" }
-        ]))
+                                                  { "id" => nil, "title" => "no id",
+"prices" => { "mainPrice" => 1.0 } },
+                                                  { "id" => "1", "title" => "no price" },
+                                                  { "id" => "2", "prices" => { "mainPrice" => 1.0 } }, # no title
+                                                  { "id" => "3", "title" => "ok", "prices" => { "mainPrice" => 0.50 },
+                                                    "publisherName" => "X" }
+                                                ]))
       expect(described_class.pull_all.map(&:external_id)).to eq(["3"])
     end
 
@@ -76,18 +78,18 @@ RSpec.describe Kaufda::Offers do
         .to_return(status: 200, body: page_html([]))
       expect { described_class.pull_all(retailers: %w[Action]) }.not_to raise_error
       expect(WebMock).to have_requested(:get,
-        "https://www.kaufda.de/Geschaefte/Action").at_least_once
+                                        "https://www.kaufda.de/Geschaefte/Action").at_least_once
       expect(WebMock).not_to have_requested(:get,
-        "https://www.kaufda.de/Geschaefte/Aldi-Nord")
+                                            "https://www.kaufda.de/Geschaefte/Aldi-Nord")
     end
 
     it "swallows network errors and returns []" do
-      stub_request(:get, %r{www\.kaufda\.de}).to_timeout
+      stub_request(:get, /www\.kaufda\.de/).to_timeout
       expect(described_class.pull_all).to eq([])
     end
 
     it "returns [] when the page has no __NEXT_DATA__ block" do
-      stub_request(:get, %r{www\.kaufda\.de}).to_return(status: 200, body: "<html><body>oops</body></html>")
+      stub_request(:get, /www\.kaufda\.de/).to_return(status: 200, body: "<html><body>oops</body></html>")
       expect(described_class.pull_all).to eq([])
     end
   end

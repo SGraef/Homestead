@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Base class for all REST API v1 endpoints. Authenticates via the
 # `Authorization: Bearer <token>` header against {ApiToken}, exposes
@@ -14,7 +14,7 @@ module Api
 
       rescue_from ActiveRecord::RecordNotFound, with: -> { render_error(:not_found, "Not found") }
       rescue_from ActiveRecord::RecordInvalid do |e|
-        render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+        render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
       end
       rescue_from Pundit::NotAuthorizedError, with: -> { render_error(:forbidden, "Forbidden") }
 
@@ -43,7 +43,7 @@ module Api
 
       def pagination_params
         page  = [params[:page].to_i, 1].max
-        limit = [[params[:per_page].to_i, 25].max, 100].min
+        limit = params[:per_page].to_i.clamp(25, 100)
         [page, limit]
       end
     end

@@ -11,10 +11,10 @@ RSpec.describe "ProductBarcodes" do
   before { login_via_post(user) }
 
   it "POST adds a brand variant to the product" do
-    expect {
+    expect do
       post product_product_barcodes_path(butter),
            params: { product_barcode: { barcode: "4006381333924", brand: "Kerrygold" } }
-    }.to change { butter.product_barcodes.count }.from(0).to(1)
+    end.to change { butter.product_barcodes.count }.from(0).to(1)
 
     expect(response).to redirect_to(butter)
   end
@@ -33,9 +33,9 @@ RSpec.describe "ProductBarcodes" do
   it "DELETE removes a brand variant" do
     pb = butter.product_barcodes.create!(barcode: "4006381333924")
 
-    expect {
+    expect do
       delete product_product_barcode_path(butter, pb)
-    }.to change { butter.product_barcodes.count }.from(1).to(0)
+    end.to change { butter.product_barcodes.count }.from(1).to(0)
   end
 
   it "PATCH updates brand and quantity_text on an existing alternate" do
@@ -52,10 +52,10 @@ RSpec.describe "ProductBarcodes" do
 
   describe "POST /products/attach_barcode (scan flow)" do
     it "attaches the scanned barcode to the chosen product and redirects to it" do
-      expect {
+      expect do
         post attach_barcode_products_path,
              params: { product_id: butter.id, barcode: "4006381333924" }
-      }.to change { butter.product_barcodes.count }.from(0).to(1)
+      end.to change { butter.product_barcodes.count }.from(0).to(1)
 
       expect(response).to redirect_to(butter)
     end

@@ -14,7 +14,7 @@
 # when the household has no categories yet, so it's safe to call from
 # multiple places.
 class OfferCategorySeeder
-  DEFAULTS_PATH = Rails.root.join("config", "offer_categories.yml")
+  DEFAULTS_PATH = Rails.root.join("config/offer_categories.yml")
 
   # @param household [Household]
   # @param replace [Boolean] when true, drop existing categories first
@@ -39,7 +39,7 @@ class OfferCategorySeeder
       defaults.each_with_index do |(name, keywords), i|
         cat = @household.offer_categories.create!(
           name:     name,
-          position: (i + 1) * 10  # leave gaps so manual reorders are easier
+          position: (i + 1) * 10 # leave gaps so manual reorders are easier
         )
         Array(keywords).filter_map { |k| k.to_s.strip.presence }.uniq.each do |kw|
           # `create` (not `create!`): if the YAML lists collation-twin

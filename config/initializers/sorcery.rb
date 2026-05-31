@@ -29,7 +29,7 @@ Rails.application.config.sorcery.configure do |config|
     user.reset_password_token_attribute_name = :reset_password_token
     user.reset_password_token_expires_at_attribute_name = :reset_password_token_expires_at
     user.reset_password_email_sent_at_attribute_name    = :reset_password_email_sent_at
-    user.reset_password_time_between_emails  = 5.minutes
+    user.reset_password_time_between_emails = 5.minutes
 
     user.remember_me_token_attribute_name = :remember_me_token
     user.remember_me_token_expires_at_attribute_name = :remember_me_token_expires_at

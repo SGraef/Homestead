@@ -5,7 +5,7 @@ require "rails_helper"
 
 RSpec.describe OfferCategorizer do
   let(:user)      { create(:user) }
-  let(:household) { create(:household, admin: user) }  # auto-seeds defaults
+  let(:household) { create(:household, admin: user) } # auto-seeds defaults
 
   describe ".classify" do
     it "maps meat-cut titles to 'Fleisch & Wurst'" do
@@ -55,7 +55,7 @@ RSpec.describe OfferCategorizer do
     end
 
     it "reads through the cache so freshly added keywords classify immediately" do
-      # Note: Rails.cache = :null_store in test (config/environments/test.rb),
+      # NOTE: Rails.cache = :null_store in test (config/environments/test.rb),
       # so this exercises the read-through path. With a real cache,
       # invalidation relies on `cache_key` including the latest
       # updated_at across categories + keywords.

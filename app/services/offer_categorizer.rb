@@ -65,10 +65,10 @@ class OfferCategorizer
       stamps = [
         household.offer_categories.maximum(:updated_at),
         OfferCategoryKeyword.joins(:offer_category)
-                             .where(offer_categories: { household_id: household.id })
-                             .maximum(:updated_at)
+                            .where(offer_categories: { household_id: household.id })
+                            .maximum(:updated_at)
       ].compact
-      version = stamps.max&.to_i || 0
+      version = stamps.max.to_i
       ["offer_categorizer_v2", household.id, version]
     end
   end

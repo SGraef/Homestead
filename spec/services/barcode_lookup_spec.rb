@@ -10,15 +10,15 @@ RSpec.describe BarcodeLookup do
     it "returns a normalised result when Open Food Facts has the product" do
       stub_request(:get, "https://world.openfoodfacts.org/api/v2/product/#{barcode}.json?lc=de")
         .to_return(
-          status: 200,
+          status:  200,
           headers: { "Content-Type" => "application/json" },
-          body: {
-            status: 1,
+          body:    {
+            status:  1,
             product: {
-              product_name: "Whole Milk",
-              brands: "Local Dairy, Acme",
+              product_name:    "Whole Milk",
+              brands:          "Local Dairy, Acme",
               categories_tags: %w[en:dairies en:milks],
-              quantity: "1 L",
+              quantity:        "1 L",
               image_front_url: "https://example.com/milk.jpg"
             }
           }.to_json
@@ -40,9 +40,9 @@ RSpec.describe BarcodeLookup do
                    headers: { "Content-Type" => "application/json" })
 
       stub_request(:get, "https://world.openproductsfacts.org/api/v2/product/#{barcode}.json")
-        .to_return(status: 200,
+        .to_return(status:  200,
                    headers: { "Content-Type" => "application/json" },
-                   body: { status: 1, product: { product_name: "Dish Soap", brands: "Acme",
+                   body:    { status: 1, product: { product_name: "Dish Soap", brands: "Acme",
                                                  quantity: "500 ml" } }.to_json)
 
       result = described_class.call(barcode)
@@ -60,9 +60,9 @@ RSpec.describe BarcodeLookup do
 
       stub_request(:get, "https://www.marktguru.de/api/v1/products/searchByEan?ean=#{barcode}")
         .to_return(
-          status: 200,
+          status:  200,
           headers: { "Content-Type" => "application/json" },
-          body: {
+          body:    {
             results: [
               { "id" => 4711, "name" => "Alnatura Bio Vollmilch",
                 "brand" => "Alnatura", "amount" => "1 L",
@@ -101,9 +101,9 @@ RSpec.describe BarcodeLookup do
     end
 
     it "swallows network errors and returns nil" do
-      stub_request(:get, %r{world\.openfoodfacts\.org}).to_timeout
-      stub_request(:get, %r{world\.openproductsfacts\.org}).to_timeout
-      stub_request(:get, %r{www\.marktguru\.de}).to_timeout
+      stub_request(:get, /world\.openfoodfacts\.org/).to_timeout
+      stub_request(:get, /world\.openproductsfacts\.org/).to_timeout
+      stub_request(:get, /www\.marktguru\.de/).to_timeout
       expect(described_class.call(barcode)).to be_nil
     end
   end
@@ -115,9 +115,9 @@ RSpec.describe BarcodeLookup do
                                     "brands_tags"  => "Acme",
                                     "json"         => "1"))
         .to_return(
-          status: 200,
+          status:  200,
           headers: { "Content-Type" => "application/json" },
-          body: {
+          body:    {
             products: [
               { "code" => "4006381333924", "product_name" => "Vollmilch 1L",
                 "brands" => "Acme", "quantity" => "1 L" },
@@ -145,9 +145,9 @@ RSpec.describe BarcodeLookup do
                    headers: { "Content-Type" => "application/json" })
 
       stub_request(:get, %r{world\.openproductsfacts\.org/cgi/search\.pl})
-        .to_return(status: 200,
+        .to_return(status:  200,
                    headers: { "Content-Type" => "application/json" },
-                   body: { products: [
+                   body:    { products: [
                      { "code" => "9000000000000", "product_name" => "Soap", "brands" => "X" }
                    ] }.to_json)
 
@@ -166,9 +166,9 @@ RSpec.describe BarcodeLookup do
 
       stub_request(:get, %r{www\.marktguru\.de/api/v1/products\?})
         .to_return(
-          status: 200,
+          status:  200,
           headers: { "Content-Type" => "application/json" },
-          body: {
+          body:    {
             results: [
               { "id" => 99, "name" => "Vollmilch 1L", "brand" => "Edeka",
                 "amount" => "1 L", "ean" => ["4006381333924"] }
@@ -189,7 +189,7 @@ RSpec.describe BarcodeLookup do
     it "returns [] when both name and brand are empty (no upstream call)" do
       results = described_class.search(name: "", brand: "")
       expect(results).to eq([])
-      expect(WebMock).not_to have_requested(:get, %r{openfoodfacts})
+      expect(WebMock).not_to have_requested(:get, /openfoodfacts/)
     end
   end
 end

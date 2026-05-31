@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # An alternate (per-brand) barcode attached to a {Product}. The product's own
 # `barcode` column still holds the "primary" code; rows here are everything
@@ -10,7 +10,7 @@ class ProductBarcode < ApplicationRecord
 
   validates :barcode,
             presence: true,
-            format: { with: /\A\d{8,14}\z/ }
+            format:   { with: /\A\d{8,14}\z/ }
   validates :barcode, uniqueness: { scope: :product_id }
   validate  :barcode_unique_in_household
 

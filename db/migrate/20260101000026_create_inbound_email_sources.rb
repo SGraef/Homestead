@@ -12,7 +12,7 @@ class CreateInboundEmailSources < ActiveRecord::Migration[8.0]
       t.references :household, null: false, foreign_key: { on_delete: :cascade }
       t.references :user,      null: false, foreign_key: { on_delete: :cascade }
 
-      t.string  :label,    null: false, limit: 80
+      t.string  :label, null: false, limit: 80
       t.string  :imap_host, null: false, limit: 255
       t.integer :imap_port, null: false, default: 993
       t.boolean :imap_ssl,  null: false, default: true

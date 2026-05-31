@@ -31,9 +31,8 @@ class PollInboundReceiptsJob < ApplicationJob
       end
 
     return if result.nil?
-    if result.created.positive? || result.errors.positive?
-      Rails.logger.info("[InboundReceipts] #{result}")
-    end
+
+    Rails.logger.info("[InboundReceipts] #{result}") if result.created.positive? || result.errors.positive?
     result
   end
 end

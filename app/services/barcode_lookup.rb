@@ -80,7 +80,7 @@ module BarcodeLookup
     result = source.fetch(code)
     Rails.cache.write(key, result, expires_in: 1.day) if result
     result
-  rescue => e
+  rescue StandardError => e
     Rails.logger.warn("[BarcodeLookup] #{source.name} fetch #{code} failed: #{e.class}: #{e.message}")
     nil
   end
@@ -94,7 +94,7 @@ module BarcodeLookup
     results = source.search(name: query[:name], brand: query[:brand], limit: limit)
     Rails.cache.write(key, results, expires_in: 1.day) if results.any?
     results
-  rescue => e
+  rescue StandardError => e
     Rails.logger.warn("[BarcodeLookup] #{source.name} search #{query.inspect} failed: #{e.class}: #{e.message}")
     []
   end

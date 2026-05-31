@@ -8,7 +8,8 @@ RSpec.describe ReceiptScanner::Adapters::Tesseract do
 
   describe "#extract_text" do
     let(:tmp) { Dir.mktmpdir("ocr-test") }
-    after    { FileUtils.remove_entry(tmp) }
+
+    after { FileUtils.remove_entry(tmp) }
 
     # OCR subprocesses now take an env hash as the first arg (capping
     # OpenMP threads). Matchers below ignore the env, just check the

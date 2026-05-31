@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 class GroceryItemsController < ApplicationController
   before_action :ensure_household
@@ -25,18 +25,18 @@ class GroceryItemsController < ApplicationController
     authorize @item
   end
 
+  def edit
+    authorize @item
+  end
+
   def create
     @item = current_household.grocery_items.build(item_params)
     authorize @item
     if @item.save
       redirect_to grocery_items_path, notice: t("notices.grocery_added")
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
-  end
-
-  def edit
-    authorize @item
   end
 
   def update
@@ -44,7 +44,7 @@ class GroceryItemsController < ApplicationController
     if @item.update(item_params)
       redirect_to grocery_items_path, notice: t("notices.grocery_updated")
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
@@ -58,10 +58,10 @@ class GroceryItemsController < ApplicationController
   def purchase
     authorize @item, :update?
     @item.mark_purchased!(
-      store: current_household.stores.find_by(id: params[:store_id]),
+      store:       current_household.stores.find_by(id: params[:store_id]),
       paid_amount: params[:paid_amount],
-      expires_on: params[:expires_on].presence,
-      location: params[:location].presence || "pantry"
+      expires_on:  params[:expires_on].presence,
+      location:    params[:location].presence || "pantry"
     )
     respond_to do |format|
       format.html { redirect_to grocery_items_path, notice: t("grocery.purchased") }
@@ -89,9 +89,7 @@ class GroceryItemsController < ApplicationController
   def scan_purchase
     barcode = params[:barcode].to_s.strip
     product = current_household.products.by_barcode(barcode).first
-    if product.nil?
-      redirect_to grocery_items_path, alert: t("grocery.scan_unknown", code: barcode) and return
-    end
+    redirect_to grocery_items_path, alert: t("grocery.scan_unknown", code: barcode) and return if product.nil?
 
     item = current_household.grocery_items.needed.find_by(product: product) ||
            current_household.grocery_items.create!(product: product, quantity: 1)

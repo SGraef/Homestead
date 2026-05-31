@@ -16,6 +16,6 @@ class CreateProducts < ActiveRecord::Migration[8.0]
     # MySQL does not support partial indexes; uniqueness with NULLs is fine in MySQL
     # because multiple NULLs are allowed in a UNIQUE index.
     add_index :products, %i[household_id barcode], unique: true,
-                                                   name: "idx_products_household_barcode"
+                                                   name:   "idx_products_household_barcode"
   end
 end

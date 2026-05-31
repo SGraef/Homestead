@@ -25,8 +25,8 @@ RSpec.describe BringPullAllJob do
       country_code: "DE"
     )
 
-    expect {
+    expect do
       described_class.perform_now
-    }.to have_enqueued_job(BringPullJob).exactly(2).times
+    end.to have_enqueued_job(BringPullJob).exactly(2).times
   end
 end

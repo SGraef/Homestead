@@ -47,9 +47,9 @@ RSpec.describe SyncGroceryToBringJob do
       allow_any_instance_of(described_class)
         .to receive(:executions_for).and_return(described_class::MAX_ATTEMPTS_FOR_TRANSIENT)
 
-      expect {
+      expect do
         described_class.perform_now(household.id, action: "push", name: "Vollmilch")
-      }.to raise_error(Bring::Error)
+      end.to raise_error(Bring::Error)
 
       expect(connection.reload.last_error).to be_present
     end

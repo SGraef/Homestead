@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Connect / pick-list / disconnect flow for Bring!. Login happens server-side
 # (the user's password is exchanged for tokens immediately and never stored)
@@ -16,9 +16,9 @@ class BringConnectionsController < ApplicationController
     # Only hit `/lists` when the user explicitly asks (?reload=1) -- a
     # transient blip on this single endpoint must not poison the just-issued
     # token. Otherwise we render the dropdown using whatever was last picked.
-    if @connection.access_token.present? && params[:reload].present?
-      @lists = safe_fetch_lists(@connection)
-    end
+    return unless @connection.access_token.present? && params[:reload].present?
+
+    @lists = safe_fetch_lists(@connection)
   end
 
   def new
@@ -61,7 +61,7 @@ class BringConnectionsController < ApplicationController
     # Reached only when the initial /bringauth login itself failed.
     flash.now[:alert] = t("bring.login_failed", error: e.message)
     @connection = current_household.build_bring_connection(bring_email: params.dig(:bring_connection, :email))
-    render :new, status: :unprocessable_entity
+    render :new, status: :unprocessable_content
   end
 
   def update

@@ -6,6 +6,16 @@ module Api
     class ReceiptsController < BaseController
       before_action :set_receipt, only: %i[show confirm destroy reprocess]
 
+      def index
+        scope = policy_scope(current_household.receipts).recent.limit(100)
+        render json: scope.map { |r| ReceiptSerializer.call(r) }
+      end
+
+      def show
+        authorize @receipt
+        render json: ReceiptSerializer.call(@receipt, include_lines: true)
+      end
+
       # POST /api/v1/receipts — multipart, field `image`
       # Triggers ProcessReceiptJob synchronously when `?inline=1` so API
       # callers can poll for the parsed result; defaults to async.
@@ -21,16 +31,6 @@ module Api
           ProcessReceiptJob.perform_later(receipt.id)
         end
         render json: ReceiptSerializer.call(receipt.reload), status: :created
-      end
-
-      def index
-        scope = policy_scope(current_household.receipts).recent.limit(100)
-        render json: scope.map { |r| ReceiptSerializer.call(r) }
-      end
-
-      def show
-        authorize @receipt
-        render json: ReceiptSerializer.call(@receipt, include_lines: true)
       end
 
       # POST /api/v1/receipts/:id/confirm

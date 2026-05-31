@@ -9,7 +9,7 @@ class SyncGroceryToBringJob < ApplicationJob
 
   queue_as :default
 
-  retry_on Bring::Error,           attempts: MAX_ATTEMPTS_FOR_TRANSIENT, wait: :polynomially_longer
+  retry_on Bring::Error, attempts: MAX_ATTEMPTS_FOR_TRANSIENT, wait: :polynomially_longer
   discard_on ActiveJob::DeserializationError, ActiveRecord::RecordNotFound, Bring::AuthError
 
   # @param household_id [Integer]

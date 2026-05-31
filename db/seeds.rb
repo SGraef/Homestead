@@ -10,9 +10,7 @@ end
 # Sorcery's `before_create :setup_activation` forces `activation_state` back
 # to "pending" regardless of what we set in the block above, so flip it after
 # save. update_columns skips callbacks (no activation-success email needed).
-unless user.activation_state == "active"
-  user.update_columns(activation_state: "active", activation_token: nil)
-end
+user.update_columns(activation_state: "active", activation_token: nil) unless user.activation_state == "active"
 
 household = Household.find_or_create_by!(name: "Demo-Haushalt") do |h|
   h.timezone = "Europe/Berlin"

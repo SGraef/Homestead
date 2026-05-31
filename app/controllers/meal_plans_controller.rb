@@ -14,9 +14,9 @@ class MealPlansController < ApplicationController
     @slots   = MealPlanEntry::SLOTS
 
     entries = current_household.meal_plan_entries
-                                .for_week_of(@monday)
-                                .includes(:recipe)
-                                .order(:planned_on, :id)
+                               .for_week_of(@monday)
+                               .includes(:recipe)
+                               .order(:planned_on, :id)
     @entries_by_cell = entries.group_by { |e| [e.planned_on, e.slot] }
     @recipes = current_household.recipes.ordered
   end
@@ -43,8 +43,9 @@ class MealPlansController < ApplicationController
 
   def parse_anchor_date(raw)
     return nil if raw.blank?
+
     Date.iso8601(raw.to_s)
-  rescue ArgumentError, Date::Error
+  rescue ArgumentError
     nil
   end
 

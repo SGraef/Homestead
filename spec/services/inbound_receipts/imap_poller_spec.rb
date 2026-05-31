@@ -3,29 +3,33 @@
 
 require "rails_helper"
 
-RSpec.describe InboundReceipts::ImapPoller do
-  # A fake the spec installs in place of Net::IMAP. Records calls so we
-  # can assert on the wiring (login args, fetched UIDs, store flags).
-  class FakeImap
-    attr_reader :selected_folder, :stored, :expunged, :logged_in_as
-    def initialize(messages: {}, search_results: [])
-      @messages = messages
-      @search   = search_results
-      @stored   = []
-      @expunged = false
-    end
-    def login(user, password); @logged_in_as = [user, password]; end
-    def select(folder); @selected_folder = folder; end
-    def search(_criteria) = @search
-    def fetch(uid, _attr)
-      [Struct.new(:attr).new({ "RFC822" => @messages.fetch(uid) })]
-    end
-    def store(uid, op, flags); @stored << [uid, op, flags]; end
-    def expunge; @expunged = true; end
-    def logout; end
-    def disconnect; end
+# A fake the spec installs in place of Net::IMAP. Records calls so we
+# can assert on the wiring (login args, fetched UIDs, store flags).
+class FakeImap
+  attr_reader :selected_folder, :stored, :expunged, :logged_in_as
+
+  def initialize(messages: {}, search_results: [])
+    @messages = messages
+    @search   = search_results
+    @stored   = []
+    @expunged = false
   end
 
+  def login(user, password) = @logged_in_as = [user, password]
+  def select(folder) = @selected_folder = folder
+  def search(_criteria) = @search
+
+  def fetch(uid, _attr)
+    [Struct.new(:attr).new({ "RFC822" => @messages.fetch(uid) })]
+  end
+
+  def store(uid, op, flags) = @stored << [uid, op, flags]
+  def expunge = @expunged = true
+  def logout; end
+  def disconnect; end
+end
+
+RSpec.describe InboundReceipts::ImapPoller do
   let(:owner)         { create(:user, email: "owner@example.com") }
   let!(:household)    { create(:household, admin: owner) }
 
@@ -41,7 +45,7 @@ RSpec.describe InboundReceipts::ImapPoller do
     )
   end
 
-  def make_mail(from: "anyone@somewhere.com", file:)
+  def make_mail(file:, from: "anyone@somewhere.com")
     mail = Mail.new
     mail.from    = from
     mail.to      = "receipts@household.tld"

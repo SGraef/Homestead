@@ -10,9 +10,9 @@ RSpec.describe Marktguru::Offers do
     it "fans out across configured industries and dedupes by external_id" do
       stub_request(:get, %r{api\.marktguru\.de/api/v1/industries/supermaerkte/offers})
         .to_return(
-          status: 200,
+          status:  200,
           headers: { "Content-Type" => "application/json" },
-          body: { results: [
+          body:    { results: [
             { "id" => 1, "description" => "je 1 L",
               "product"  => { "name" => "Vollmilch" },
               "retailer" => { "name" => "REWE", "uniqueName" => "rewe" },
@@ -29,9 +29,9 @@ RSpec.describe Marktguru::Offers do
         )
       stub_request(:get, %r{api\.marktguru\.de/api/v1/industries/discounter/offers})
         .to_return(
-          status: 200,
+          status:  200,
           headers: { "Content-Type" => "application/json" },
-          body: { results: [
+          body:    { results: [
             { "id" => 2, "description" => "je 1 kg",
               "product"  => { "name" => "Bananen" },
               "retailer" => { "name" => "Lidl" },
@@ -40,9 +40,9 @@ RSpec.describe Marktguru::Offers do
         )
       stub_request(:get, %r{api\.marktguru\.de/api/v1/industries/drogerie-gesundheit/offers})
         .to_return(
-          status: 200,
+          status:  200,
           headers: { "Content-Type" => "application/json" },
-          body: { results: [] }.to_json
+          body:    { results: [] }.to_json
         )
 
       results = described_class.pull_all(postal_code: postcode, page_size: 50)
@@ -63,7 +63,7 @@ RSpec.describe Marktguru::Offers do
       described_class.pull_all(postal_code: postcode)
       expect(WebMock).to have_requested(:get, %r{api\.marktguru\.de/api/v1/industries})
         .with(headers: { "X-Apikey" => Marktguru::Offers::API_KEY,
-                          "Origin"  => "https://www.marktguru.de" }).at_least_once
+                         "Origin"   => "https://www.marktguru.de" }).at_least_once
     end
 
     it "honours an explicit `industries:` argument" do
@@ -74,27 +74,27 @@ RSpec.describe Marktguru::Offers do
       described_class.pull_all(postal_code: postcode, industries: %w[baumaerkte])
 
       expect(WebMock).to have_requested(:get,
-        %r{api\.marktguru\.de/api/v1/industries/baumaerkte/offers}).at_least_once
+                                        %r{api\.marktguru\.de/api/v1/industries/baumaerkte/offers}).at_least_once
       expect(WebMock).not_to have_requested(:get,
-        %r{api\.marktguru\.de/api/v1/industries/supermaerkte/offers})
+                                            %r{api\.marktguru\.de/api/v1/industries/supermaerkte/offers})
     end
 
     it "returns [] for a blank postal code without firing any HTTP" do
       expect(described_class.pull_all(postal_code: "")).to eq([])
-      expect(WebMock).not_to have_requested(:get, %r{marktguru})
+      expect(WebMock).not_to have_requested(:get, /marktguru/)
     end
 
     it "swallows network errors and returns []" do
-      stub_request(:get, %r{api\.marktguru}).to_timeout
+      stub_request(:get, /api\.marktguru/).to_timeout
       expect(described_class.pull_all(postal_code: postcode)).to eq([])
     end
 
     it "drops malformed rows without raising" do
       stub_request(:get, %r{api\.marktguru\.de/api/v1/industries/supermaerkte/offers})
         .to_return(
-          status: 200,
+          status:  200,
           headers: { "Content-Type" => "application/json" },
-          body: { results: [
+          body:    { results: [
             { "id" => nil, "product" => { "name" => "no id" }, "price" => 1.0 },
             { "id" => 7,   "product" => { "name" => "no price" } },
             { "id" => 8,   "price" => 1.0 }, # no name + no description

@@ -20,14 +20,14 @@ RSpec.describe Price, "normalized per-unit pricing" do
   end
 
   it "scales gram-prices into kilogram-prices (×1000)" do
-    p = price(unit: "g", amount_cents: 2)            # 0.02 €/g
-    expect(p.amount_per_normalized_unit).to eq(BigDecimal("20"))   # 20.00 €/kg
+    p = price(unit: "g", amount_cents: 2) # 0.02 €/g
+    expect(p.amount_per_normalized_unit).to eq(BigDecimal("20")) # 20.00 €/kg
     expect(p.normalized_unit).to eq("kg")
   end
 
   it "scales millilitre-prices into litre-prices (×1000)" do
-    p = price(unit: "ml", amount_cents: 1)           # 0.01 €/ml
-    expect(p.amount_per_normalized_unit).to eq(BigDecimal("10"))   # 10.00 €/l
+    p = price(unit: "ml", amount_cents: 1) # 0.01 €/ml
+    expect(p.amount_per_normalized_unit).to eq(BigDecimal("10")) # 10.00 €/l
     expect(p.normalized_unit).to eq("l")
   end
 

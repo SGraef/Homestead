@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Specialised view of the freezer slice of {StorageItem}, plus an inline
 # quick-add form for homemade food (which doesn't need to live in the
@@ -17,8 +17,8 @@ class FreezerController < ApplicationController
     # own `created_at`), so a bare `created_at` is ambiguous to MySQL.
     scope = current_household.freezer_items
                              .order(Arel.sql(
-                               "COALESCE(storage_items.frozen_on, DATE(storage_items.created_at)) ASC"
-                             ))
+                                      "COALESCE(storage_items.frozen_on, DATE(storage_items.created_at)) ASC"
+                                    ))
 
     @query = params[:q].to_s.strip
     if @query.present?

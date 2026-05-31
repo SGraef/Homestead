@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 class ReceiptsController < ApplicationController
   before_action :ensure_household
@@ -28,7 +28,7 @@ class ReceiptsController < ApplicationController
       ProcessReceiptJob.perform_later(@receipt.id)
       redirect_to @receipt, notice: t("notices.receipt_uploaded")
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 

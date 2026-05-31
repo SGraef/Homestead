@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # A Household is the top-level tenancy boundary in Pantria. All food storage,
 # grocery and price data is owned by exactly one household.
@@ -33,17 +33,17 @@ class Household < ApplicationRecord
   # supports DE codes today; we keep the model permissive for future
   # adapters.
   validates :postal_code, allow_blank: true, length: { maximum: 16 },
-                          format: { with: /\A[A-Z0-9 \-]+\z/i }
+                          format: { with: /\A[A-Z0-9 -]+\z/i }
 
   # Flaschenpost's product API is locked behind a region-specific
   # warehouse_id. Nullable -- households that don't set it just skip
   # the Flaschenpost source during sync.
-  validates :flaschenpost_warehouse_id, allow_nil: true,
+  validates :flaschenpost_warehouse_id, allow_nil:    true,
                                         numericality: { only_integer: true, greater_than: 0 }
 
   # @return [ActiveRecord::Relation<StorageItem>] items expiring within `days`.
   def expiring_storage(days: 7)
-    storage_items.where(expires_on: Date.current..Date.current + days.days)
+    storage_items.where(expires_on: Date.current..(Date.current + days.days))
   end
 
   # @return [ActiveRecord::Relation<GroceryItem>] items still needed.

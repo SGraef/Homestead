@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Manage the per-household offer blocklist. Visible inline on /offers
 # under "Blocked patterns" -- this controller handles add/remove.
@@ -19,7 +19,7 @@ class OfferBlocklistEntriesController < ApplicationController
     end
 
     entry = current_household.offer_blocklist_entries
-                              .find_or_initialize_by(pattern: pattern)
+                             .find_or_initialize_by(pattern: pattern)
     entry.reason = reason.presence
     if entry.save
       removed = remove_matching_offers(entry)

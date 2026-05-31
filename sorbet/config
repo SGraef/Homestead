@@ -9,3 +9,8 @@
 --ignore=/storage/
 --ignore=/vendor/bundle/
 --ignore=/db/migrate/
+
+# Suppress stdlib/gem RBI conflicts where the gem version ships with a
+# class hierarchy that diverges from Sorbet's bundled stdlib RBIs.
+--suppress-payload-superclass-redefinition-for=Net::IMAP::Literal
+--suppress-payload-superclass-redefinition-for=RDoc::Markup::Heading

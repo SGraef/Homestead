@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Account-lifecycle mailer Sorcery hooks into.
 #

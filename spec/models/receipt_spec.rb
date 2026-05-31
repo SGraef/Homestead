@@ -30,10 +30,10 @@ RSpec.describe Receipt do
     end
 
     it "wipes parsed state, drops line items and re-enqueues OCR" do
-      expect {
+      expect do
         receipt.reprocess!
-      }.to change { receipt.receipt_line_items.count }.from(1).to(0)
-       .and have_enqueued_job(ProcessReceiptJob).with(receipt.id)
+      end.to change { receipt.receipt_line_items.count }.from(1).to(0)
+                                                        .and have_enqueued_job(ProcessReceiptJob).with(receipt.id)
 
       receipt.reload
       expect(receipt).to have_attributes(

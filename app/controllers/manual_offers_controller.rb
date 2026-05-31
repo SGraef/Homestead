@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # CRUD for hand-typed offers — the fallback for retailers that aren't
 # carried by any aggregator we scrape (Edeka, regional Aldi groups in
@@ -26,27 +26,27 @@ class ManualOffersController < ApplicationController
     )
   end
 
+  def edit; end
+
   def create
     @offer = current_household.offers.new(offer_params.merge(
-      source:      "manual",
-      external_id: SecureRandom.uuid,
-      currency:    "EUR"
-    ))
+                                            source:      "manual",
+                                            external_id: SecureRandom.uuid,
+                                            currency:    "EUR"
+                                          ))
 
     if @offer.save
       redirect_to offers_path, notice: t("offer.manual.flash.created")
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
-
-  def edit; end
 
   def update
     if @offer.update(offer_params)
       redirect_to offers_path, notice: t("offer.manual.flash.updated")
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

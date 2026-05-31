@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 class RegistrationsController < ApplicationController
   skip_before_action :require_login, only: %i[new create]
@@ -17,13 +17,13 @@ class RegistrationsController < ApplicationController
 
     if @user.save
       household = Household.create!(
-        name: "#{@user.email.split('@').first.titleize} Haushalt"
+        name: "#{@user.email.split("@").first.titleize} Haushalt"
       )
       Membership.create!(user: @user, household: household, role: "admin")
 
       redirect_to login_path, notice: t("auth.activation_email_sent")
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 

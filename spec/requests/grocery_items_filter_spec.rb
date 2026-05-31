@@ -30,10 +30,12 @@ RSpec.describe "Grocery list filter + purge" do
 
   describe "DELETE /grocery_items/purge_purchased" do
     it "destroys every purchased row and leaves needed rows alone" do
-      expect {
+      purchased = -> { household.grocery_items.where(status: "purchased").count }
+      needed    = -> { household.grocery_items.where(status: "needed").count }
+      expect do
         delete "/grocery_items/purge_purchased"
-      }.to change { household.grocery_items.where(status: "purchased").count }.from(1).to(0)
-       .and change { household.grocery_items.where(status: "needed").count }.by(0)
+      end.to change(&purchased).from(1).to(0)
+                               .and change(&needed).by(0)
 
       expect(response).to redirect_to(grocery_items_path)
       follow_redirect!

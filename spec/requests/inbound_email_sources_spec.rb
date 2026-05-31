@@ -47,9 +47,9 @@ RSpec.describe "Inbound email sources" do
 
     it "non-owners cannot delete" do
       login_via_post(other_member)
-      expect {
+      expect do
         delete inbound_email_source_path(source)
-      }.not_to change(InboundEmailSource, :count)
+      end.not_to change(InboundEmailSource, :count)
     end
   end
 end

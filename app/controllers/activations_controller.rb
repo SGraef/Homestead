@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Handles the URL embedded in the activation email.
 #
@@ -25,9 +25,7 @@ class ActivationsController < ApplicationController
   # POST /activations -- re-send the activation email if the user lost it.
   def create
     user = User.find_by(email: params[:email].to_s.downcase.strip)
-    if user&.activation_state == "pending"
-      UserMailer.activation_needed_email(user).deliver_later
-    end
+    UserMailer.activation_needed_email(user).deliver_later if user&.activation_state == "pending"
     # Always show the same flash so we don't leak account existence.
     redirect_to login_path, notice: t("activation.resent")
   end

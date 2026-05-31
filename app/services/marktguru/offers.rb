@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 require "net/http"
 require "json"
@@ -102,7 +102,7 @@ module Marktguru
       # ---- internals -------------------------------------------------------
 
       # Yields each offer row from one industry's offer feed, paginating.
-      def fetch_industry(slug, postal_code:, limit:, max_pages:)
+      def fetch_industry(slug, postal_code:, limit:, max_pages:, &block)
         offset = 0
         max_pages.times do
           params = { as: "mobile", zipCode: postal_code, limit: limit, offset: offset }
@@ -113,7 +113,7 @@ module Marktguru
           rows   = Array(data && data["results"])
           break if rows.empty?
 
-          rows.each { |r| yield r }
+          rows.each(&block)
           break if rows.size < limit
 
           offset += limit
@@ -143,11 +143,11 @@ module Marktguru
                                "Unknown",
           retailer_slug:       raw.dig("retailer", "uniqueName").presence,
           price_cents:         price_cents,
-          regular_price_cents: (old_cents && old_cents.positive?) ? old_cents : nil,
+          regular_price_cents: old_cents&.positive? ? old_cents : nil,
           currency:            "EUR",
           unit:                parse_unit(raw["description"]),
           quantity_text:       raw["description"].presence,
-          image_url:           nil,  # TODO: derive from media host + product/brand id
+          image_url:           nil, # TODO: derive from media host + product/brand id
           source_url:          format(OFFER_PAGE_URL, ext_id),
           valid_from:          parse_date(raw["validFrom"]),
           valid_until:         parse_date(raw["validTo"])
@@ -191,7 +191,7 @@ module Marktguru
         http.open_timeout = OPEN_TIMEOUT
         http.read_timeout = READ_TIMEOUT
 
-        req  = Net::HTTP::Get.new(
+        req = Net::HTTP::Get.new(
           uri.request_uri,
           "User-Agent" => USER_AGENT,
           "Accept"     => "application/json",

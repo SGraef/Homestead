@@ -39,10 +39,10 @@ module Api
       def purchase
         authorize @item, :update?
         storage_item = @item.mark_purchased!(
-          store: current_household.stores.find_by(id: params[:store_id]),
+          store:       current_household.stores.find_by(id: params[:store_id]),
           paid_amount: params[:paid_amount],
-          expires_on: params[:expires_on],
-          location: params[:location].presence || "pantry"
+          expires_on:  params[:expires_on],
+          location:    params[:location].presence || "pantry"
         )
         render json: {
           grocery_item: GroceryItemSerializer.call(@item),

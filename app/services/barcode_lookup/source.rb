@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 require "net/http"
 require "json"
@@ -25,7 +25,7 @@ module BarcodeLookup
       def get_json(url, redirects: MAX_REDIRECTS, user_agent: USER_AGENT, headers: {})
         uri  = URI.parse(url)
         http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl     = uri.scheme == "https"
+        http.use_ssl = uri.scheme == "https"
         http.open_timeout = OPEN_TIMEOUT
         http.read_timeout = READ_TIMEOUT
 
@@ -50,7 +50,8 @@ module BarcodeLookup
           log_warn("HTTP #{resp.code} for #{url} body=#{resp.body.to_s.truncate(200)}")
           nil
         end
-      rescue JSON::ParserError, Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, OpenSSL::SSL::SSLError => e
+      rescue JSON::ParserError, Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED,
+             OpenSSL::SSL::SSLError => e
         log_warn("#{e.class}: #{e.message} (#{url})")
         nil
       end

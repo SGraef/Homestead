@@ -13,18 +13,18 @@ RSpec.describe "POST /storage_items/:id/decrement" do
   it "subtracts one from the quantity" do
     item = create(:storage_item, household: household, product: product, quantity: 3)
 
-    expect {
+    expect do
       post decrement_storage_item_path(item)
-    }.to change { item.reload.quantity }.from(3).to(2)
+    end.to change { item.reload.quantity }.from(3).to(2)
     expect(response).to redirect_to(storage_items_path)
   end
 
   it "destroys the row when the result reaches zero" do
     item = create(:storage_item, household: household, product: product, quantity: 1)
 
-    expect {
+    expect do
       post decrement_storage_item_path(item)
-    }.to change(StorageItem, :count).by(-1)
+    end.to change(StorageItem, :count).by(-1)
   end
 
   it "preserves the active location filter on redirect" do

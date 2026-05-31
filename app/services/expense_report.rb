@@ -50,10 +50,10 @@ class ExpenseReport
   # @return [Month, nil] aggregate for the current calendar month
   def current_month
     months.find { |m| m.key == Date.current.strftime("%Y-%m") } ||
-      Month.new(key:                Date.current.strftime("%Y-%m"),
-                label:              I18n.l(Date.current, format: "%B %Y"),
-                total_cents:        0,
-                by_category:        {},
+      Month.new(key:                 Date.current.strftime("%Y-%m"),
+                label:               I18n.l(Date.current, format: "%B %Y"),
+                total_cents:         0,
+                by_category:         {},
                 uncategorized_cents: 0)
   end
 
@@ -73,7 +73,7 @@ class ExpenseReport
       by_category = categories.select { |(m, _), _| m == key }.transform_keys { |(_, c)| c }
       other_cents = others[key].to_i
       by_category[OTHER] = other_cents if other_cents.positive?
-      accounted   = by_category.values.sum
+      accounted = by_category.values.sum
       Month.new(
         key:                 key,
         label:               format_label(key),
@@ -87,7 +87,7 @@ class ExpenseReport
   def monthly_totals(since)
     @household.receipts
               .where(status: "confirmed")
-              .where("purchased_on >= ?", since)
+              .where(purchased_on: since..)
               .where.not(purchased_on: nil)
               .group(month_expr_for(:purchased_on, table: :receipts))
               .sum(:subtotal_cents)
@@ -96,8 +96,7 @@ class ExpenseReport
   def monthly_by_category(since)
     ReceiptLineItem
       .joins(:receipt, :product)
-      .where(receipts: { household_id: @household.id, status: "confirmed" })
-      .where("receipts.purchased_on >= ?", since)
+      .where(receipts: { household_id: @household.id, status: "confirmed", purchased_on: since.. })
       .where.not(receipts: { purchased_on: nil })
       .where(status: %w[matched created])
       .where.not(parsed_total_cents: nil)
@@ -114,8 +113,7 @@ class ExpenseReport
   def monthly_other(since)
     ReceiptLineItem
       .joins(:receipt)
-      .where(receipts: { household_id: @household.id, status: "confirmed" })
-      .where("receipts.purchased_on >= ?", since)
+      .where(receipts: { household_id: @household.id, status: "confirmed", purchased_on: since.. })
       .where.not(receipts: { purchased_on: nil })
       .where(product_id: nil)
       .where.not(parsed_total_cents: nil)
@@ -135,7 +133,7 @@ class ExpenseReport
   def format_label(key)
     year, month = key.split("-").map(&:to_i)
     I18n.l(Date.new(year, month, 1), format: "%B %Y")
-  rescue ArgumentError, Date::Error
+  rescue ArgumentError
     key
   end
 end

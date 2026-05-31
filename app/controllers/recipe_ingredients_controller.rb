@@ -35,26 +35,26 @@ class RecipeIngredientsController < ApplicationController
     if !result.ok?
       redirect_to @recipe,
                   alert: t("recipe.consume.unit_mismatch",
-                            name: ingredient.product.name,
-                            row_unit: ingredient.unit,
-                            product_unit: ingredient.product.unit)
+                           name:         ingredient.product.name,
+                           row_unit:     ingredient.unit,
+                           product_unit: ingredient.product.unit)
     elsif result.consumed.to_d.zero?
       redirect_to @recipe,
                   alert: t("recipe.consume.nothing_on_hand",
-                            name: ingredient.product.name)
+                           name: ingredient.product.name)
     elsif result.short?
       redirect_to @recipe,
                   notice: t("recipe.consume.short",
-                            name: ingredient.product.name,
+                            name:     ingredient.product.name,
                             consumed: format_qty(result.consumed),
-                            short: format_qty(result.short),
-                            unit: ingredient.display_unit)
+                            short:    format_qty(result.short),
+                            unit:     ingredient.display_unit)
     else
       redirect_to @recipe,
                   notice: t("recipe.consume.ok",
-                            name: ingredient.product.name,
+                            name:     ingredient.product.name,
                             consumed: format_qty(result.consumed),
-                            unit: ingredient.display_unit)
+                            unit:     ingredient.display_unit)
     end
   end
 

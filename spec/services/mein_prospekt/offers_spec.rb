@@ -29,11 +29,11 @@ RSpec.describe MeinProspekt::Offers do
       stub_request(:get, %r{www\.meinprospekt\.de/api/search})
         .with(query: hash_including("query" => "ALDI Nord", "offset" => "24"))
         .to_return(status: 200, body: api_body([{
-          "id" => "id-25",
+                                                 "id" => "id-25",
           "publisherName" => "ALDI Nord", "publisherId" => "DE-75",
           "title" => "Naturradler",
           "prices" => { "mainPrice" => 0.79, "secondaryPrice" => 1.15 }
-        }]), headers: { "Content-Type" => "application/json" })
+                                               }]), headers: { "Content-Type" => "application/json" })
 
       result = described_class.pull_all
       expect(result.size).to eq(25)
@@ -45,43 +45,43 @@ RSpec.describe MeinProspekt::Offers do
         quantity_text: "1 kg = 11.27"
       )
       radler = result.find { |o| o.title == "Naturradler" }
-      expect(radler.regular_price_cents).to eq(115)  # secondary > main
+      expect(radler.regular_price_cents).to eq(115) # secondary > main
     end
 
     it "fans out across multiple `queries:` and dedupes by external_id" do
       stub_request(:get, %r{www\.meinprospekt\.de/api/search})
         .with(query: hash_including("query" => "Aldi Süd"))
         .to_return(status: 200, body: api_body([
-          { "id" => "shared", "publisherName" => "Aldi Süd",
-            "title" => "Brot", "prices" => { "mainPrice" => 1.0 } }
-        ]), headers: { "Content-Type" => "application/json" })
+                                                 { "id" => "shared", "publisherName" => "Aldi Süd",
+                                                   "title" => "Brot", "prices" => { "mainPrice" => 1.0 } }
+                                               ]), headers: { "Content-Type" => "application/json" })
       stub_request(:get, %r{www\.meinprospekt\.de/api/search})
         .with(query: hash_including("query" => "Tegut"))
         .to_return(status: 200, body: api_body([
-          { "id" => "shared",  "publisherName" => "Tegut", "title" => "Brot",
-            "prices" => { "mainPrice" => 0.99 } },
-          { "id" => "tegut-2", "publisherName" => "Tegut", "title" => "Käse",
-            "prices" => { "mainPrice" => 2.49 } }
-        ]), headers: { "Content-Type" => "application/json" })
+                                                 { "id" => "shared", "publisherName" => "Tegut", "title" => "Brot",
+                                                   "prices" => { "mainPrice" => 0.99 } },
+                                                 { "id" => "tegut-2", "publisherName" => "Tegut", "title" => "Käse",
+                                                   "prices" => { "mainPrice" => 2.49 } }
+                                               ]), headers: { "Content-Type" => "application/json" })
 
-      result = described_class.pull_all(queries: %w[Aldi\ Süd Tegut])
+      result = described_class.pull_all(queries: ["Aldi Süd", "Tegut"])
       expect(result.map(&:external_id).sort).to eq(%w[shared tegut-2])
     end
 
     it "drops rows without an id, title, or price" do
       stub_request(:get, %r{www\.meinprospekt\.de/api/search})
         .to_return(status: 200, body: api_body([
-          { "id" => nil, "title" => "x", "prices" => { "mainPrice" => 1.0 } },
-          { "id" => "a", "title" => "",  "prices" => { "mainPrice" => 1.0 } },
-          { "id" => "b", "title" => "ok"                                   },
-          { "id" => "c", "title" => "good","prices" => { "mainPrice" => 1.0 } }
-        ]), headers: { "Content-Type" => "application/json" })
+                                                 { "id" => nil, "title" => "x", "prices" => { "mainPrice" => 1.0 } },
+                                                 { "id" => "a", "title" => "",  "prices" => { "mainPrice" => 1.0 } },
+                                                 { "id" => "b", "title" => "ok" },
+                                                 { "id" => "c", "title" => "good", "prices" => { "mainPrice" => 1.0 } }
+                                               ]), headers: { "Content-Type" => "application/json" })
 
       expect(described_class.pull_all.map(&:external_id)).to eq(["c"])
     end
 
     it "swallows network errors and returns []" do
-      stub_request(:get, %r{www\.meinprospekt\.de}).to_timeout
+      stub_request(:get, /www\.meinprospekt\.de/).to_timeout
       expect(described_class.pull_all).to eq([])
     end
 

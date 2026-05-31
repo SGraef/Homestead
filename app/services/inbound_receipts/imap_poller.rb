@@ -76,7 +76,7 @@ module InboundReceipts
     rescue StandardError => e
       stats[:errors] += 1
       source.update_columns(last_polled_at: Time.current,
-                            last_error: "#{e.class}: #{e.message}".first(1000))
+                            last_error:     "#{e.class}: #{e.message}".first(1000))
       Rails.logger.warn("[InboundReceipts] source=#{source.id} #{source.label.inspect} " \
                         "drain failed: #{e.class}: #{e.message}")
     end
@@ -124,7 +124,11 @@ module InboundReceipts
     rescue StandardError
       # already disconnected; nothing to do
     ensure
-      imap.disconnect rescue nil
+      begin
+        imap.disconnect
+      rescue StandardError
+        nil
+      end
     end
   end
 end

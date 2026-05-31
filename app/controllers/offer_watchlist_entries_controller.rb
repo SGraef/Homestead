@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Manage the per-household offer watchlist. Lives inline on /offers under
 # "Watchlist" -- this controller handles add/remove. Watchlist entries
@@ -16,7 +16,7 @@ class OfferWatchlistEntriesController < ApplicationController
     end
 
     entry = current_household.offer_watchlist_entries
-                              .find_or_initialize_by(pattern: pattern)
+                             .find_or_initialize_by(pattern: pattern)
     if entry.save
       redirect_to offers_path,
                   notice: t("offer.watchlist.added", pattern: entry.pattern)

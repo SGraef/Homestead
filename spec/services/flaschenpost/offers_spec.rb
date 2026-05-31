@@ -28,29 +28,31 @@ RSpec.describe Flaschenpost::Offers do
   let(:pdp_response) do
     [
       {
-        "id"     => "uuid-1",
-        "key"    => "5648",
-        "name"   => { "de-DE" => "Mio Mio Mate Zero" },
-        "slug"   => { "de-DE" => "mio-mio-mate-zero" },
-        "categories" => [{
+        "id"            => "uuid-1",
+        "key"           => "5648",
+        "name"          => { "de-DE" => "Mio Mio Mate Zero" },
+        "slug"          => { "de-DE" => "mio-mio-mate-zero" },
+        "categories"    => [{
           "obj" => {
-            "name" => { "de-DE" => "Mate" },
-            "custom" => { "type" => { "key" => "fp-category-subcategory" } },
+            "name"      => { "de-DE" => "Mate" },
+            "custom"    => { "type" => { "key" => "fp-category-subcategory" } },
             "ancestors" => [
-              { "obj" => { "name" => { "de-DE" => "Mio" },        "custom" => { "type" => { "key" => "fp-category-brand"   } } } },
-              { "obj" => { "name" => { "de-DE" => "Limo & Saft" }, "custom" => { "type" => { "key" => "fp-category"         } } } }
+              { "obj" => { "name"   => { "de-DE" => "Mio" },
+                           "custom" => { "type" => { "key" => "fp-category-brand" } } } },
+              { "obj" => { "name"   => { "de-DE" => "Limo & Saft" },
+                           "custom" => { "type" => { "key" => "fp-category" } } } }
             ]
           }
         }],
         "masterVariant" => {
-          "sku" => "8292",
-          "price" => { "value" => { "centAmount" => 1299 } },
+          "sku"        => "8292",
+          "price"      => { "value" => { "centAmount" => 1299 } },
           "attributes" => [
             { "value" => "12 x 0,5L (Glas)" },
             { "value" => { "centAmount" => 779 } },
             { "value" => { "centAmount" => 1500 } } # higher tier -> regular price
           ],
-          "images" => [{ "url" => "https://image.flaschenpost.de/p/mio.jpg" }]
+          "images"     => [{ "url" => "https://image.flaschenpost.de/p/mio.jpg" }]
         }
       }
     ]

@@ -21,12 +21,12 @@ RSpec.describe MealPlanSuggester do
   it "fills empty dinner slots with one recipe per day, never repeating within a week" do
     7.times { |i| recipe("Recipe #{i}") }
 
-    expect {
+    expect do
       described_class.new(household: household, week_start: monday).call
-    }.to change(MealPlanEntry, :count).by(7)
+    end.to change(MealPlanEntry, :count).by(7)
 
     week = household.meal_plan_entries.for_week_of(monday)
-    expect(week.pluck(:planned_on).sort).to eq((monday..monday + 6.days).to_a)
+    expect(week.pluck(:planned_on).sort).to eq((monday..(monday + 6.days)).to_a)
     expect(week.pluck(:slot).uniq).to eq(["dinner"])
     expect(week.pluck(:recipe_id).uniq.size).to eq(7) # no repeats this week
   end
@@ -60,7 +60,7 @@ RSpec.describe MealPlanSuggester do
     household.meal_plan_entries.create!(recipe: used, planned_on: monday - 20.days, slot: "dinner")
 
     result = described_class.new(household: household, week_start: monday).call
-    chosen_recipe_ids = result.entries.map(&:recipe_id)
+    chosen_recipe_ids = result.created_entries.map(&:recipe_id)
     # `fresh` should be picked at least once; `used` should be picked
     # last (if at all) once the cooldown penalty drops it.
     expect(chosen_recipe_ids.first).to eq(fresh.id)
@@ -69,18 +69,18 @@ RSpec.describe MealPlanSuggester do
   it "rewards filling the fish bucket when none has been scheduled yet" do
     fish = recipe("Fischfilet",  tags: "fisch")
     veg  = recipe("Salat",       tags: "vegetarisch")
-    meat = recipe("Schweinebraten", tags: "fleisch")
+    recipe("Schweinebraten", tags: "fleisch")
 
     result = described_class.new(household: household, week_start: monday).call
-    chosen_recipe_ids = result.entries.map(&:recipe_id)
+    chosen_recipe_ids = result.created_entries.map(&:recipe_id)
     expect(chosen_recipe_ids).to include(fish.id)
     expect(chosen_recipe_ids).to include(veg.id)
   end
 
   it "doesn't choke when recipes have no tags at all" do
     5.times { |i| recipe("Untagged #{i}") }
-    expect {
+    expect do
       described_class.new(household: household, week_start: monday).call
-    }.to change(MealPlanEntry, :count).by(5)
+    end.to change(MealPlanEntry, :count).by(5)
   end
 end

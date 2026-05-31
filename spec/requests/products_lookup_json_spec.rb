@@ -27,9 +27,9 @@ RSpec.describe "GET /products/lookup.json (web)" do
 
   it "returns a remote suggestion when the barcode is unknown locally" do
     stub_request(:get, %r{world\.openfoodfacts\.org/api/v2/product/4006381333924\.json})
-      .to_return(status: 200,
+      .to_return(status:  200,
                  headers: { "Content-Type" => "application/json" },
-                 body: { status: 1, product: { product_name: "Whole Milk",
+                 body:    { status: 1, product: { product_name: "Whole Milk",
                                                brands: "Acme", quantity: "1 L" } }.to_json)
 
     get "/products/lookup.json", params: { barcode: "4006381333924" }
@@ -41,7 +41,7 @@ RSpec.describe "GET /products/lookup.json (web)" do
   end
 
   it "returns source: 'none' when neither local nor remote sources match" do
-    stub_request(:get, %r{world\.open(food|products)facts\.org})
+    stub_request(:get, /world\.open(food|products)facts\.org/)
       .to_return(status: 200, body: { status: 0 }.to_json,
                  headers: { "Content-Type" => "application/json" })
     stub_request(:get, %r{marktguru\.de/api/v1/products/searchByEan})

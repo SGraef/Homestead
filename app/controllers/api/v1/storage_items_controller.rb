@@ -8,7 +8,7 @@ module Api
 
       def index
         scope = policy_scope(current_household.storage_items)
-                  .includes(:product, :location).order(:expires_on)
+                .includes(:product, :location).order(:expires_on)
         scope = scope.expiring_within(params[:expiring_within].to_i) if params[:expiring_within].present?
 
         if params[:location_id].present?

@@ -5,6 +5,8 @@ require "rails_helper"
 
 RSpec.describe ReceiptScanner::Parser do
   describe ".parse" do
+    subject(:result) { described_class.parse(raw) }
+
     let(:raw) { <<~OCR }
       REWE
       Hauptstr. 12
@@ -17,8 +19,6 @@ RSpec.describe ReceiptScanner::Parser do
       SUMME EUR             5,98
       01.05.2026 12:34
     OCR
-
-    subject(:result) { described_class.parse(raw) }
 
     it "detects the store from the header" do
       expect(result.store_name).to eq("REWE")
@@ -46,6 +46,8 @@ RSpec.describe ReceiptScanner::Parser do
   end
 
   describe "filtering of total/tax/payment lines" do
+    subject(:items) { described_class.parse(raw).line_items.map(&:name) }
+
     let(:raw) { <<~OCR }
       REWE Markt
       Hauptstr. 12
@@ -64,8 +66,6 @@ RSpec.describe ReceiptScanner::Parser do
       01.05.2026 12:34
     OCR
 
-    subject(:items) { described_class.parse(raw).line_items.map(&:name) }
-
     it "keeps the actual products" do
       expect(items).to include("Vollmilch", "Brot")
     end
@@ -77,7 +77,7 @@ RSpec.describe ReceiptScanner::Parser do
       ]
       forbidden.each do |word|
         expect(items.join(" | ")).not_to include(word),
-          "expected line items to NOT contain '#{word}', got: #{items.inspect}"
+                                         "expected line items to NOT contain '#{word}', got: #{items.inspect}"
       end
     end
 

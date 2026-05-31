@@ -20,9 +20,9 @@ RSpec.describe "GET /products/search.json" do
 
     stub_request(:get, %r{world\.openfoodfacts\.org/cgi/search\.pl})
       .to_return(
-        status: 200,
+        status:  200,
         headers: { "Content-Type" => "application/json" },
-        body: {
+        body:    {
           products: [
             { "code" => "4006381333924", "product_name" => "Vollmilch 1L",
               "brands" => "Acme", "quantity" => "1 L" },

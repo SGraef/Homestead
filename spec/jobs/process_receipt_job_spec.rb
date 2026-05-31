@@ -10,12 +10,12 @@ RSpec.describe ProcessReceiptJob do
   let(:fake_outcome) do
     ReceiptScanner::Outcome.new(
       raw_text: "REWE\nMilk 1,19 A\nSUMME EUR 1,19\n",
-      result: ReceiptScanner::Result.new(
-        store_name: "REWE",
-        purchased_on: Date.new(2026, 5, 1),
-        currency: "EUR",
+      result:   ReceiptScanner::Result.new(
+        store_name:     "REWE",
+        purchased_on:   Date.new(2026, 5, 1),
+        currency:       "EUR",
         subtotal_cents: 119,
-        line_items: [
+        line_items:     [
           ReceiptScanner::LineItem.new(position: 1, line_text: "Milk 1,19 A",
                                        name: "Milk", quantity: 1.0,
                                        unit_price_cents: nil, total_cents: 119)

@@ -14,24 +14,24 @@ RSpec.describe "Offer watchlist" do
 
   describe "POST /offers/watchlist" do
     it "creates a watchlist entry" do
-      expect {
+      expect do
         post offer_watchlist_entries_path, params: { entry: { pattern: "Vollmilch" } }
-      }.to change(OfferWatchlistEntry, :count).by(1)
+      end.to change(OfferWatchlistEntry, :count).by(1)
       expect(response).to redirect_to(offers_path)
     end
 
     it "rejects a blank pattern" do
-      expect {
+      expect do
         post offer_watchlist_entries_path, params: { entry: { pattern: "  " } }
-      }.not_to change(OfferWatchlistEntry, :count)
+      end.not_to change(OfferWatchlistEntry, :count)
       expect(flash[:alert]).to be_present
     end
 
     it "ignores a duplicate (same pattern in same household)" do
       household.offer_watchlist_entries.create!(pattern: "Kaffee")
-      expect {
+      expect do
         post offer_watchlist_entries_path, params: { entry: { pattern: "kaffee" } }
-      }.not_to change(OfferWatchlistEntry, :count)
+      end.not_to change(OfferWatchlistEntry, :count)
     end
   end
 

@@ -50,7 +50,9 @@ class CreateLocationsAndLinkStorageItems < ActiveRecord::Migration[8.0]
     end
 
     change_column_null :storage_items, :location_id, false
-    remove_index :storage_items, name: "index_storage_items_on_household_id_and_product_id_and_location" if index_exists?(:storage_items, %i[household_id product_id location], name: "index_storage_items_on_household_id_and_product_id_and_location")
+    if index_exists?(:storage_items, %i[household_id product_id location], name: "index_storage_items_on_household_id_and_product_id_and_location")
+      remove_index :storage_items, name: "index_storage_items_on_household_id_and_product_id_and_location"
+    end
     remove_column :storage_items, :location, :string
   end
 

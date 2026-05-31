@@ -13,10 +13,10 @@ class ProductSerializer
       name:         product.name,
       brand:        product.brand,
       barcode:      product.barcode,
-      barcodes:     product.product_barcodes.map { |pb|
+      barcodes:     product.product_barcodes.map do |pb|
         { id: pb.id, barcode: pb.barcode, brand: pb.brand,
           quantity_text: pb.quantity_text }
-      },
+      end,
       all_barcodes: product.all_barcodes,
       all_brands:   product.all_brands,
       unit:         product.unit,

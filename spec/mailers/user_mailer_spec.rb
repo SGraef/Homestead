@@ -10,9 +10,9 @@ RSpec.describe UserMailer do
   after  { I18n.locale = I18n.default_locale }
 
   describe "#activation_needed_email" do
-    before { allow(user).to receive(:activation_token).and_return("act-token-123") }
-
     subject(:mail) { described_class.activation_needed_email(user) }
+
+    before { allow(user).to receive(:activation_token).and_return("act-token-123") }
 
     it "is addressed to the user with the right subject" do
       expect(mail.to).to eq([user.email])
@@ -35,9 +35,9 @@ RSpec.describe UserMailer do
   end
 
   describe "#reset_password_email" do
-    before { allow(user).to receive(:reset_password_token).and_return("reset-tok-9") }
-
     subject(:mail) { described_class.reset_password_email(user) }
+
+    before { allow(user).to receive(:reset_password_token).and_return("reset-tok-9") }
 
     it "embeds the reset URL with the token" do
       expect(mail.subject).to eq("Pantria password reset")

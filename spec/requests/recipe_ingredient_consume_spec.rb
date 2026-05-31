@@ -7,7 +7,7 @@ RSpec.describe "POST /recipes/:recipe_id/ingredients/:id/consume" do
   let(:user)       { create(:user) }
   let!(:household) { create(:household, admin: user) }
   let(:flour)      { create(:product, household: household, name: "Mehl", unit: "g") }
-  let(:oil)        { create(:product, household: household, name: "Öl",  unit: "ml") }
+  let(:oil)        { create(:product, household: household, name: "Öl", unit: "ml") }
   let(:fridge)     { household.locations.find_by!(kind: "fridge") }
   let(:pantry)     { household.locations.find_by!(kind: "pantry") }
 
@@ -58,7 +58,7 @@ RSpec.describe "POST /recipes/:recipe_id/ingredients/:id/consume" do
     ing = recipe.recipe_ingredients.create!(product: oil, quantity: 4, unit: "EL")
 
     expect { post consume_recipe_ingredient_path(recipe, ing) }
-      .not_to change { household.storage_items.sum(:quantity) }
+      .not_to(change { household.storage_items.sum(:quantity) })
     expect(flash[:alert]).to include("EL")
     expect(flash[:alert]).to include("ml")
   end

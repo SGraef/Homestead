@@ -13,20 +13,20 @@ RSpec.describe "Creating products with multiple barcodes" do
   end
 
   it "creates the product + nested ProductBarcode rows in one POST" do
-    expect {
+    expect do
       post products_path, params: {
         product: {
-          name: "Butter",
-          unit: "g",
-          barcode: "4006381333924",
-          brand:   "Kerrygold",
+          name:                        "Butter",
+          unit:                        "g",
+          barcode:                     "4006381333924",
+          brand:                       "Kerrygold",
           product_barcodes_attributes: {
             "0" => { barcode: "4002359000018", brand: "ALDI", quantity_text: "250 g" },
             "1" => { barcode: "4337185040641", brand: "Lurpak" }
           }
         }
       }
-    }.to change(Product, :count).by(1)
+    end.to change(Product, :count).by(1)
 
     product = Product.last
     expect(product.barcode).to eq("4006381333924")
@@ -76,7 +76,7 @@ RSpec.describe "Creating products with multiple barcodes" do
     butter = create(:product, household: household, name: "Butter", barcode: nil)
     pb     = butter.product_barcodes.create!(barcode: "4002359000018", brand: "ALDI")
 
-    expect {
+    expect do
       patch product_path(butter), params: {
         product: {
           name: "Butter", unit: butter.unit,
@@ -85,6 +85,6 @@ RSpec.describe "Creating products with multiple barcodes" do
           }
         }
       }
-    }.to change { butter.product_barcodes.count }.from(1).to(0)
+    end.to change { butter.product_barcodes.count }.from(1).to(0)
   end
 end

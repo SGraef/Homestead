@@ -12,12 +12,12 @@
 class CreateOffers < ActiveRecord::Migration[8.0]
   def change
     create_table :offers do |t|
-      t.references :household, null: false,
-                   foreign_key: { on_delete: :cascade }
-      t.references :product,   null: true,
-                   foreign_key: { on_delete: :nullify }
-      t.references :store,     null: true,
-                   foreign_key: { on_delete: :nullify }
+      t.references :household, null:        false,
+                               foreign_key: { on_delete: :cascade }
+      t.references :product,   null:        true,
+                               foreign_key: { on_delete: :nullify }
+      t.references :store,     null:        true,
+                               foreign_key: { on_delete: :nullify }
 
       t.string  :source,         null: false, default: "marktguru", limit: 32
       t.string  :external_id,    null: false, limit: 64

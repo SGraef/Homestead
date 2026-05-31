@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Base controller for the entire app. Wires up Sorcery for current_user and
 # Pundit for authorization. The current household is resolved from the
@@ -33,6 +33,6 @@ class ApplicationController < ActionController::Base
 
   def user_not_authorized
     flash[:alert] = t("flash.not_authorized")
-    redirect_back fallback_location: root_path
+    redirect_back_or_to(root_path)
   end
 end

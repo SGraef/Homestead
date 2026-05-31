@@ -1,0 +1,253 @@
+# Pantria's RuboCop config. Two goals:
+#
+# 1. Match the existing codebase's actual style rather than fighting it.
+#    The repo was written with double quotes, table-aligned hashes, and
+#    long-but-readable Rails service methods. Cops that disagree with
+#    that get retuned, not the codebase.
+#
+# 2. Surface real signal — security/correctness cops, naming, suspicious
+#    blocks — without drowning it in cosmetic noise.
+
+require:
+  - rubocop-rails
+  - rubocop-rspec
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.3
+  SuggestExtensions: false
+  Exclude:
+    - "bin/**/*"
+    - "db/schema.rb"
+    - "db/migrate/*_create_active_storage_*"
+    - "db/migrate/*_create_action_*"
+    - "db/migrate/*_create_solid_*"
+    - "vendor/**/*"
+    - "tmp/**/*"
+    - "log/**/*"
+    - "node_modules/**/*"
+    - "sorbet/**/*"
+    - "coverage/**/*"
+    - "config/initializers/inflections.rb"
+
+# --------------------------------------------------------------------
+# Style: match what the codebase already does.
+# --------------------------------------------------------------------
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: double_quotes
+
+Layout/HashAlignment:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+
+Style/Documentation:
+  # YARD comments above `class` already document the public surface;
+  # the cop's frozen-string-literal-style block isn't the convention
+  # we use.
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  # The project uses `# frozen_string_literal: true` at the top of
+  # every file; this cop enforces that, keep it on.
+  EnforcedStyle: always
+
+Bundler/OrderedGems:
+  # Gemfile groups gems by purpose (auth, db, jobs, frontend, …); the
+  # ordering is intentional and not alphabetical.
+  Enabled: false
+
+# --------------------------------------------------------------------
+# Metrics: relaxed for a domain-rich Rails app. Service objects in
+# this codebase routinely run 80-150 lines because the work is real,
+# not because anyone's avoiding refactoring.
+# --------------------------------------------------------------------
+
+Metrics/MethodLength:
+  Max: 60
+  Exclude:
+    - "spec/**/*"
+    - "config/routes.rb"
+    - "db/migrate/*"
+
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*"
+    - "config/routes.rb"
+    - "config/environments/*"
+    - "config/initializers/*"
+    - "db/migrate/*"
+    - "*.gemspec"
+    - "Gemfile"
+
+Metrics/AbcSize:
+  Max: 70
+
+Metrics/ClassLength:
+  Max: 250
+
+Metrics/CyclomaticComplexity:
+  Max: 15
+
+Metrics/PerceivedComplexity:
+  Max: 15
+
+Metrics/ParameterLists:
+  Max: 6
+
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - "db/schema.rb"
+    - "db/migrate/*"
+
+# --------------------------------------------------------------------
+# Rails / RSpec niceties.
+# --------------------------------------------------------------------
+
+Rails/SkipsModelValidations:
+  # `update_columns` is used deliberately in places where touching the
+  # updated_at is the whole point (Solid Queue's lock columns, the
+  # API token's `touch_used!`). The model-level intent is documented
+  # at the call site.
+  Enabled: false
+
+Rails/StrongParametersExpect:
+  # Rails 8 added `params.expect(...)`; the codebase uses the
+  # well-understood `params.require(...).permit(...)` form. Not
+  # worth churning every controller.
+  Enabled: false
+
+Rails/ResponseParsedBody:
+  # We use `JSON.parse(response.body)` in request specs because the
+  # explicit `JSON.parse` makes the test read top-to-bottom without
+  # needing to know about the Rails 7.1+ helper.
+  Enabled: false
+
+Rails/BulkChangeTable:
+  # Cosmetic suggestion for migrations; the migrations in this repo
+  # have already been run and rewriting them just to combine ALTERs
+  # is pure churn.
+  Exclude:
+    - "db/migrate/*"
+
+Rails/InverseOf:
+  # Rails infers the inverse correctly for every association in this
+  # codebase. Adding explicit `inverse_of: :foo` everywhere is noise.
+  Enabled: false
+
+Rails/I18nLocaleAssignment:
+  # Tests intentionally pin/restore the locale around examples; the
+  # `with_locale` block form is awkward inside `it` blocks where the
+  # locale needs to outlive a `let`.
+  Exclude:
+    - "spec/**/*"
+
+Rails/Output:
+  # `puts` in db/seeds.rb is conventional (it surfaces progress when
+  # you run `bin/rails db:seed`).
+  Exclude:
+    - "db/seeds.rb"
+
+Rails/Exit:
+  # rspec's `abort` in spec/rails_helper.rb is the standard guard
+  # against running specs in production.
+  Exclude:
+    - "spec/rails_helper.rb"
+
+Rails/RootPathnameMethods:
+  # Suggests `Rails.root.glob(...)` over `Dir[Rails.root.join(...)]`.
+  # Both work; the latter reads more clearly at the call site.
+  Enabled: false
+
+Rails/FindEach:
+  # We iterate small `includes(:product)` chains (5-30 rows) and the
+  # eager-loaded associations would be discarded by find_each's
+  # batched reload. Not worth churning every iteration site.
+  Enabled: false
+
+# --------------------------------------------------------------------
+# Style: keep things we already do; turn off cosmetic preferences
+# that don't catch real bugs.
+# --------------------------------------------------------------------
+
+Style/SafeNavigationChainLength:
+  # In offer/scraper code, chains like `el&.parent&.text&.strip` are
+  # the cheapest defence against malformed feeds. The cop suggests
+  # extracting helpers that would actually obscure intent.
+  Enabled: false
+
+Naming/MethodParameterName:
+  # We use `e` for rescued errors and `r` for response blocks; both
+  # are conventional in Rails apps.
+  Enabled: false
+
+Style/StringConcatenation:
+  # One spec builds a fixture string with `+` for readability across
+  # lines; interpolation would require a heredoc just to satisfy the
+  # cop.
+  Enabled: false
+
+RSpec/ExampleLength:
+  Max: 45
+
+RSpec/MultipleExpectations:
+  Max: 10
+
+RSpec/NestedGroups:
+  Max: 4
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 12
+
+RSpec/ChangeByZero:
+  # `expect { … }.not_to change(...)` is the negated form and is
+  # already what most tests use; the cop trips on a couple of
+  # `change(...).by(0)` cases that read clearly in context.
+  Enabled: false
+
+RSpec/InstanceVariable:
+  # The IMAP poller test sets up state in a `before` and reads it in
+  # the example; that's a deliberate fixture pattern, not a smell.
+  Enabled: false
+
+RSpec/SpecFilePathFormat:
+  # A couple of spec files are deliberately named for the behaviour
+  # they cover (e.g. `tesseract_adapter_spec` for
+  # `Adapters::Tesseract`) rather than mechanically matching the
+  # class path.
+  Enabled: false
+
+RSpec/DescribeMethod:
+  # `RSpec.describe "feature behaviour"` is used intentionally in
+  # behaviour-focused specs.
+  Enabled: false
+
+RSpec/LetSetup:
+  # `let!` is used for side-effecting setup (creating records that
+  # only the query under test needs to see). The cop's heuristic for
+  # "referenced in tests" misses this pattern.
+  Enabled: false
+
+RSpec/AnyInstance:
+  # We use `allow_any_instance_of` against framework boundaries
+  # (Net::IMAP, Open3) where stubbing the constructor is impractical.
+  Enabled: false
+
+RSpec/MessageSpies:
+  # The codebase uses `expect(...).to receive(...)` consistently;
+  # MessageSpies wants the `have_received` pattern instead. Pick
+  # one, stop arguing about it.
+  Enabled: false
+
+RSpec/StubbedMock:
+  Enabled: false
+
+RSpec/VerifiedDoubles:
+  # We mock Net::IMAP via a plain FakeImap class -- intentional,
+  # and a verified double would require the full Net::IMAP API
+  # surface to be re-declared for very little gain.
+  Enabled: false

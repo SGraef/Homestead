@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 class PricesController < ApplicationController
   before_action :ensure_household
@@ -15,18 +15,18 @@ class PricesController < ApplicationController
     authorize @price
   end
 
+  def edit
+    authorize @price
+  end
+
   def create
     @price = @product.prices.build(price_params)
     authorize @price
     if @price.save
       redirect_to product_prices_path(@product), notice: t("notices.price_recorded")
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
-  end
-
-  def edit
-    authorize @price
   end
 
   def update
@@ -34,7 +34,7 @@ class PricesController < ApplicationController
     if @price.update(price_params)
       redirect_to product_prices_path(@product), notice: t("notices.price_updated")
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

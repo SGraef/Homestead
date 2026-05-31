@@ -11,7 +11,7 @@ module ReceiptScanner
   class Parser
     PRICE_RE = /(?<sign>-)?(?<int>\d{1,4})[.,](?<dec>\d{2})/
     LINE_ITEM_RE = /\A(?<name>.+?)\s+(?<sign>-)?(?<int>\d{1,4})[.,](?<dec>\d{2})\b\s*[A-Z]?\s*\z/
-    QTY_RE   = /\A(?<qty>\d+(?:[.,]\d+)?)\s*(?:x|X|st[uü]ck|\*)\s*/i
+    QTY_RE = /\A(?<qty>\d+(?:[.,]\d+)?)\s*(?:x|X|st[uü]ck|\*)\s*/i
 
     # The keyword groups below filter out non-product lines that happen to
     # match the "<name> <amount>" pattern (totals, tax breakdowns, payment
@@ -35,7 +35,7 @@ module ReceiptScanner
       bon[-\s]?nr | kassen[-\s]?nr | kunden[-\s]?nr | kassierer
     )\b/ix
     DATE_RES = [
-      /\b(?<d>\d{1,2})[.\/](?<m>\d{1,2})[.\/](?<y>\d{2,4})\b/,
+      %r{\b(?<d>\d{1,2})[./](?<m>\d{1,2})[./](?<y>\d{2,4})\b},
       /\b(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})\b/
     ].freeze
 
@@ -69,7 +69,7 @@ module ReceiptScanner
       @lines.first(6).find do |l|
         l.length.between?(3, 40) &&
           l.match?(/\A[A-ZÄÖÜ][A-ZÄÖÜa-zäöüß0-9 &'\-.]+\z/) &&
-          !l.match?(/\d{2}[.\/]\d{2}/) &&
+          !l.match?(%r{\d{2}[./]\d{2}}) &&
           !l.match?(/\b(str|straße|gmbh|tel|fax|http|www)\b/i)
       end || @lines.first
     end
@@ -93,7 +93,7 @@ module ReceiptScanner
     end
 
     def detect_total
-      candidates = @lines.select { |l| l.match?(TOTAL_KEYWORDS) }
+      candidates = @lines.grep(TOTAL_KEYWORDS)
       target = candidates.last
       return nil unless target
 
@@ -110,6 +110,7 @@ module ReceiptScanner
         break if line.match?(TOTAL_KEYWORDS)
 
         next if skip_line?(line)
+
         m = line.match(LINE_ITEM_RE)
         next unless m
 
@@ -134,15 +135,15 @@ module ReceiptScanner
     def skip_line?(line)
       line.match?(TAX_KEYWORDS) ||
         line.match?(PAYMENT_KEYWORDS) ||
-        line.include?("%") ||                                     # tax-rate row
-        line.match?(/\A\d+[.\/]\d+/) ||                           # bare date / receipt no
+        line.include?("%") || # tax-rate row
+        line.match?(%r{\A\d+[./]\d+}) || # bare date / receipt no
         line.match?(/\b(str|straße|tel|fax|gmbh|http|www)\b/i) || # address / footer
         line.match?(/\A[a-z]\s+\d+[%,.]/i)                        # "A 19% …" / "B 7% …"
     end
 
     def cents(match)
       sign = match[:sign] == "-" ? -1 : 1
-      sign * (match[:int].to_i * 100 + match[:dec].to_i)
+      sign * ((match[:int].to_i * 100) + match[:dec].to_i)
     end
   end
 end

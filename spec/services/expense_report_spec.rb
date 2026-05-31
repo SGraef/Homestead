@@ -10,14 +10,14 @@ RSpec.describe ExpenseReport do
 
   def build_confirmed_receipt(date:, total_cents:, lines: [])
     r = Receipt.new(
-      household:           household,
-      user:                user,
-      store:               store,
-      status:              "confirmed",
-      confirmed_at:        Time.current,
-      purchased_on:        date,
-      subtotal_cents:      total_cents,
-      currency:            "EUR"
+      household:      household,
+      user:           user,
+      store:          store,
+      status:         "confirmed",
+      confirmed_at:   Time.current,
+      purchased_on:   date,
+      subtotal_cents: total_cents,
+      currency:       "EUR"
     )
     r.save!(validate: false)
 
@@ -50,22 +50,22 @@ RSpec.describe ExpenseReport do
   describe "#months" do
     it "aggregates totals per month and groups line items by category" do
       build_confirmed_receipt(
-        date: Date.new(2026, 5, 3),
+        date:        Date.new(2026, 5, 3),
         total_cents: 1500,
-        lines: [
+        lines:       [
           { name: "Milk",  category: "dairy", cents: 800 },
           { name: "Bread", category: "bakery", cents: 600 }
         ]
       )
       build_confirmed_receipt(
-        date: Date.new(2026, 5, 20),
+        date:        Date.new(2026, 5, 20),
         total_cents: 500,
-        lines: [{ name: "Cheese", category: "dairy", cents: 500 }]
+        lines:       [{ name: "Cheese", category: "dairy", cents: 500 }]
       )
       build_confirmed_receipt(
-        date: Date.new(2026, 4, 15),
+        date:        Date.new(2026, 4, 15),
         total_cents: 700,
-        lines: [{ name: "Apples", category: "produce", cents: 700 }]
+        lines:       [{ name: "Apples", category: "produce", cents: 700 }]
       )
 
       report = described_class.new(household: household, months: 6)
@@ -85,9 +85,9 @@ RSpec.describe ExpenseReport do
 
     it "buckets line items with NULL or empty category as 'uncategorized'" do
       build_confirmed_receipt(
-        date: Date.current,
+        date:        Date.current,
         total_cents: 400,
-        lines: [
+        lines:       [
           { name: "Bag of Stuff", category: nil, cents: 250 },
           { name: "Mystery",      category: "",  cents: 150 }
         ]
@@ -99,9 +99,9 @@ RSpec.describe ExpenseReport do
 
     it "ignores skipped/ignored line items in the category breakdown" do
       build_confirmed_receipt(
-        date: Date.current,
+        date:        Date.current,
         total_cents: 1000,
-        lines: [
+        lines:       [
           { name: "Counted",  category: "x", cents: 700, status: "matched" },
           { name: "Ignored",  category: "x", cents: 300, status: "ignored" }
         ]
@@ -114,10 +114,10 @@ RSpec.describe ExpenseReport do
 
     it "rolls non-product line items into the 'other' bucket" do
       build_confirmed_receipt(
-        date: Date.current,
+        date:        Date.current,
         total_cents: 1500,
-        lines: [
-          { name: "Milk",    category: "dairy", cents: 800, status: "matched" },
+        lines:       [
+          { name: "Milk", category: "dairy", cents: 800, status: "matched" },
           # User skipped these: confirmer leaves product nil and status 'ignored'.
           { name: "Pfand",                       cents: 250, status: "ignored",
             no_product: true },
@@ -134,9 +134,9 @@ RSpec.describe ExpenseReport do
 
     it "leaves 'other' out of by_category when no non-product lines exist" do
       build_confirmed_receipt(
-        date: Date.current,
+        date:        Date.current,
         total_cents: 800,
-        lines: [{ name: "Milk", category: "dairy", cents: 800 }]
+        lines:       [{ name: "Milk", category: "dairy", cents: 800 }]
       )
 
       month = described_class.new(household: household, months: 1).current_month

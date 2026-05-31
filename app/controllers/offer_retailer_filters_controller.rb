@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Manages the per-household retailer allow-list for offer sync. UI lives
 # inline on /offers next to the blocklist section.
@@ -19,7 +19,7 @@ class OfferRetailerFiltersController < ApplicationController
     end
 
     entry = current_household.offer_retailer_filters
-                              .find_or_initialize_by(retailer: retailer)
+                             .find_or_initialize_by(retailer: retailer)
     if entry.save
       removed = prune_offers_outside_allowlist
       redirect_to offers_path,

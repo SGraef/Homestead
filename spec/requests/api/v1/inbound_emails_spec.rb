@@ -4,7 +4,7 @@
 require "rails_helper"
 
 RSpec.describe "API v1 Inbound emails" do
-  let(:user)      { create(:user) }
+  let(:user) { create(:user) }
   let!(:household) { create(:household, admin: user) }
   let!(:source) do
     InboundEmailSource.create!(
@@ -63,9 +63,9 @@ RSpec.describe "API v1 Inbound emails" do
 
     it "enqueues + 202s when X-Async is set" do
       headers = api_login(user).merge("X-Async" => "1")
-      expect {
+      expect do
         post "/api/v1/inbound_emails/poll", headers: headers
-      }.to have_enqueued_job(PollInboundReceiptsJob).with(source_id: source.id)
+      end.to have_enqueued_job(PollInboundReceiptsJob).with(source_id: source.id)
       expect(response).to have_http_status(:accepted)
       expect(JSON.parse(response.body)).to eq("enqueued" => 1)
     end
@@ -73,7 +73,7 @@ RSpec.describe "API v1 Inbound emails" do
 
   describe "POST /api/v1/inbound_emails/:id/poll" do
     it "drains only that one source" do
-      other = InboundEmailSource.create!(
+      InboundEmailSource.create!(
         household: household, user: user,
         label: "Other", imap_host: "imap.example.com",
         imap_username: "second@example.com", imap_password: "pw",

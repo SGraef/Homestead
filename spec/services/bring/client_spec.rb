@@ -23,9 +23,9 @@ RSpec.describe Bring::Client do
     it "exchanges email + password for tokens" do
       stub_request(:post, "https://api.getbring.com/rest/v2/bringauth")
         .with(body: hash_including("email" => "user@example.com"))
-        .to_return(status: 200,
+        .to_return(status:  200,
                    headers: { "Content-Type" => "application/json" },
-                   body: { uuid: "u-1", email: "user@example.com",
+                   body:    { uuid: "u-1", email: "user@example.com",
                            bringListUUID: "l-1",
                            access_token: "a", refresh_token: "r",
                            expires_in: 3600 }.to_json)
@@ -38,9 +38,9 @@ RSpec.describe Bring::Client do
     it "raises AuthError on bad credentials" do
       stub_request(:post, "https://api.getbring.com/rest/v2/bringauth")
         .to_return(status: 401, body: "")
-      expect {
+      expect do
         described_class.login(email: "x", password: "y")
-      }.to raise_error(Bring::AuthError)
+      end.to raise_error(Bring::AuthError)
     end
   end
 
@@ -52,8 +52,8 @@ RSpec.describe Bring::Client do
       # *contain* the listed pairs), so a plain Hash works for the
       # "at least these headers" assertion.
       stub = stub_request(:put, "https://api.getbring.com/rest/v2/bringlists/list-uuid-1")
-             .with(body: hash_including("purchase" => "Milk"),
-                   headers: { "Authorization" => "Bearer tok-current",
+             .with(body:    hash_including("purchase" => "Milk"),
+                   headers: { "Authorization"     => "Bearer tok-current",
                               "X-BRING-USER-UUID" => "user-uuid-1" })
              .to_return(status: 204)
 
@@ -69,14 +69,14 @@ RSpec.describe Bring::Client do
         .to raise_error(Bring::AuthError, /401/)
 
       connection.reload
-      expect(connection.access_token).to eq("tok-current")     # token preserved
+      expect(connection.access_token).to eq("tok-current") # token preserved
       expect(connection.last_error).to include("401")
     end
 
     it "uses the connection's stored token_type instead of hard-coding Bearer" do
       connection.update!(token_type: "JWT")
       stub = stub_request(:put, "https://api.getbring.com/rest/v2/bringlists/list-uuid-1")
-             .with(headers: { "Authorization" => "JWT tok-current",
+             .with(headers: { "Authorization"   => "JWT tok-current",
                               "X-BRING-VERSION" => Bring::Client::CLIENT_VERSION })
              .to_return(status: 204)
 
@@ -99,9 +99,9 @@ RSpec.describe Bring::Client do
   describe "#lists" do
     it "GETs the user's lists" do
       stub_request(:get, "https://api.getbring.com/rest/v2/bringusers/user-uuid-1/lists")
-        .to_return(status: 200,
+        .to_return(status:  200,
                    headers: { "Content-Type" => "application/json" },
-                   body: { lists: [{ listUuid: "l-1", name: "Wohnung" }] }.to_json)
+                   body:    { lists: [{ listUuid: "l-1", name: "Wohnung" }] }.to_json)
 
       lists = described_class.new(connection).lists
       expect(lists.first["name"]).to eq("Wohnung")

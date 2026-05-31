@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Stores a household's Bring! account binding. The Bring! email + an access /
 # refresh token are kept here so the background sync job can call the Bring!

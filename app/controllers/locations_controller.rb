@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 class LocationsController < ApplicationController
   before_action :ensure_household
@@ -16,18 +16,18 @@ class LocationsController < ApplicationController
     authorize @location
   end
 
+  def edit
+    authorize @location
+  end
+
   def create
     @location = current_household.locations.build(location_params)
     authorize @location
     if @location.save
       redirect_to locations_path, notice: t("notices.location_added")
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
-  end
-
-  def edit
-    authorize @location
   end
 
   def update
@@ -35,7 +35,7 @@ class LocationsController < ApplicationController
     if @location.update(location_params)
       redirect_to locations_path, notice: t("notices.location_updated")
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

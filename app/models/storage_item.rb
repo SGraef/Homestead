@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # A physical unit of a {Product} currently sitting in one of the household's
 # {Location}s. Multiple storage rows for the same product (in different
@@ -31,14 +31,14 @@ class StorageItem < ApplicationRecord
   validate  :product_must_match_household
   validate  :location_must_match_household
 
-  scope :expiring_within, ->(days) { where(expires_on: Date.current..Date.current + days.days) }
+  scope :expiring_within, ->(days) { where(expires_on: Date.current..(Date.current + days.days)) }
   scope :expired,         -> { where(expires_on: ...Date.current) }
   scope :in_freezer,      -> { joins(:location).where(locations: { kind: "freezer" }) }
 
   # Items that have been in the freezer for `days` or more. The "frozen on"
   # anchor is `frozen_on` if present, else `created_at` -- so legacy rows
   # imported before that column existed still produce sensible warnings.
-  scope :stale_in_freezer, ->(days = STALE_FREEZER_DAYS) {
+  scope :stale_in_freezer, lambda { |days = STALE_FREEZER_DAYS|
     in_freezer.where(
       "COALESCE(storage_items.frozen_on, DATE(storage_items.created_at)) <= ?",
       days.days.ago.to_date

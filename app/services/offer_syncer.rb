@@ -38,11 +38,13 @@ class OfferSyncer
     created = updated = 0
 
     process(Marktguru::Offers.pull_all(postal_code: @postal_code), source: "marktguru") do |c, u|
-      created += c; updated += u
+      created += c
+      updated += u
     end
 
     process(Kaufda::Offers.pull_all(postal_code: @postal_code), source: "kaufda") do |c, u|
-      created += c; updated += u
+      created += c
+      updated += u
     end
 
     # Full ALDI Nord catalog via meinprospekt.de's public search API.
@@ -51,7 +53,8 @@ class OfferSyncer
     # for any retailer covered by meinprospekt but missed by Marktguru
     # and kaufDA's retailer-page adapter.
     process(MeinProspekt::Offers.pull_all, source: "meinprospekt") do |c, u|
-      created += c; updated += u
+      created += c
+      updated += u
     end
 
     # Flaschenpost (beverage delivery). Opt-in per-household via the
@@ -62,7 +65,8 @@ class OfferSyncer
     fp_warehouse = @household.flaschenpost_warehouse_id
     if fp_warehouse.present?
       process(Flaschenpost::Offers.pull_all(warehouse_id: fp_warehouse), source: "flaschenpost") do |c, u|
-        created += c; updated += u
+        created += c
+        updated += u
       end
     end
 
@@ -85,9 +89,7 @@ class OfferSyncer
       # (Marktguru's industry tag, kaufDA's section); the keyword
       # classifier fills the long tail (kaufDA / MeinProspekt / manual
       # entries) and is editable in /offers/categories.
-      if data.category.to_s.strip.empty?
-        data.category = OfferCategorizer.classify(data.title, household: @household)
-      end
+      data.category = OfferCategorizer.classify(data.title, household: @household) if data.category.to_s.strip.empty?
 
       yield(*upsert(data, source: source))
     end

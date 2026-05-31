@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# typed: true
+# typed: false
 
 # Resolves the active locale per request, with the precedence:
 #   1. `?locale=…` query param (and persisted into the session for next time)
@@ -26,10 +26,10 @@ module LocaleSwitching
 
   private
 
-  def switch_locale(&action)
+  def switch_locale(&)
     locale = resolve_locale
     session[:locale] = locale.to_s if params[:locale].present?
-    I18n.with_locale(locale, &action)
+    I18n.with_locale(locale, &)
   end
 
   def resolve_locale

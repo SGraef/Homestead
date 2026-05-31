@@ -18,10 +18,10 @@ RSpec.describe "POST /offers/:id/add_to_list" do
       offer   = create(:offer, household: household, product: product,
                                 title: "Bio Vollmilch 1L")
 
-      expect {
+      expect do
         post add_to_list_offer_path(offer)
-      }.to change(GroceryItem, :count).by(1)
-       .and change(Product, :count).by(0)
+      end.to change(GroceryItem, :count).by(1)
+                                        .and change(Product, :count).by(0)
 
       expect(GroceryItem.last.product).to eq(product)
       expect(response).to redirect_to(offers_path)
@@ -33,10 +33,10 @@ RSpec.describe "POST /offers/:id/add_to_list" do
       offer = create(:offer, household: household, title: "Bio Vollmilch 1L",
                               brand: "Alnatura")
 
-      expect {
+      expect do
         post add_to_list_offer_path(offer)
-      }.to change(Product, :count).by(1)
-       .and change(GroceryItem, :count).by(1)
+      end.to change(Product, :count).by(1)
+                                    .and change(GroceryItem, :count).by(1)
 
       product = Product.last
       expect(product.name).to eq("Bio Vollmilch 1L")
@@ -52,9 +52,9 @@ RSpec.describe "POST /offers/:id/add_to_list" do
     existing = create(:grocery_item, household: household, product: product,
                                       quantity: 2, status: "needed")
 
-    expect {
+    expect do
       post add_to_list_offer_path(offer)
-    }.not_to change(GroceryItem, :count)
+    end.not_to change(GroceryItem, :count)
 
     expect(existing.reload.quantity).to eq(3)
   end

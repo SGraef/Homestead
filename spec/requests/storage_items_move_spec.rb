@@ -34,7 +34,7 @@ RSpec.describe "POST /storage_items/:id/move" do
          params: { to_location_id: fridge.id, quantity: "3" }
 
     fridge_row = household.storage_items.find_by(location_id: fridge.id, product: product)
-    expect(fridge_row.quantity).to eq(4)              # 1 + 3
+    expect(fridge_row.quantity).to eq(4) # 1 + 3
     expect(item.reload.quantity).to eq(1)
   end
 
@@ -42,10 +42,10 @@ RSpec.describe "POST /storage_items/:id/move" do
     item = create(:storage_item, household: household, product: product,
                                   location: pantry, quantity: 2)
 
-    expect {
+    expect do
       post move_storage_item_path(item),
            params: { to_location_id: fridge.id, quantity: "2" }
-    }.to change { household.storage_items.where(location_id: pantry.id).count }.by(-1)
+    end.to change { household.storage_items.where(location_id: pantry.id).count }.by(-1)
   end
 
   it "rejects moving more than is available" do
