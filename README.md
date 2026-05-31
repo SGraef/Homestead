@@ -31,7 +31,9 @@ supermarket receipts into structured products, stores and prices.
 - **Vorrat / Storage** — what's in the pantry, fridge, freezer or cellar; per-product search; expiry warnings on the dashboard.
 - **Tiefkühler / Freezer** — dedicated page (`/freezer`) for both bought-and-frozen items and homemade meals (g / portions / l). 3-month "stale in the freezer" warning on the dashboard, configurable via `FREEZER_STALE_DAYS`.
 - **Einkaufsliste / Grocery list** — needed → purchased → automatic storage entry. Rows surface a "best current offer" chip when a matching offer exists. Optional **two-way Bring! sync** (`/bring_connection`): Pantria → Bring on every write (push) plus a Bring → Pantria pull every 5 minutes via Solid Queue's recurring scheduler (manual "Sync now" available too). Loops are prevented by a thread-local skip flag so pull-time writes don't bounce back to Bring!.
-- **Barcode scan (frontend)** — native `BarcodeDetector` API where available (Chrome / Edge / Android), with a ZXing-js fallback (loaded via importmap from jsdelivr) for Safari iOS / Firefox / anything else. On a barcode miss the lookup falls back to Open Food Facts / Open Products Facts / Marktguru and prefills "Add product". Direct "add to storage" from the scan result lands you back on the scanner page ready for the next item. **Mobile note:** browsers only grant camera access on `https://` URLs (or `localhost`); to scan from a phone on the LAN, run dev with the bundled self-signed-HTTPS override (see "Self-signed HTTPS for mobile scanning" below).
+- **Barcode scan (frontend)** — native `BarcodeDetector` API where available (Chrome / Edge / Android), with a ZXing-js fallback (vendored under `vendor/javascript/` so the installed PWA can serve it from the same origin and the service worker can cache it for offline use) for Safari iOS / Firefox / anything else. On a barcode miss the lookup falls back to Open Food Facts / Open Products Facts / Marktguru and prefills "Add product". Direct "add to storage" from the scan result lands you back on the scanner page ready for the next item. **Mobile note:** browsers only grant camera access on `https://` URLs (or `localhost`); to scan from a phone on the LAN, run dev with the bundled self-signed-HTTPS override (see "Self-signed HTTPS for mobile scanning" below).
+- **Installable PWA** — Web App Manifest, service worker (network-first for HTML with an offline fallback page, cache-first for static assets), maskable + apple-touch icons, three app-shortcuts (Scan / Grocery List / Storage) for Android's long-press menu. Install from any modern browser's "Add to Home Screen" / install prompt.
+- **Android app (TWA)** — a [Trusted Web Activity](https://developer.chrome.com/docs/android/trusted-web-activity) shell under [`android/`](android/) that opens the PWA full-screen, without browser chrome. No native code, no separate JSON API. Build + sign + install instructions in [`android/README.md`](android/README.md).
 - **Receipt OCR** — upload a photo (JPEG/PNG/HEIC) or PDF; Tesseract + a heuristic parser extracts store, date, total and line items. PDFs are rasterized per-page via `pdftoppm` (poppler-utils). User confirms and rows become Stores + Products + Prices. Solid Queue runs OCR on its own queue with `OMP_THREAD_LIMIT` capped so a single scan can't pin every core.
 - **Inbound email receipts** — every household member can configure one or more IMAP mailboxes (subfolders supported, password encrypted at rest); attachments matching the supported MIME set become pending receipts automatically. `POST /api/v1/inbound_emails/poll` triggers a drain on demand (handy for n8n / Home Assistant / cron).
 - **Multi-store prices + per-unit comparison** — every price is `(product, store, date, pack_quantity)` in cents. The `pack_quantity` field lets a €2.49 / 500 g pack render as €4.98 / kg. Cheapest known price surfaces on the product page.
@@ -206,6 +208,46 @@ Walk-through, env-var reference and MySQL setup notes are in
 `APP_HOST` + DB creds + `RAILS_MASTER_KEY`, point a reverse proxy at the
 container (Pantria's `force_ssl = true` in production), done.
 
+## PWA + Android app
+
+Pantria runs as an installable PWA from any modern browser — "Add to Home
+Screen" on a phone, the install icon in the desktop Chrome address bar.
+Manifest at `/manifest.json`, service worker at `/service-worker.js`, offline
+fallback at `/offline`.
+
+To package it as a real Android app (Play-Store-installable, no URL bar) use
+the Trusted Web Activity shell under [`android/`](android/). One-time:
+
+```bash
+cd android
+gradle wrapper --gradle-version 8.10.2
+```
+
+Build + install on a USB-debug device:
+
+```bash
+./gradlew assembleDebug -PpantriaHost=pantria.your-domain.tld
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+Then capture the debug keystore's SHA-256 fingerprint and expose it to the
+Rails app so Chrome can verify the TWA owns the domain:
+
+```bash
+keytool -list -v -keystore ~/.android/debug.keystore \
+        -alias androiddebugkey -storepass android -keypass android \
+    | grep 'SHA256:'
+
+# In Pantria's environment (.env / Unraid template / docker-compose):
+#   ANDROID_TWA_PACKAGE=de.lunawolf.pantria
+#   ANDROID_TWA_FINGERPRINTS=AA:BB:CC:...
+```
+
+Restart the Rails app and confirm `/.well-known/assetlinks.json` lists the
+fingerprint. Reinstall the APK; the URL bar should be gone. Production
+signing, Play Store bundle (`.aab`) and the camera-permission story are
+documented in full in [`android/README.md`](android/README.md).
+
 ## REST API quickstart
 
 ```bash
@@ -245,11 +287,15 @@ app/
     receipt_confirmer.rb
   javascript/controllers/barcode_scanner_controller.js
   views/               Hotwire ERB templates (incl. Turbo Streams)
+  views/pwa/           manifest.json.erb, service_worker.js.erb, offline.html.erb
 config/
   locales/{de,en}.yml  i18n
   routes.rb
 db/migrate/            sorcery, households, products, stores, prices,
                        storage, grocery, receipts, active_storage
+vendor/javascript/     ZXing barcode decoder + transitive deps (vendored
+                       so the installed PWA serves them from the same origin)
+android/               Trusted Web Activity shell (see android/README.md)
 spec/                  RSpec model / policy / request / service / job specs
 cypress/               E2E specs
 ```
