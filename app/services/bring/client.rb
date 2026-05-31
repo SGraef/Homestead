@@ -84,6 +84,15 @@ module Bring
                     body:    URI.encode_www_form(recently: name))
     end
 
+    # `private` below applies to the instance methods that follow. The
+    # class-level helpers (def self.http_request / def self.base_headers)
+    # at the bottom of the file are intentionally PUBLIC class methods
+    # so the public `self.login` can call them from class scope and
+    # so `auth_headers` (instance) can dispatch via `self.class.<m>`.
+    # Marking them `private_class_method` makes the latter call site
+    # raise NoMethodError -- they are de-facto-internal and stay so by
+    # virtue of the section heading and convention.
+    # rubocop:disable Lint/IneffectiveAccessModifier
     private
 
     # No retries / refresh dance: Bring! has no documented refresh endpoint,
@@ -182,6 +191,12 @@ module Bring
       h
     end
 
-    private_class_method :http_request, :base_headers
+    # http_request / base_headers stay class methods (public on purpose):
+    # `Client.login` is the stateless auth entry point and needs to call
+    # them from the class context, while `auth_headers` (instance) calls
+    # them via `self.class.<method>` -- which can't go through a private
+    # class method even though it's the same class. The `# ---- HTTP --`
+    # section heading above documents that they're internal helpers.
+    # rubocop:enable Lint/IneffectiveAccessModifier
   end
 end
