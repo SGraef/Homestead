@@ -184,6 +184,14 @@ Rails.application.routes.draw do
   get "/service-worker.js", to: "pwa#service_worker", as: :pwa_service_worker
   get "/offline",           to: "pwa#offline",        as: :pwa_offline
 
+  # --- Android TWA ----------------------------------------------------------
+  # Digital Asset Links file consumed by Chrome to confirm that the TWA
+  # in android/ is owned by the operator of this domain. Required for
+  # Chrome to hide the URL bar inside the installed Android app.
+  get "/.well-known/assetlinks.json", to:       "well_known#assetlinks",
+                                      as:       :well_known_assetlinks,
+                                      defaults: { format: "json" }
+
   # --- System ---------------------------------------------------------------
   get "/up", to: "rails/health#show", as: :rails_health_check
 end

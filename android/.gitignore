@@ -1,0 +1,18 @@
+# Gradle wrapper jar: not committed — see android/README.md.
+gradle/wrapper/gradle-wrapper.jar
+
+# Build outputs.
+build/
+app/build/
+.gradle/
+
+# IDE / per-user.
+local.properties
+*.iml
+.idea/
+
+# Signed artifacts and keystores must never enter source control.
+*.apk
+*.aab
+*.jks
+*.keystore

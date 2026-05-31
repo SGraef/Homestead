@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pantria</string>
+
+    <!--
+        Tells androidbrowserhelper that the host serving the PWA also
+        owns this APK. The host MUST publish a matching
+        /.well-known/assetlinks.json that lists the APK's signing-key
+        SHA-256 fingerprint (see android/README.md). Without that, the
+        TWA falls back to a Chrome Custom Tab and shows the URL bar.
+
+        The literal `\@string/pantria_host` reference is intentional --
+        it gets resolved at install time so updating the host only
+        requires changing one Gradle property.
+    -->
+    <string name="asset_statements" translatable="false">
+        [{
+            \"relation\": [\"delegate_permission/common.handle_all_urls\"],
+            \"target\": {
+                \"namespace\": \"web\",
+                \"site\": \"@string/pantria_url\"
+            }
+        }]
+    </string>
+</resources>

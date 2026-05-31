@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- A transparent theme so the LauncherActivity doesn't briefly
+         show a default Material window before Chrome takes over the
+         screen. The splash drawable + brand-colour background
+         declared in AndroidManifest carry the visual identity. -->
+    <style name="Theme.Pantria" parent="android:Theme.Translucent.NoTitleBar">
+    </style>
+</resources>
