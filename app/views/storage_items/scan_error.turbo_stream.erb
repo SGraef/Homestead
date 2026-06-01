@@ -1,0 +1,19 @@
+<%# Warning row instead of a created-row. Stays in the log so the user
+    can see what failed and why (typical case: unknown barcode that
+    needs to be attached to a product first). The "Create product" link
+    deep-links straight to the new-product form with the barcode
+    pre-filled, so the user can fix it without losing their place. %>
+<%= turbo_stream.prepend "scan-log" do %>
+  <li class="scan-log-row scan-log-row--error"
+      style="display:flex;gap:var(--sp-3);align-items:center;padding:var(--sp-2) var(--sp-3);border-radius:var(--radius-md);background:var(--bg-warn-2)">
+    <span style="flex:1">
+      <strong>⚠️ <%= @error %></strong>
+    </span>
+    <% if @barcode.present? %>
+      <%= link_to t("scan.create_for_code"),
+                  new_product_path(barcode: @barcode),
+                  class: "btn btn-sm",
+                  data: { turbo_frame: "_top" } %>
+    <% end %>
+  </li>
+<% end %>

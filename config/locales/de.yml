@@ -514,6 +514,26 @@ de:
         no_target:      "Kein Ziel-Lagerort ausgewählt."
         same_location:  "Quelle und Ziel sind identisch."
         bad_quantity:   "Ungültige Menge."
+    scan:
+      title:               "Scannen & hinzufügen"
+      intro:               "Kamera öffnen, auf einen Barcode richten und jeder erkannte Artikel landet im Vorrat. Die Kamera läuft weiter; pausieren, wenn fertig."
+      start:               "Scannen starten"
+      pause:               "Pausieren"
+      link:                "Scannen & hinzufügen"
+      target_location:     "Gescannte Artikel hinzufügen zu"
+      manual_placeholder:  "Oder Barcode eingeben…"
+      manual_submit:       "Hinzufügen"
+      recent:              "Zuletzt hinzugefügt"
+      empty_barcode:       "Leerer Barcode."
+      unknown_barcode:     "Unbekannter Barcode %{code} – zuerst ein Produkt dafür anlegen."
+      kiosk:
+        scanning:  "Kamera läuft — auf einen Barcode richten."
+        detected:  "%{value} erkannt, wird hinzugefügt…"
+        loading:   "Scanner wird geladen…"
+        denied:    "Kamera-Zugriff abgelehnt. Bitte in den Browser-Einstellungen erlauben."
+        no_camera: "Keine Kamera verfügbar. Manuelle Eingabe unten verwenden."
+        in_use:    "Kamera wird von einer anderen App benutzt."
+        stopped:   "Scanner pausiert."
 
   location:
     title:       "Lagerorte"

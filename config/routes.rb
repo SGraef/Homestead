@@ -53,6 +53,10 @@ Rails.application.routes.draw do
       post :decrement
       post :move
     end
+    collection do
+      get  :scan      # Bulk barcode-scan add-to-storage kiosk
+      post :scan_add  # Single scan -> create StorageItem; turbo-stream reply
+    end
   end
 
   resources :locations, only: %i[index new create edit update destroy]

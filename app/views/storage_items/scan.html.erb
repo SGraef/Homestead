@@ -1,0 +1,81 @@
+<% content_for :title, t("storage.scan.title") %>
+<h1><%= t("storage.scan.title") %></h1>
+<p class="caption"><%= t("storage.scan.intro") %></p>
+
+<%# Single Stimulus root holds the camera, the manual-input fallback, the
+    location picker, and the log. The controller intercepts barcode
+    detections from the camera and form submits from the manual input,
+    routes both through the same scan_add fetch, and renders the
+    returned Turbo Stream. %>
+<div data-controller="storage-kiosk"
+     data-storage-kiosk-scan-add-url-value="<%= scan_add_storage_items_path %>"
+     data-storage-kiosk-token-value="<%= form_authenticity_token %>"
+     data-i18n-scanning="<%= t("storage.scan.kiosk.scanning") %>"
+     data-i18n-detected="<%= t("storage.scan.kiosk.detected") %>"
+     data-i18n-loading="<%= t("storage.scan.kiosk.loading") %>"
+     data-i18n-denied="<%= t("storage.scan.kiosk.denied") %>"
+     data-i18n-no_camera="<%= t("storage.scan.kiosk.no_camera") %>"
+     data-i18n-in_use="<%= t("storage.scan.kiosk.in_use") %>"
+     data-i18n-stopped="<%= t("storage.scan.kiosk.stopped") %>"
+     style="display:grid;gap:var(--sp-4)">
+
+  <div class="card">
+    <%# Location override -- defaults to the household's default storage
+        location. Picked once, applied to every subsequent scan in this
+        session. %>
+    <label for="kiosk-location" class="caption"><%= t("storage.scan.target_location") %></label><br>
+    <%= select_tag "location_id",
+                   options_from_collection_for_select(
+                     current_household.locations.ordered, :id, :name, @location.id),
+                   data: { "storage-kiosk-target": "location" },
+                   id:   "kiosk-location" %>
+
+    <div style="display:grid;gap:var(--sp-3);margin-top:var(--sp-3)">
+      <video data-storage-kiosk-target="video"
+             style="width:100%;max-width:480px;background:#000;border-radius:var(--radius-md)"
+             autoplay muted playsinline></video>
+      <p class="caption" data-storage-kiosk-target="status"></p>
+
+      <div style="display:flex;gap:var(--sp-2);flex-wrap:wrap">
+        <button type="button" class="btn"
+                data-action="storage-kiosk#start"
+                data-storage-kiosk-target="startBtn">
+          📷 <%= t("storage.scan.start") %>
+        </button>
+        <button type="button" class="btn secondary"
+                data-action="storage-kiosk#stop"
+                data-storage-kiosk-target="stopBtn" hidden>
+          ⏸ <%= t("storage.scan.pause") %>
+        </button>
+      </div>
+    </div>
+
+    <%# Manual fallback for codes the camera can't read (worn-off labels,
+        bad lighting). Same endpoint, same Turbo Stream reply -- just a
+        different way to feed a barcode in. %>
+    <form data-action="submit->storage-kiosk#submitManual"
+          style="display:flex;gap:var(--sp-2);margin-top:var(--sp-4);flex-wrap:wrap">
+      <input type="text"
+             data-storage-kiosk-target="manualInput"
+             placeholder="<%= t("storage.scan.manual_placeholder") %>"
+             inputmode="numeric" pattern="\d*"
+             style="flex:1;min-width:8rem">
+      <button type="submit" class="btn btn-sm secondary">
+        <%= t("storage.scan.manual_submit") %>
+      </button>
+    </form>
+  </div>
+
+  <%# Live log of what's been added this session. Newest at the top.
+      The scan_add Turbo Stream prepends rows here; scan_error prepends
+      a warning row. Pre-seeded with the last 20 storage rows so the
+      page isn't empty on first load. %>
+  <div class="card">
+    <h2><%= t("storage.scan.recent") %></h2>
+    <ul id="scan-log" style="list-style:none;padding:0;display:grid;gap:var(--sp-2)">
+      <% @recent.each do |item| %>
+        <%= render "scan_log_row", item: item %>
+      <% end %>
+    </ul>
+  </div>
+</div>

@@ -516,6 +516,26 @@ en:
         no_target:      "Pick a target location."
         same_location:  "Source and target are the same."
         bad_quantity:   "Invalid quantity."
+    scan:
+      title:               "Scan to add"
+      intro:               "Open the camera, point at a barcode, and every detected item lands in storage. Camera keeps running; tap pause when you're done."
+      start:               "Start scanning"
+      pause:               "Pause"
+      link:                "Scan to add"
+      target_location:     "Add scanned items to"
+      manual_placeholder:  "Or type a barcode…"
+      manual_submit:       "Add"
+      recent:              "Recently added"
+      empty_barcode:       "Empty barcode."
+      unknown_barcode:     "Unknown barcode %{code} — create a product for it first."
+      kiosk:
+        scanning:  "Camera running — point at a barcode."
+        detected:  "Detected %{value}, adding…"
+        loading:   "Loading scanner…"
+        denied:    "Camera access denied. Allow it in the browser settings."
+        no_camera: "No camera available. Use manual entry below."
+        in_use:    "Camera is in use by another app."
+        stopped:   "Scanner paused."
 
   location:
     title:       "Locations"

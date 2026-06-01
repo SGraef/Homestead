@@ -151,6 +151,54 @@ class StorageItemsController < ApplicationController
                 alert: e.message
   end
 
+  # GET /storage_items/scan
+  # Kiosk-style bulk-add page: open camera once, every detected barcode
+  # POSTs to #scan_add and lands a row in the on-page log without a
+  # navigation. Manual barcode entry fallback is on the page for codes
+  # the camera can't read.
+  def scan
+    @location = lookup_location(params[:location_id]) ||
+                current_household.default_storage_location
+    @recent   = policy_scope(current_household.storage_items)
+                .includes(:product, :location)
+                .order(created_at: :desc)
+                .limit(20)
+  end
+
+  # POST /storage_items/scan_add
+  # Take a barcode + (optional) location_id, resolve to a household
+  # product, create a StorageItem with quantity 1 in the default
+  # location, return a Turbo Stream that prepends a row to #scan-log
+  # and re-arms the scanner for the next code.
+  def scan_add
+    barcode  = params[:barcode].to_s.strip.gsub(/\D/, "")
+    location = lookup_location(params[:location_id]) ||
+               current_household.default_storage_location
+
+    return render_scan_error(message: t("storage.scan.empty_barcode")) if barcode.empty?
+
+    product = current_household.products.by_barcode(barcode).first
+    if product.nil?
+      return render_scan_error(barcode: barcode,
+                               message: t("storage.scan.unknown_barcode", code: barcode))
+    end
+
+    @item = current_household.storage_items.create!(
+      product:   product,
+      quantity:  1,
+      location:  location,
+      # Frozen-on auto-stamps when the target is the freezer (mirrors
+      # the existing storage create flow's location-aware behaviour).
+      frozen_on: (location.freezer? ? Date.current : nil)
+    )
+    authorize @item, :create?
+
+    @location = location
+    render :scan_add, formats: :turbo_stream
+  rescue ActiveRecord::RecordInvalid => e
+    render_scan_error(barcode: barcode, message: e.message)
+  end
+
   private
 
   # Substring match against product name OR brand. The products table
@@ -192,6 +240,14 @@ class StorageItemsController < ApplicationController
 
   def set_item
     @item = current_household.storage_items.find(params[:id])
+  end
+
+  # Renders the scan-error partial via Turbo Stream so the page itself
+  # doesn't navigate — the user keeps the camera open and tries again.
+  def render_scan_error(message:, barcode: nil)
+    @barcode = barcode
+    @error   = message
+    render :scan_error, formats: :turbo_stream, status: :unprocessable_content
   end
 
   def item_params

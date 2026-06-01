@@ -1,0 +1,7 @@
+<%# Prepend the new row to #scan-log so the most recently added item is
+    always at the top. The kiosk JS clears its "last detected" debounce
+    on this Turbo Stream's arrival so the same barcode can be scanned
+    again deliberately (different package, same EAN). %>
+<%= turbo_stream.prepend "scan-log" do %>
+  <%= render "scan_log_row", item: @item %>
+<% end %>

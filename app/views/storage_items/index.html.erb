@@ -2,6 +2,9 @@
 <h1><%= t("storage.title") %></h1>
 <p>
   <%= link_to t("storage.add_item"), new_storage_item_path(location_id: @location&.id), class: "btn" %>
+  <%= link_to "📷 #{t('storage.scan.link')}",
+              scan_storage_items_path(location_id: @location&.id),
+              class: "btn secondary" %>
   <%= link_to t("location.manage"), locations_path, class: "btn btn-sm secondary" %>
 </p>
 
