@@ -34,4 +34,48 @@ RSpec.describe "POST /storage_items/:id/decrement" do
     post decrement_storage_item_path(item, location_id: fridge.id)
     expect(response).to redirect_to(storage_items_path(location_id: fridge.id))
   end
+
+  it "subtracts an explicit quantity (decimal)" do
+    item = create(:storage_item, household: household, product: product, quantity: 2)
+
+    expect do
+      post decrement_storage_item_path(item), params: { quantity: "0.5" }
+    end.to change { item.reload.quantity }.from(2).to(BigDecimal("1.5"))
+  end
+
+  it "accepts a comma-decimal (German keyboard) and destroys when the result reaches zero" do
+    item = create(:storage_item, household: household, product: product, quantity: BigDecimal("0.75"))
+
+    expect do
+      post decrement_storage_item_path(item), params: { quantity: "0,75" }
+    end.to change(StorageItem, :count).by(-1)
+  end
+
+  it "destroys the row when the requested amount exceeds the on-hand quantity" do
+    item = create(:storage_item, household: household, product: product, quantity: 2)
+
+    expect do
+      post decrement_storage_item_path(item), params: { quantity: "5" }
+    end.to change(StorageItem, :count).by(-1)
+  end
+
+  it "rejects zero and negative amounts with a flash alert (no row change)" do
+    item = create(:storage_item, household: household, product: product, quantity: 2)
+
+    expect do
+      post decrement_storage_item_path(item), params: { quantity: "0" }
+    end.not_to(change { item.reload.quantity })
+    follow_redirect!
+    expect(response.body).to include(I18n.t("storage.decrement.errors.bad_quantity"))
+  end
+
+  it "rejects a non-numeric amount with a flash alert" do
+    item = create(:storage_item, household: household, product: product, quantity: 2)
+
+    expect do
+      post decrement_storage_item_path(item), params: { quantity: "nope" }
+    end.not_to(change { item.reload.quantity })
+    follow_redirect!
+    expect(response.body).to include(I18n.t("storage.decrement.errors.bad_quantity"))
+  end
 end

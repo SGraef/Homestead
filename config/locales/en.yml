@@ -507,7 +507,11 @@ en:
     filter:
       all:              "All"
       go_to_location:   "Filter by this location"
-    decrement_help:     "Used one (zero removes the entry)"
+    decrement_help:     "Subtract this amount (zero removes the entry)"
+    decrement:
+      qty_help: "Amount used"
+      errors:
+        bad_quantity: "Invalid quantity."
     move:
       to_placeholder: "Move to…"
       qty_help:       "Quantity to move"

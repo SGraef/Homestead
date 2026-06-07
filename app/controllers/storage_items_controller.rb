@@ -73,12 +73,25 @@ class StorageItemsController < ApplicationController
     redirect_to storage_items_path, notice: t("notices.storage_removed")
   end
 
-  # POST /storage_items/:id/decrement -- "I just used one of these".
+  # POST /storage_items/:id/decrement -- "I just used some of these".
+  # Accepts an optional `quantity` param (defaults to 1 for the
+  # single-tap "used one" case). Comma is accepted as a decimal
+  # separator so German keyboards work without translation. When the
+  # remaining quantity hits zero or below, the row is destroyed.
   def decrement
     authorize @item, :update?
     @location = lookup_location(params[:location_id])
-    name = @item.product.name
-    new_qty = (@item.quantity || 0) - 1
+    name      = @item.product.name
+
+    raw_qty = params[:quantity].to_s.tr(",", ".")
+    amount  = raw_qty.present? ? BigDecimal(raw_qty) : BigDecimal(1)
+
+    if amount <= 0
+      return redirect_to storage_items_path(redirect_filter),
+                         alert: t("storage.decrement.errors.bad_quantity")
+    end
+
+    new_qty = (@item.quantity || 0) - amount
 
     if new_qty <= 0
       @item.destroy
@@ -89,6 +102,9 @@ class StorageItemsController < ApplicationController
     end
 
     redirect_to storage_items_path(redirect_filter), notice: flash_msg
+  rescue ArgumentError
+    redirect_to storage_items_path(redirect_filter),
+                alert: t("storage.decrement.errors.bad_quantity")
   end
 
   # POST /storage_items/:id/move

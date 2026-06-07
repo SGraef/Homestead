@@ -75,9 +75,19 @@
         </td>
         <td><%= l(i.expires_on) if i.expires_on %></td>
         <td style="display:flex;gap:var(--sp-1);align-items:center;flex-wrap:wrap">
-          <%= button_to "−1", decrement_storage_item_path(i, location_id: @location&.id),
-                        method: :post, class: "btn btn-sm soft",
-                        title: t("storage.decrement_help") %>
+          <%# "I used N of these". Defaults to 1 so a single submit
+              click still mirrors the old "−1" behaviour, but the
+              user can edit the amount first (half a liter, two
+              eggs, …). Form posts to the same /decrement route. %>
+          <%= form_with url: decrement_storage_item_path(i, location_id: @location&.id),
+                        method: :post, local: true,
+                        html: { style: "display:inline-flex;gap:var(--sp-1);align-items:center" } do |f| %>
+            <%= f.number_field :quantity, step: 0.001, min: 0.001, value: 1,
+                                          style: "width:4.5rem",
+                                          title: t("storage.decrement.qty_help") %>
+            <%= f.submit "−", class: "btn btn-sm soft",
+                              title: t("storage.decrement_help") %>
+          <% end %>
 
           <%# Move form: pick target location + qty (defaults to current). %>
           <%= form_with url: move_storage_item_path(i, location_id: @location&.id),

@@ -505,7 +505,11 @@ de:
     filter:
       all:              "Alle"
       go_to_location:   "Nach diesem Ort filtern"
-    decrement_help:     "Eine Einheit verbraucht (auf 0: Eintrag entfernt)"
+    decrement_help:     "Diese Menge abziehen (auf 0: Eintrag entfernt)"
+    decrement:
+      qty_help: "Verbrauchte Menge"
+      errors:
+        bad_quantity: "Ungültige Menge."
     move:
       to_placeholder: "Verschieben nach…"
       qty_help:       "Menge zum Verschieben"

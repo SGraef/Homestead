@@ -105,10 +105,15 @@
             <% end %>
           </td>
           <td style="display:flex;gap:var(--sp-1);align-items:center">
-            <%= button_to "−1",
-                          decrement_storage_item_path(i, location_id: i.location_id),
-                          method: :post, class: "btn btn-sm soft",
-                          title: t("storage.decrement_help") %>
+            <%= form_with url: decrement_storage_item_path(i, location_id: i.location_id),
+                          method: :post, local: true,
+                          html: { style: "display:inline-flex;gap:var(--sp-1);align-items:center" } do |f| %>
+              <%= f.number_field :quantity, step: 0.001, min: 0.001, value: 1,
+                                            style: "width:4.5rem",
+                                            title: t("storage.decrement.qty_help") %>
+              <%= f.submit "−", class: "btn btn-sm soft",
+                                title: t("storage.decrement_help") %>
+            <% end %>
             <%= link_to t("common.edit"),
                         edit_storage_item_path(i),
                         class: "btn btn-sm tertiary" %>
