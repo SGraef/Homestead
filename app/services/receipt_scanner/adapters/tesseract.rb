@@ -17,12 +17,24 @@ module ReceiptScanner
     class Tesseract
       DEFAULT_LANG = ENV.fetch("OCR_LANG", "eng+deu")
       DEFAULT_PSM  = ENV.fetch("OCR_PSM",  "6")
-      PDF_DPI      = ENV.fetch("OCR_PDF_DPI", "200").to_i
+      # Fallback PSMs tried when the configured PSM returns empty text.
+      # PSM 4 = single column of text (good for narrow receipts), PSM 11
+      # = sparse text (good for handheld phone photos with noisy
+      # background). Order matters: cheapest first.
+      FALLBACK_PSMS = %w[4 11].freeze
+      PDF_DPI       = ENV.fetch("OCR_PDF_DPI", "200").to_i
       # Tesseract uses OpenMP internally and by default spawns one
       # worker per available core, which can pin every CPU on a small
       # box during a scan. Cap it via OMP_THREAD_LIMIT, configurable
       # so beefy hosts can opt back into parallelism.
       THREAD_LIMIT = ENV.fetch("OCR_THREAD_LIMIT", "2")
+      # Photo preprocessing: auto-orient (EXIF), grayscale, contrast
+      # normalize, upscale anything narrower than this so tesseract --
+      # which trains on ~300 DPI text -- has enough pixels per glyph.
+      # Phones routinely produce 700-800 px photos of receipts that
+      # OCR to nothing without this. Set OCR_PREPROCESS=0 to disable.
+      PREPROCESS_ENABLED = ENV.fetch("OCR_PREPROCESS", "1") != "0"
+      MIN_PREPROCESS_WIDTH = ENV.fetch("OCR_MIN_WIDTH", "1800").to_i
 
       def initialize(lang: DEFAULT_LANG, psm: DEFAULT_PSM, pdf_dpi: PDF_DPI)
         @lang    = lang
@@ -36,7 +48,7 @@ module ReceiptScanner
         if pdf?(file_path)
           extract_from_pdf(file_path)
         else
-          run_tesseract(file_path)
+          ocr_image_with_fallback(file_path)
         end
       end
 
@@ -57,10 +69,10 @@ module ReceiptScanner
         false
       end
 
-      def run_tesseract(image_path)
+      def run_tesseract(image_path, psm: @psm)
         out, err, status = Open3.capture3(
           ocr_env,
-          "tesseract", image_path, "stdout", "-l", @lang, "--psm", @psm
+          "tesseract", image_path, "stdout", "-l", @lang, "--psm", psm
         )
         unless status.success?
           msg = err.to_s.strip.presence || "tesseract exit #{status.exitstatus}"
@@ -69,6 +81,70 @@ module ReceiptScanner
         out
       rescue Errno::ENOENT
         raise OcrError, "tesseract binary not found in PATH (install tesseract-ocr)"
+      end
+
+      # Preprocess (if enabled) then OCR. If the configured PSM returns
+      # empty text -- typical for handheld phone photos where the
+      # default PSM 6 can't find a uniform block -- retry on the
+      # preprocessed image with the fallback PSMs before giving up.
+      def ocr_image_with_fallback(image_path)
+        if PREPROCESS_ENABLED
+          Dir.mktmpdir("pantria-ocr-pre") do |dir|
+            prepared = File.join(dir, "prepared.png")
+            preprocess_image!(image_path, prepared)
+            ocr_with_fallback_psms(prepared)
+          end
+        else
+          ocr_with_fallback_psms(image_path)
+        end
+      end
+
+      def ocr_with_fallback_psms(image_path)
+        text = run_tesseract(image_path, psm: @psm)
+        return text if text.strip.present?
+
+        FALLBACK_PSMS.each do |psm|
+          next if psm == @psm.to_s
+
+          text = run_tesseract(image_path, psm: psm)
+          return text if text.strip.present?
+        end
+        text
+      end
+
+      # ImageMagick pipeline tuned for photographed receipts:
+      #   -auto-orient   honour EXIF rotation; phones store landscape as
+      #                  rotated portrait + a flag and tesseract reads
+      #                  the bytes literally otherwise.
+      #   -colorspace Gray + -normalize bring contrast back when the
+      #                  paper is grey-shadowed (typical indoor photo).
+      #   -resize WIDTHx scales up small photos so tesseract gets enough
+      #                  pixels per glyph (it trains on ~300 DPI).
+      #   -sharpen       cheap edge sharpening helps the LSTM model.
+      #   -strip         drops EXIF (we don't need it post-orient).
+      def preprocess_image!(src_path, dst_path)
+        out, err, status = Open3.capture3(
+          ocr_env,
+          "convert", src_path,
+          "-auto-orient",
+          "-colorspace", "Gray",
+          "-normalize",
+          "-resize", "#{MIN_PREPROCESS_WIDTH}x>",
+          "-sharpen", "0x1",
+          "-strip",
+          dst_path
+        )
+        return if status.success? && File.exist?(dst_path) && File.size(dst_path).positive?
+
+        # If preprocessing fails (missing convert, exotic format, ...),
+        # fall back to the original. Better to OCR the raw image than
+        # to fail the whole receipt.
+        msg = err.to_s.strip.presence || out.to_s.strip.presence || "convert exit #{status.exitstatus}"
+        Rails.logger.warn("[ReceiptScanner] preprocess failed (#{msg}); using original")
+        FileUtils.cp(src_path, dst_path)
+      rescue Errno::ENOENT
+        Rails.logger.warn("[ReceiptScanner] ImageMagick `convert` not found; skipping preprocess")
+        FileUtils.cp(src_path, dst_path)
       end
 
       def extract_from_pdf(pdf_path)

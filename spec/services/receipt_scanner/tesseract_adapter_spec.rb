@@ -15,15 +15,61 @@ RSpec.describe ReceiptScanner::Adapters::Tesseract do
     # OpenMP threads). Matchers below ignore the env, just check the
     # command + args.
 
-    it "shells out to tesseract for an image" do
+    it "preprocesses with ImageMagick, then shells out to tesseract for an image" do
       img_path = File.join(tmp, "img.png")
       File.binwrite(img_path, "\x89PNG\r\n\x1a\nfake")
 
-      allow(Open3).to receive(:capture3)
-        .with(kind_of(Hash), "tesseract", img_path, "stdout", "-l", anything, "--psm", anything)
-        .and_return(["raw image text", "", instance_double(Process::Status, success?: true, exitstatus: 0)])
+      allow(Open3).to receive(:capture3) do |_env, cmd, *rest|
+        case cmd
+        when "convert"
+          # Last arg is the destination path; create a fake output file
+          # so `File.exist?` + `File.size.positive?` succeed.
+          File.binwrite(rest.last, "\x89PNG\r\n\x1a\npre")
+          ["", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+        when "tesseract"
+          ["raw image text", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+        end
+      end
 
       expect(adapter.extract_text(img_path)).to eq("raw image text")
+    end
+
+    it "retries with fallback PSMs when the configured PSM returns empty text" do
+      img_path = File.join(tmp, "img.png")
+      File.binwrite(img_path, "\x89PNG\r\n\x1a\nfake")
+
+      psm_calls = []
+      allow(Open3).to receive(:capture3) do |_env, cmd, *rest|
+        case cmd
+        when "convert"
+          File.binwrite(rest.last, "\x89PNG\r\n\x1a\npre")
+          ["", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+        when "tesseract"
+          # `--psm` argument index varies; just grab the value after it.
+          psm = rest[rest.index("--psm") + 1]
+          psm_calls << psm
+          body = psm == "11" ? "PSM-11 recovered text" : ""
+          [body, "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+        end
+      end
+
+      expect(adapter.extract_text(img_path)).to eq("PSM-11 recovered text")
+      expect(psm_calls).to eq(%w[6 4 11]) # default PSM 6 + both fallbacks
+    end
+
+    it "falls back to the original image when ImageMagick is missing" do
+      img_path = File.join(tmp, "img.png")
+      File.binwrite(img_path, "\x89PNG\r\n\x1a\nfake")
+
+      allow(Open3).to receive(:capture3) do |_env, cmd, *_rest|
+        case cmd
+        when "convert"   then raise Errno::ENOENT
+        when "tesseract" then ["fallback text", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+        end
+      end
+
+      expect(Rails.logger).to receive(:warn).with(/convert.*not found/i)
+      expect(adapter.extract_text(img_path)).to eq("fallback text")
     end
 
     it "rasterizes a PDF and concatenates per-page OCR" do
@@ -68,15 +114,21 @@ RSpec.describe ReceiptScanner::Adapters::Tesseract do
       img_path = File.join(tmp, "img.png")
       File.binwrite(img_path, "\x89PNG\r\n\x1a\nfake")
 
-      captured_env = nil
-      allow(Open3).to receive(:capture3) do |env, *_args|
-        captured_env = env
-        ["text", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+      tesseract_env = nil
+      allow(Open3).to receive(:capture3) do |env, cmd, *rest|
+        case cmd
+        when "convert"
+          File.binwrite(rest.last, "\x89PNG\r\n\x1a\npre")
+          ["", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+        when "tesseract"
+          tesseract_env = env
+          ["text", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+        end
       end
 
       adapter.extract_text(img_path)
-      expect(captured_env).to include("OMP_THREAD_LIMIT", "OMP_DYNAMIC")
-      expect(captured_env["OMP_THREAD_LIMIT"]).to match(/\A\d+\z/)
+      expect(tesseract_env).to include("OMP_THREAD_LIMIT", "OMP_DYNAMIC")
+      expect(tesseract_env["OMP_THREAD_LIMIT"]).to match(/\A\d+\z/)
     end
   end
 end
