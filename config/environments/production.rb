@@ -38,7 +38,10 @@ Rails.application.configure do
     address:              ENV.fetch("SMTP_ADDRESS", "localhost"),
     port:                 ENV.fetch("SMTP_PORT", 587).to_i,
     domain:               ENV.fetch("SMTP_DOMAIN", ENV.fetch("APP_HOST", "pantria.example.com")),
-    enable_starttls_auto: ENV.fetch("SMTP_STARTTLS", "true") == "true"
+    enable_starttls_auto: ENV.fetch("SMTP_STARTTLS", "true") == "true",
+    open_timeout: 30,
+    read_timeout: 30
+
   }
   if smtp_user && smtp_pass
     config.action_mailer.smtp_settings.merge!(
