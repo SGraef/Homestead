@@ -809,6 +809,9 @@ en:
       create: "Create product"
       match:  "Match existing"
       skip:   "Skip"
+    auto_matched_to:                "auto-matched to %{product}"
+    add_synonym_html:               "Remember <em>%{term}</em> as a synonym of <strong>%{product}</strong>"
+    add_synonym_for_picked_html:    "Remember <em>%{term}</em> as a synonym of the product you pick above"
     confirm_button:    "Confirm receipt"
     search:
       button_help: "Search product online"

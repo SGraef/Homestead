@@ -103,6 +103,7 @@ class ReceiptConfirmer
   def match_existing(line, decision)
     product = @household.products.find(decision[:product_id])
     record_price(product, line, decision)
+    record_synonym(product, line, decision)
     line.update!(product: product, status: "matched")
     product
   end
@@ -116,8 +117,27 @@ class ReceiptConfirmer
       category: decision[:category].presence
     )
     record_price(product, line, decision)
+    record_synonym(product, line, decision)
     line.update!(product: product, status: "created")
     product
+  end
+
+  # When the user ticks "add as synonym", store the line's OCR'd
+  # parsed_name on the resolved product so the NEXT receipt with the
+  # same shorthand auto-resolves without a click. Idempotent — same
+  # term twice is a no-op thanks to the per-product unique index.
+  def record_synonym(product, line, decision)
+    return unless product
+    return unless truthy?(decision[:add_synonym])
+
+    term = line.parsed_name.to_s.strip
+    return if term.empty?
+    return if term.casecmp(product.name).zero? # don't bother with self-synonyms
+
+    normalized = ProductSynonym.normalize(term)
+    return if product.product_synonyms.exists?(normalized_term: normalized)
+
+    product.product_synonyms.create!(term: term)
   end
 
   # Stores the *per-piece* amount (total / pieces, integer-cent rounded) so

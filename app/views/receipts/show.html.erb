@@ -101,18 +101,28 @@
             </div>
           </div>
 
+          <% auto = @auto_match[li.id] %>
           <div class="receipt-line__grid">
             <span class="receipt-line__field">
               <label><%= t("receipt.table.action") %></label>
+              <%# Default to "match" when the parser already found a
+                  household product via name/synonym; "create" otherwise. %>
               <select name="lines[<%= li.id %>][action]">
-                <option value="create" selected><%= t("receipt.actions.create") %></option>
-                <option value="match"><%= t("receipt.actions.match") %></option>
+                <option value="create" <%= "selected" unless auto %>><%= t("receipt.actions.create") %></option>
+                <option value="match"  <%= "selected" if     auto %>><%= t("receipt.actions.match") %></option>
                 <option value="skip"><%= t("receipt.actions.skip") %></option>
               </select>
             </span>
 
             <span class="receipt-line__field receipt-line__field--wide">
-              <label><%= t("receipt.table.product_or_name") %></label>
+              <label>
+                <%= t("receipt.table.product_or_name") %>
+                <% if auto %>
+                  <span class="caption" style="color:var(--fg-2)">
+                    · <%= t("receipt.auto_matched_to", product: auto.name) %>
+                  </span>
+                <% end %>
+              </label>
               <span style="display:flex;gap:var(--sp-1);align-items:center;flex-wrap:wrap">
                 <input type="text" name="lines[<%= li.id %>][name]"
                        value="<%= li.parsed_name %>" style="flex:1 1 12rem"
@@ -122,10 +132,33 @@
                         data-action="receipt-search#search">🔍</button>
               </span>
               <%= select_tag "lines[#{li.id}][product_id]",
-                             options_from_collection_for_select(current_household.products.order(:name), :id, :name),
+                             options_from_collection_for_select(current_household.products.order(:name), :id, :name, auto&.id),
                              include_blank: t("common.none"),
                              style: "width:100%;margin-top:var(--sp-1)" %>
               <div data-receipt-search-target="results"></div>
+
+              <%# Promote the OCR'd parsed_name to a synonym on the
+                  matched product so future receipts auto-resolve
+                  without a click. Only shown when the line's
+                  parsed_name differs from the chosen product's name
+                  (so we don't offer a no-op self-synonym). %>
+              <% if li.parsed_name.present? && auto && auto.name.casecmp(li.parsed_name).nonzero? %>
+                <label class="caption" style="margin-top:var(--sp-1);display:flex;gap:var(--sp-1);align-items:center">
+                  <%= hidden_field_tag "lines[#{li.id}][add_synonym]", "0" %>
+                  <input type="checkbox" name="lines[<%= li.id %>][add_synonym]" value="1">
+                  <%= t("receipt.add_synonym_html",
+                        term:    h(li.parsed_name),
+                        product: h(auto.name)) %>
+                </label>
+              <% elsif li.parsed_name.present? && !auto %>
+                <%# No auto-match -- still let the user opt in to "remember
+                    this name for whatever I pick from the dropdown". %>
+                <label class="caption" style="margin-top:var(--sp-1);display:flex;gap:var(--sp-1);align-items:center">
+                  <%= hidden_field_tag "lines[#{li.id}][add_synonym]", "0" %>
+                  <input type="checkbox" name="lines[<%= li.id %>][add_synonym]" value="1">
+                  <%= t("receipt.add_synonym_for_picked_html", term: h(li.parsed_name)) %>
+                </label>
+              <% end %>
             </span>
 
             <span class="receipt-line__field">

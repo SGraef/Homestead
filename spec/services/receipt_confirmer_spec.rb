@@ -304,4 +304,83 @@ RSpec.describe ReceiptConfirmer do
       expect(other_gi.reload.status).to eq("needed")
     end
   end
+
+  describe "synonym promotion (add_synonym=1)" do
+    let(:existing_milk) { create(:product, household: household, name: "Milch") }
+
+    it "creates a ProductSynonym from the OCR'd parsed_name when matched" do
+      milk_line
+      params = {
+        new_store_name: "REWE",
+        lines:          { milk_line.id.to_s => { action:      "match",
+                                                 product_id:  existing_milk.id,
+                                                 add_synonym: "1" } }
+      }
+
+      expect do
+        described_class.new(receipt: receipt, user: user, params: params).call
+      end.to change(ProductSynonym, :count).by(1)
+
+      synonym = existing_milk.product_synonyms.last
+      expect(synonym.term).to eq("Vollmilch 1L")
+      expect(synonym.normalized_term).to eq("vollmilch 1l")
+    end
+
+    it "creates a synonym on the freshly-created product when add_synonym=1 + action=create" do
+      milk_line
+      params = {
+        new_store_name: "REWE",
+        lines:          { milk_line.id.to_s => { action:      "create",
+                                                 name:        "Milch",
+                                                 unit:        "l",
+                                                 add_synonym: "1" } }
+      }
+      described_class.new(receipt: receipt, user: user, params: params).call
+      product = Product.find_by!(name: "Milch")
+      expect(product.product_synonyms.pluck(:term)).to eq(["Vollmilch 1L"])
+    end
+
+    it "skips synonym creation when add_synonym is unset / 0" do
+      milk_line
+      params = {
+        new_store_name: "REWE",
+        lines:          { milk_line.id.to_s => { action:      "match",
+                                                 product_id:  existing_milk.id,
+                                                 add_synonym: "0" } }
+      }
+      expect do
+        described_class.new(receipt: receipt, user: user, params: params).call
+      end.not_to change(ProductSynonym, :count)
+    end
+
+    it "is a no-op when the parsed_name equals the product name (no self-synonym)" do
+      line = receipt.receipt_line_items.create!(
+        position: 99, line_text: "Milch 1,19", parsed_name: "Milch",
+        parsed_total_cents: 119, parsed_quantity: 1
+      )
+      params = {
+        new_store_name: "REWE",
+        lines:          { line.id.to_s => { action:      "match",
+                                            product_id:  existing_milk.id,
+                                            add_synonym: "1" } }
+      }
+      expect do
+        described_class.new(receipt: receipt, user: user, params: params).call
+      end.not_to change(ProductSynonym, :count)
+    end
+
+    it "is idempotent if the synonym already exists" do
+      existing_milk.product_synonyms.create!(term: "Vollmilch 1L")
+      milk_line
+      params = {
+        new_store_name: "REWE",
+        lines:          { milk_line.id.to_s => { action:      "match",
+                                                 product_id:  existing_milk.id,
+                                                 add_synonym: "1" } }
+      }
+      expect do
+        described_class.new(receipt: receipt, user: user, params: params).call
+      end.not_to change(ProductSynonym, :count)
+    end
+  end
 end

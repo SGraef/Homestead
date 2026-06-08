@@ -807,6 +807,9 @@ de:
       create: "Produkt anlegen"
       match:  "Vorhandenem zuordnen"
       skip:   "Überspringen"
+    auto_matched_to:                "automatisch %{product} zugeordnet"
+    add_synonym_html:               "<em>%{term}</em> als Synonym für <strong>%{product}</strong> merken"
+    add_synonym_for_picked_html:    "<em>%{term}</em> als Synonym für das oben ausgewählte Produkt merken"
     confirm_button:    "Beleg bestätigen"
     search:
       button_help: "Produkt online suchen"

@@ -11,7 +11,8 @@ class ReceiptsController < ApplicationController
 
   def show
     authorize @receipt
-    @line_items = @receipt.receipt_line_items
+    @line_items  = @receipt.receipt_line_items
+    @auto_match  = build_auto_match_map(@line_items)
   end
 
   def new
@@ -68,5 +69,24 @@ class ReceiptsController < ApplicationController
   def confirm_params
     params.permit(:store_id, :new_store_name,
                   lines: {}).to_h
+  end
+
+  # Pre-resolve every line's parsed_name against the household's product
+  # catalogue (primary name OR registered synonym). The view uses this
+  # map to default the per-line "action" select to "match" with the
+  # matched product preselected — saving the user a dropdown click for
+  # every line that's been bought before.
+  #
+  # @return [Hash{Integer => Product}] keyed by line.id
+  def build_auto_match_map(line_items)
+    line_items.each_with_object({}) do |line, acc|
+      next if line.product_id # already linked from a prior confirmation
+
+      term = line.parsed_name.to_s.strip
+      next if term.empty?
+
+      product = current_household.products.match_by_term(term).first
+      acc[line.id] = product if product
+    end
   end
 end
