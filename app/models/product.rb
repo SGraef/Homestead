@@ -36,6 +36,7 @@ class Product < ApplicationRecord
   has_many :storage_items, dependent: :destroy
   has_many :grocery_items, dependent: :destroy
   has_many :product_barcodes, dependent: :destroy
+  has_many :product_synonyms, dependent: :destroy
   # Receipts are historical -- keep their line items around with `parsed_name`
   # for audit and just unlink the (now-deleted) product. ReceiptLineItem's
   # `belongs_to :product, optional: true` makes nullify safe.
@@ -58,6 +59,25 @@ class Product < ApplicationRecord
 
     where(barcode: code)
       .or(where(id: ProductBarcode.where(barcode: code).select(:product_id)))
+      .distinct
+  }
+
+  # Match products whose name OR any registered synonym matches the
+  # supplied term. Name matching is case-insensitive but otherwise
+  # literal (relies on the utf8mb4_0900_ai_ci collation for accent
+  # folding). Synonym matching is more aggressive: punctuation
+  # stripped, whitespace collapsed. So a receipt line "MILCH-1L"
+  # finds a Product named "Milch" only if someone has registered
+  # "MILCH-1L" (or any variant that normalises to "milch 1l") as a
+  # synonym. The first match wins; callers are expected to
+  # `.first` immediately.
+  scope :match_by_term, lambda { |raw|
+    raw = raw.to_s.strip
+    next none if raw.empty?
+
+    normalized = ProductSynonym.normalize(raw)
+    where("LOWER(products.name) = ?", raw.downcase)
+      .or(where(id: ProductSynonym.where(normalized_term: normalized).select(:product_id)))
       .distinct
   }
 

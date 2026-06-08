@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000031) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000032) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -254,6 +254,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000031) do
     t.index ["barcode"], name: "index_product_barcodes_on_barcode"
     t.index ["product_id", "barcode"], name: "idx_product_barcodes_product_barcode", unique: true
     t.index ["product_id"], name: "index_product_barcodes_on_product_id"
+  end
+
+  create_table "product_synonyms", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.string "term", limit: 200, null: false
+    t.string "normalized_term", limit: 200, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["normalized_term"], name: "index_product_synonyms_on_normalized_term"
+    t.index ["product_id", "normalized_term"], name: "index_product_synonyms_on_product_id_and_normalized_term", unique: true
+    t.index ["product_id"], name: "index_product_synonyms_on_product_id"
   end
 
   create_table "products", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -536,6 +547,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000031) do
   add_foreign_key "prices", "products"
   add_foreign_key "prices", "stores"
   add_foreign_key "product_barcodes", "products"
+  add_foreign_key "product_synonyms", "products"
   add_foreign_key "products", "households"
   add_foreign_key "receipt_line_items", "products"
   add_foreign_key "receipt_line_items", "receipts"
