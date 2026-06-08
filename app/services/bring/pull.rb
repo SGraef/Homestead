@@ -5,11 +5,17 @@
 # reconciles it into the household's grocery items.
 #
 # Reconciliation rules (Bring is the source of truth for the list):
-#   purchase[]  → ensure a needed GroceryItem exists for that product (create
-#                 the Product on the fly if missing, reactivate it if a
-#                 purchased/cancelled row exists)
-#   recently[]  → if a needed GroceryItem exists for that product, mark it
-#                 purchased (mirroring the Bring "recently bought" state)
+#   purchase[]  → ensure a needed GroceryItem exists for that name.
+#                 We try to resolve the name against the household's
+#                 product catalogue first (primary name OR registered
+#                 synonym, via Product.match_by_term). On a hit the
+#                 row links to that product so offer matching + auto-
+#                 stock-on-purchase work. On a miss we create a
+#                 free-form row -- no Product is materialised behind
+#                 the user's back. Reactivates a purchased/cancelled
+#                 row instead of duplicating.
+#   recently[]  → if a needed GroceryItem matches (by product OR by
+#                 free-form name), mark it purchased.
 #
 # All writes are wrapped in {GroceryItem.without_bring_sync} so the
 # after-commit callbacks don't push back what we just pulled.
@@ -66,11 +72,16 @@ module Bring
 
     # @return [:added, :reactivated, :unchanged]
     def sync_active(name)
-      product = find_or_create_product(name)
-      gi      = @household.grocery_items.find_by(product: product)
+      product = @household.products.match_by_term(name).first
+      gi      = locate_grocery_item(name, product)
 
       if gi.nil?
-        @household.grocery_items.create!(product: product, status: "needed", quantity: 1)
+        @household.grocery_items.create!(
+          product:  product,
+          name:     (product ? nil : name),
+          status:   "needed",
+          quantity: 1
+        )
         :added
       elsif gi.status != "needed"
         gi.update!(status: "needed", purchased_at: nil)
@@ -82,19 +93,24 @@ module Bring
 
     # @return [Boolean] true if a row was flipped
     def sync_recent?(name)
-      product = @household.products.find_by(name: name)
-      return false unless product
-
-      gi = @household.grocery_items.find_by(product: product, status: "needed")
+      product = @household.products.match_by_term(name).first
+      gi      = locate_grocery_item(name, product, status: "needed")
       return false unless gi
 
       gi.update!(status: "purchased", purchased_at: Time.current)
       true
     end
 
-    def find_or_create_product(name)
-      @household.products.find_or_create_by!(name: name) do |p|
-        p.unit = "pcs"
+    # Look for an existing GroceryItem by product link (when matched)
+    # OR by free-form name when no product matched. Optional status
+    # filter (used by sync_recent? which only cares about open rows).
+    def locate_grocery_item(name, product, status: nil)
+      scope = @household.grocery_items
+      scope = scope.where(status: status) if status
+      if product
+        scope.find_by(product: product)
+      else
+        scope.where(product_id: nil).find_by("LOWER(name) = ?", name.downcase)
       end
     end
   end

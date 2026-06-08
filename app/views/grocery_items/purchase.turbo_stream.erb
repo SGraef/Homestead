@@ -1,6 +1,6 @@
 <%= turbo_stream.replace "grocery_item_#{@item.id}" do %>
   <tr id="grocery_item_<%= @item.id %>">
-    <td><%= @item.product.name %></td>
+    <td><%= @item.display_name %></td>
     <td><%= @item.quantity %></td>
     <td><span class="pill"><%= @item.status %></span></td>
     <td><%= @item.store&.name %></td>

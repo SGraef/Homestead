@@ -2,12 +2,27 @@
   <% if @item.errors.any? %>
     <div class="flash alert"><%= @item.errors.full_messages.to_sentence %></div>
   <% end %>
-  <p><%= f.label :product_id %><br>
-    <%= f.collection_select :product_id, current_household.products.order(:name), :id, :name %></p>
+
+  <%# Free-form name -- the lightweight "scribble it down" path. Submit
+      with just this filled and no product, no full Product gets
+      created behind your back. %>
+  <p><%= f.label :name, t("grocery.form.name") %><br>
+    <%= f.text_field :name, autofocus: true,
+                            placeholder: t("grocery.form.name_placeholder") %></p>
+
+  <%# Optionally link to an existing product. When set, the row joins
+      the offer-matching / auto-add-to-storage flow on purchase. %>
+  <p><%= f.label :product_id, t("grocery.form.link_product") %><br>
+    <%= f.collection_select :product_id,
+                            current_household.products.order(:name),
+                            :id, :name,
+                            include_blank: t("common.none") %>
+    <br><span class="caption"><%= t("grocery.form.link_product_help") %></span></p>
+
   <p><%= f.label :store_id %><br>
     <%= f.collection_select :store_id, current_household.stores.order(:name), :id, :name,
                             include_blank: t("scan.bought_at_unspecified") %></p>
-  <p><%= f.label :quantity %><br><%= f.number_field :quantity, step: 0.001, min: 0, required: true %></p>
+  <p><%= f.label :quantity %><br><%= f.number_field :quantity, step: 0.001, min: 0.001, required: true %></p>
   <p><%= f.label :status %><br>
     <%= f.select :status,
                  GroceryItem::STATUSES.map { |s| [t("grocery.statuses.#{s}", default: s), s] } %></p>

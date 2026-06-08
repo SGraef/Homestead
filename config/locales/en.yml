@@ -158,6 +158,10 @@ en:
           attributes:
             image:
               unsupported_type: "File type not supported (allowed: %{accepted})."
+        grocery_item:
+          attributes:
+            base:
+              name_or_product_required: "Please pick a product or type a name."
 
   user_mailer:
     activation_needed_email:
@@ -576,6 +580,14 @@ en:
     filter:
       only_needed: "Needed only"
       all:         "Show all"
+    form:
+      name:               "Item"
+      name_placeholder:   "e.g. avocados, 2 ripe"
+      link_product:       "Linked product (optional)"
+      link_product_help:  "Link to a catalog product to enable offer matching and auto-stock on purchase. Leave blank for a quick note."
+    row:
+      freeform:           "freeform"
+      freeform_help:      "Not linked to a tracked product — won't auto-add to storage on purchase."
     purge_purchased: "Remove purchased (%{count})"
     purge_confirm:   "Permanently remove %{count} purchased items?"
     purged:

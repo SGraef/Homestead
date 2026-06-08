@@ -41,10 +41,13 @@
   </thead>
   <tbody>
     <% @items.each do |i| %>
-      <% offer = @best_offer_by_product[i.product_id] %>
+      <% offer = i.product_id ? @best_offer_by_product[i.product_id] : nil %>
       <tr id="grocery_item_<%= i.id %>">
         <td>
-          <%= i.product.name %>
+          <%= i.display_name %>
+          <% if i.product_id.nil? %>
+            <span class="pill" title="<%= t('grocery.row.freeform_help') %>"><%= t("grocery.row.freeform") %></span>
+          <% end %>
           <% if offer %>
             <%= link_to offers_path(anchor: "offer-#{offer.id}"),
                         class: "chip success",
@@ -57,7 +60,10 @@
             <% end %>
           <% end %>
         </td>
-        <td><%= i.quantity %> <%= t("product.units.#{i.product.unit}", default: i.product.unit) %></td>
+        <td>
+          <%= i.quantity %>
+          <% if i.product %><%= t("product.units.#{i.product.unit}", default: i.product.unit) %><% end %>
+        </td>
         <td><span class="pill <%= 'warn' if i.status == 'needed' %>">
           <%= t("grocery.statuses.#{i.status}", default: i.status) %>
         </span></td>

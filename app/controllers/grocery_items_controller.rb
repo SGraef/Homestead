@@ -110,7 +110,7 @@ class GroceryItemsController < ApplicationController
   end
 
   def item_params
-    params.require(:grocery_item).permit(:product_id, :store_id, :quantity, :status)
+    params.require(:grocery_item).permit(:product_id, :name, :store_id, :quantity, :status)
   end
 
   # Build { product_id => cheapest current Offer } for the displayed

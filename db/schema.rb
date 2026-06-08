@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000032) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000033) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -71,7 +71,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000032) do
 
   create_table "grocery_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
-    t.bigint "product_id", null: false
+    t.bigint "product_id"
     t.bigint "store_id"
     t.decimal "quantity", precision: 12, scale: 3, default: "1.0", null: false
     t.string "status", default: "needed", null: false
@@ -80,6 +80,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000032) do
     t.string "paid_currency", limit: 3
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "name", limit: 200
     t.index ["household_id", "status"], name: "index_grocery_items_on_household_id_and_status"
     t.index ["household_id"], name: "index_grocery_items_on_household_id"
     t.index ["product_id"], name: "index_grocery_items_on_product_id"

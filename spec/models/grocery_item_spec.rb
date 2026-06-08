@@ -30,5 +30,49 @@ RSpec.describe GroceryItem do
       # location *kind* string and resolves it -- assert via .kind.
       expect(StorageItem.last.location.kind).to eq("fridge")
     end
+
+    it "just flips status for a freeform row -- no StorageItem is created" do
+      item = household.grocery_items.create!(name: "Avocados, 2 ripe", quantity: 1)
+
+      expect do
+        result = item.mark_purchased!(store: store, paid_amount: "1.99")
+        expect(result).to be_nil
+      end.not_to change(StorageItem, :count)
+
+      item.reload
+      expect(item.status).to eq("purchased")
+      expect(item.paid_amount_cents).to eq(199)
+    end
+  end
+
+  describe "validations" do
+    it "requires either a product or a free-form name" do
+      item = household.grocery_items.build(quantity: 1)
+      expect(item).not_to be_valid
+      expect(item.errors[:base]).to be_present
+    end
+
+    it "is valid with just a name (no product)" do
+      item = household.grocery_items.build(name: "two avocados", quantity: 1)
+      expect(item).to be_valid
+    end
+
+    it "is valid with just a product (no name)" do
+      item = household.grocery_items.build(product: product, quantity: 1)
+      expect(item).to be_valid
+    end
+  end
+
+  describe "#display_name" do
+    it "prefers the linked product's name" do
+      product.update!(name: "Milk")
+      item = household.grocery_items.create!(product: product, name: "Vollmilch", quantity: 1)
+      expect(item.display_name).to eq("Milk")
+    end
+
+    it "falls back to the freeform name when no product is linked" do
+      item = household.grocery_items.create!(name: "Avocados", quantity: 1)
+      expect(item.display_name).to eq("Avocados")
+    end
   end
 end

@@ -574,6 +574,14 @@ de:
     filter:
       only_needed: "Nur benötigt"
       all:         "Alle anzeigen"
+    form:
+      name:               "Artikel"
+      name_placeholder:   "z.B. Avocados, 2 reife"
+      link_product:       "Verknüpftes Produkt (optional)"
+      link_product_help:  "Verknüpfe ein Katalog-Produkt, um Angebote zuzuordnen und beim Kauf automatisch in den Vorrat zu legen. Sonst leer lassen."
+    row:
+      freeform:           "freihand"
+      freeform_help:      "Nicht mit einem getrackten Produkt verknüpft — wird beim Kauf nicht automatisch in den Vorrat gelegt."
     purge_purchased: "Gekaufte entfernen (%{count})"
     purge_confirm:   "%{count} gekaufte Einträge dauerhaft entfernen?"
     purged:
@@ -841,6 +849,10 @@ de:
           attributes:
             image:
               unsupported_type: "Dateityp wird nicht unterstützt (erlaubt: %{accepted})."
+        grocery_item:
+          attributes:
+            base:
+              name_or_product_required: "Bitte ein Produkt wählen oder einen Namen eingeben."
     models:
       user:           "Benutzer"
       household:      "Haushalt"

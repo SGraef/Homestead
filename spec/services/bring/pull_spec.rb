@@ -32,14 +32,31 @@ RSpec.describe Bring::Pull do
       )
   end
 
-  it "creates a Product + needed GroceryItem for each Bring item that's new locally" do
+  it "creates a free-form GroceryItem (no Product) for each Bring item that's new locally" do
     stub_list(purchase: %w[Vollmilch Brot])
 
-    outcome = described_class.new(connection).call
+    expect do
+      outcome = described_class.new(connection).call
+      expect(outcome.added).to eq(2)
+    end.not_to change(Product, :count)
 
-    expect(outcome.added).to eq(2)
-    expect(household.grocery_items.needed.count).to eq(2)
-    expect(household.products.pluck(:name)).to match_array(%w[Vollmilch Brot])
+    rows = household.grocery_items.needed.order(:name)
+    expect(rows.pluck(:name)).to match_array(%w[Brot Vollmilch])
+    expect(rows.pluck(:product_id).compact).to be_empty
+  end
+
+  it "links to an existing product (incl. via a synonym) instead of creating a freeform row" do
+    milch = create(:product, household: household, name: "Milch")
+    milch.product_synonyms.create!(term: "Vollmilch")
+    stub_list(purchase: %w[Vollmilch])
+
+    expect do
+      described_class.new(connection).call
+    end.not_to change(Product, :count)
+
+    gi = household.grocery_items.needed.first
+    expect(gi.product).to eq(milch)
+    expect(gi.name).to be_blank
   end
 
   it "is idempotent: a second pull with the same Bring state changes nothing" do

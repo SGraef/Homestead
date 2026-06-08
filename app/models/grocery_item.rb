@@ -1,17 +1,35 @@
 # frozen_string_literal: true
 # typed: false
 
-# An entry on the household's grocery list. After purchase the item is
-# typically converted into a {StorageItem} via {#mark_purchased!}.
+# An entry on the household's grocery list. Either references a real
+# Product (so we can match offers, deep-link to the price history, and
+# auto-add to storage on purchase) or stands alone with a free-form
+# `name` ("two avocados") -- the lightweight shopping-list mode.
+#
+# After purchase the item is typically converted into a {StorageItem}
+# via {#mark_purchased!}, but only when there's a product to attach.
+# Freeform purchases just flip status.
 class GroceryItem < ApplicationRecord
   STATUSES = %w[needed purchased cancelled].freeze
 
   belongs_to :household
-  belongs_to :product
+  belongs_to :product, optional: true
   belongs_to :store, optional: true
 
-  validates :status, inclusion: { in: STATUSES }
+  validates :status,   inclusion: { in: STATUSES }
   validates :quantity, numericality: { greater_than: 0 }
+  validates :name,     length: { maximum: 200 }
+  # Need *something* to identify the row by — either a linked product
+  # or a free-form name. Refuses an empty entry that's just qty+status.
+  validate  :name_or_product_required
+
+  # Display label: the linked product's name when one exists, else
+  # the row's free-form text. Used by the views, the Bring sync,
+  # everywhere a human-readable label is needed.
+  # @return [String]
+  def display_name
+    (product&.name.presence || name.to_s).to_s
+  end
 
   scope :needed,    -> { where(status: "needed") }
   scope :purchased, -> { where(status: "purchased") }
@@ -41,8 +59,10 @@ class GroceryItem < ApplicationRecord
     Thread.current[:pantria_skip_bring_sync] == true
   end
 
-  # Marks the item as purchased and creates a corresponding {StorageItem} so
-  # the household's pantry reflects the new stock.
+  # Marks the item as purchased. If a Product is linked, also creates a
+  # corresponding {StorageItem} so the household's pantry reflects the
+  # new stock. Free-form rows just flip status -- there's nothing to
+  # stock without a product to attach.
   #
   # @param store [Store, nil] the store the item was purchased at
   # @param paid_amount [Numeric, String, nil] price actually paid (major units)
@@ -50,7 +70,8 @@ class GroceryItem < ApplicationRecord
   # @param location [Location, String, nil] target location: a Location
   #   record, a kind string ("pantry"/"fridge"/...) which is resolved against
   #   the household, or nil (defaults to the household's pantry-kind one).
-  # @return [StorageItem] the newly-created storage item
+  # @return [StorageItem, nil] the newly-created storage item, or nil when
+  #   the row had no linked product
   def mark_purchased!(store: nil, paid_amount: nil, expires_on: nil, location: nil)
     transaction do
       assign_attributes(
@@ -62,6 +83,8 @@ class GroceryItem < ApplicationRecord
       )
       save!
 
+      next nil unless product
+
       household.storage_items.create!(
         product:    product,
         quantity:   quantity,
@@ -72,6 +95,13 @@ class GroceryItem < ApplicationRecord
   end
 
   private
+
+  def name_or_product_required
+    return if product_id.present?
+    return if name.to_s.strip.present?
+
+    errors.add(:base, :name_or_product_required)
+  end
 
   def resolve_location(value)
     case value
@@ -114,6 +144,6 @@ class GroceryItem < ApplicationRecord
   end
 
   def bring_name
-    product&.name.to_s.strip
+    display_name.strip
   end
 end
