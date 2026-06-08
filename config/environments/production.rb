@@ -24,15 +24,29 @@ Rails.application.configure do
   config.action_mailer.perform_caching = false
   config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "pantria.example.com") }
   config.action_mailer.delivery_method = :smtp
+  # SMTP_USERNAME / SMTP_PASSWORD are optional -- a local relay
+  # (postfix on the same box, Mailpit in dev-like envs, a mailhog
+  # sidecar, ...) typically doesn't authenticate. Only enable
+  # authentication when BOTH credentials are present; otherwise drop
+  # the auth keys entirely. Setting `authentication: :plain` while
+  # leaving user_name nil raises ArgumentError on the first send
+  # ("SMTP-AUTH requested but missing user name") and that bubbles
+  # up to whichever controller triggered the mail.
+  smtp_user = ENV["SMTP_USERNAME"].presence
+  smtp_pass = ENV["SMTP_PASSWORD"].presence
   config.action_mailer.smtp_settings = {
     address:              ENV.fetch("SMTP_ADDRESS", "localhost"),
     port:                 ENV.fetch("SMTP_PORT", 587).to_i,
     domain:               ENV.fetch("SMTP_DOMAIN", ENV.fetch("APP_HOST", "pantria.example.com")),
-    user_name:            ENV["SMTP_USERNAME"].presence,
-    password:             ENV["SMTP_PASSWORD"].presence,
-    authentication:       ENV.fetch("SMTP_AUTH", "plain").to_sym,
     enable_starttls_auto: ENV.fetch("SMTP_STARTTLS", "true") == "true"
-  }.compact
+  }
+  if smtp_user && smtp_pass
+    config.action_mailer.smtp_settings.merge!(
+      user_name:      smtp_user,
+      password:       smtp_pass,
+      authentication: ENV.fetch("SMTP_AUTH", "plain").to_sym
+    )
+  end
 
   config.i18n.fallbacks = true
   config.active_support.report_deprecations = false
