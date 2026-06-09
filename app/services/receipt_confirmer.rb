@@ -142,12 +142,19 @@ class ReceiptConfirmer
 
   # Stores the *per-piece* amount (total / pieces, integer-cent rounded) so
   # prices for the same product across stores stay comparable regardless of
-  # bulk pack size.
+  # bulk pack size. The user can override the OCR-parsed total by
+  # filling the per-line `amount` input on the confirm form -- handy
+  # when the OCR mangled the price or skipped a digit. Without an
+  # override we fall back to line.parsed_total_cents; if both are
+  # missing we skip the Price write rather than record €0.
   def record_price(product, line, decision)
-    return unless product && line.parsed_total_cents && @receipt.store
+    return unless product && @receipt.store
 
-    pieces = positive_pieces(decision, line)
-    per_piece_cents = (BigDecimal(line.parsed_total_cents) / pieces).round.to_i
+    total_cents = parse_amount_cents(decision[:amount]) || line.parsed_total_cents
+    return unless total_cents
+
+    pieces          = positive_pieces(decision, line)
+    per_piece_cents = (BigDecimal(total_cents) / pieces).round.to_i
 
     Price.create!(
       product:      product,
@@ -157,6 +164,20 @@ class ReceiptConfirmer
       observed_on:  @receipt.purchased_on || Date.current,
       source:       "receipt"
     )
+  end
+
+  # @return [Integer, nil] amount in integer cents, or nil for blank /
+  #   non-numeric / non-positive input. Comma decimals accepted so a
+  #   German-keyboard user can type "1,99" directly.
+  def parse_amount_cents(raw)
+    return nil if raw.blank?
+
+    major = BigDecimal(raw.to_s.tr(",", "."))
+    return nil if major <= 0
+
+    (major * 100).round.to_i
+  rescue ArgumentError
+    nil
   end
 
   # Pieces (integer or decimal) the user entered on the confirm form. Falls

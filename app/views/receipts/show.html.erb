@@ -162,6 +162,22 @@
             </span>
 
             <span class="receipt-line__field">
+              <label><%= t("receipt.table.amount") %></label>
+              <%# Editable total. Defaults to the OCR'd parsed_total
+                  but the user can override (which is the only way to
+                  rescue a line where OCR mangled the price). Sent as
+                  `amount` on confirm and re-used both for the Price
+                  row and -- when divided by pieces -- for the per-
+                  piece display. %>
+              <input type="number" name="lines[<%= li.id %>][amount]"
+                     value="<%= li.parsed_total ? format('%.2f', li.parsed_total) : '' %>"
+                     min="0" step="0.01" inputmode="decimal"
+                     placeholder="0,00"
+                     data-unit-price-target="amount"
+                     data-action="input->unit-price#recompute">
+            </span>
+
+            <span class="receipt-line__field">
               <label><%= t("receipt.table.pieces") %></label>
               <input type="number" name="lines[<%= li.id %>][pieces]"
                      value="<%= initial_pieces %>"

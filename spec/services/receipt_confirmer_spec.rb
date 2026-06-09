@@ -305,6 +305,66 @@ RSpec.describe ReceiptConfirmer do
     end
   end
 
+  describe "user-supplied amount override" do
+    it "uses the form's `amount` over line.parsed_total_cents when present" do
+      milk_line # parsed_total_cents = 119
+      params = {
+        new_store_name: "REWE",
+        lines:          {
+          milk_line.id.to_s => { action: "create", name: "Milk", unit: "l",
+                                 amount: "2.49" }
+        }
+      }
+      described_class.new(receipt: receipt, user: user, params: params).call
+      price = Price.find_by(product: Product.find_by(name: "Milk"))
+      expect(price.amount_cents).to eq(249)
+    end
+
+    it "accepts a comma-decimal amount (German keyboard)" do
+      milk_line
+      params = {
+        new_store_name: "REWE",
+        lines:          {
+          milk_line.id.to_s => { action: "create", name: "Milk", unit: "l",
+                                 amount: "2,49" }
+        }
+      }
+      described_class.new(receipt: receipt, user: user, params: params).call
+      expect(Price.last.amount_cents).to eq(249)
+    end
+
+    it "creates a Price even when the OCR found no total but the user supplied one" do
+      line = receipt.receipt_line_items.create!(
+        position: 1, line_text: "Mangled OCR line",
+        parsed_name: "Mystery item", parsed_total_cents: nil, parsed_quantity: 1
+      )
+      params = {
+        new_store_name: "REWE",
+        lines:          {
+          line.id.to_s => { action: "create", name: "Mystery", unit: "pcs",
+                            amount: "3.50" }
+        }
+      }
+      expect do
+        described_class.new(receipt: receipt, user: user, params: params).call
+      end.to change(Price, :count).by(1)
+      expect(Price.last.amount_cents).to eq(350)
+    end
+
+    it "ignores zero / non-numeric overrides and falls back to parsed_total_cents" do
+      milk_line # 119
+      params = {
+        new_store_name: "REWE",
+        lines:          {
+          milk_line.id.to_s => { action: "create", name: "Milk", unit: "l",
+                                 amount: "0" }
+        }
+      }
+      described_class.new(receipt: receipt, user: user, params: params).call
+      expect(Price.last.amount_cents).to eq(119)
+    end
+  end
+
   describe "synonym promotion (add_synonym=1)" do
     let(:existing_milk) { create(:product, household: household, name: "Milch") }
 
