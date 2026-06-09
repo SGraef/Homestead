@@ -236,7 +236,7 @@ GEM
       date
       stringio
     public_suffix (7.0.5)
-    puma (6.6.1)
+    puma (7.2.1)
       nio4r (~> 2.0)
     pundit (2.5.2)
       activesupport (>= 3.0.0)
@@ -465,7 +465,7 @@ DEPENDENCIES
   jsonapi-serializer (~> 2.2)
   mysql2 (~> 0.5)
   propshaft (~> 1.0)
-  puma (~> 6.4)
+  puma (~> 7.2)
   pundit (~> 2.4)
   rack-cors (~> 2.0)
   rails (~> 8.0.1)

@@ -7,7 +7,7 @@ ruby "3.3.6"
 
 gem "rails", "~> 8.0.1"
 gem "mysql2", "~> 0.5"
-gem "puma", "~> 6.4"
+gem "puma", "~> 7.2"
 
 # Hotwire frontend
 gem "turbo-rails", "~> 2.0"
