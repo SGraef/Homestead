@@ -34,36 +34,55 @@ module Bring
 
     # @return [Outcome]
     def call
-      list = Bring::Client.new(@connection).fetch_list
+      Telemetry.in_span("bring.pull",
+                        attributes: { "pantria.household.id" => @household.id }) do |span|
+        list = Bring::Client.new(@connection).fetch_list
 
-      active = names(list["purchase"])
-      recent = names(list["recently"])
+        active = names(list["purchase"])
+        recent = names(list["recently"])
 
-      added = reactivated = marked_purchased = unchanged = 0
+        added = reactivated = marked_purchased = unchanged = 0
 
-      GroceryItem.without_bring_sync do
-        active.each do |name|
-          case sync_active(name)
-          when :added            then added += 1
-          when :reactivated      then reactivated += 1
-          when :unchanged        then unchanged += 1
+        GroceryItem.without_bring_sync do
+          active.each do |name|
+            case sync_active(name)
+            when :added            then added += 1
+            when :reactivated      then reactivated += 1
+            when :unchanged        then unchanged += 1
+            end
+          end
+
+          recent.each do |name|
+            marked_purchased += 1 if sync_recent?(name)
           end
         end
 
-        recent.each do |name|
-          marked_purchased += 1 if sync_recent?(name)
-        end
+        @connection.update_columns(last_synced_at: Time.current,
+                                   last_error:     nil,
+                                   updated_at:     Time.current)
+
+        outcome = Outcome.new(added: added, reactivated: reactivated,
+                              marked_purchased: marked_purchased, unchanged: unchanged)
+        record_pull_metrics(span, outcome)
+        outcome
       end
-
-      @connection.update_columns(last_synced_at: Time.current,
-                                 last_error:     nil,
-                                 updated_at:     Time.current)
-
-      Outcome.new(added: added, reactivated: reactivated,
-                  marked_purchased: marked_purchased, unchanged: unchanged)
     end
 
     private
+
+    def record_pull_metrics(span, outcome)
+      if span.respond_to?(:set_attribute)
+        span.set_attribute("bring.pull.added",            outcome.added)
+        span.set_attribute("bring.pull.reactivated",      outcome.reactivated)
+        span.set_attribute("bring.pull.marked_purchased", outcome.marked_purchased)
+        span.set_attribute("bring.pull.unchanged",        outcome.unchanged)
+      end
+      Telemetry.counter("pantria.bring.pull_total",
+                        description: "Bring -> Pantria pull operations").add(1)
+      Telemetry.counter("pantria.bring.items_synced_total",
+                        description: "Grocery rows touched by a Bring pull (added/reactivated/purchased)")
+               .add(outcome.total_changed)
+    end
 
     # Bring's list payload uses { name, specification }; we only key on name.
     def names(items)
