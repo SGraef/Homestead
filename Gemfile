@@ -66,3 +66,19 @@ group :test do
   gem "simplecov", "~> 0.22", require: false
   gem "rspec_junit_formatter", "~> 0.6", require: false
 end
+
+# OpenTelemetry: traces (GA), metrics (GA), logs (experimental at time
+# of writing but usable). All require: false — the initializer at
+# config/initializers/opentelemetry.rb requires + boots them only when
+# OTEL_EXPORTER_OTLP_ENDPOINT is set, so the SDK doesn't load (or
+# allocate exporter threads) in CI / local dev unless explicitly
+# enabled. See docs/OBSERVABILITY.md.
+gem "opentelemetry-sdk", "~> 1.6", require: false
+gem "opentelemetry-exporter-otlp", "~> 0.30", require: false
+gem "opentelemetry-instrumentation-all", "~> 0.74", require: false
+gem "opentelemetry-metrics-sdk", "~> 0.6", require: false
+gem "opentelemetry-metrics-api", "~> 0.4", require: false
+gem "opentelemetry-exporter-otlp-metrics", "~> 0.6", require: false
+gem "opentelemetry-logs-sdk", "~> 0.3", require: false
+gem "opentelemetry-logs-api", "~> 0.2", require: false
+gem "opentelemetry-exporter-otlp-logs", "~> 0.3", require: false
