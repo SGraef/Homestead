@@ -807,6 +807,7 @@ en:
       product_or_name: "Product / new name"
       unit:            "Unit"
       barcode:         "Barcode"
+      amount:               "Amount"
       pieces:               "Pieces"
       per_piece:            "per piece"
       per_piece_help:       "Per-piece price = total ÷ pieces"

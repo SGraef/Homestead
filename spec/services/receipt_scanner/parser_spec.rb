@@ -86,4 +86,61 @@ RSpec.describe ReceiptScanner::Parser do
       expect(result.subtotal_cents).to eq(368)
     end
   end
+
+  describe "real-world ALDI receipt (currency + digit tax codes + OCR noise)" do
+    # Lifted from an actual photo of a German ALDI receipt. The OCR
+    # returns digit / `|` tax codes (1, 2 = full / reduced VAT) with
+    # a `€` between the price and the code, plus quantity-hint
+    # continuation lines ("_ 4x 1,28"). Used to be a single-line
+    # detection because the previous LINE_ITEM_RE didn't tolerate the
+    # currency token in the tail.
+    subject(:items) { described_class.parse(raw).line_items.map(&:name) }
+
+    let(:raw) { <<~OCR }
+      ALDI
+      Niedernstraße 9 c, 24589 Nortorf
+
+      ALLERGIKERKISSEN 9,99 € 2
+      _ 4x 1,28
+      NATURLAND BIO H-MILCH 3,00 € |
+      SCHWEPPES BITTERGETRAN 2,18€ 2
+      2x 0,29
+      PFANDWERT 0,25 0,50 € 2
+      WETSSKASE IN SALZLAKE 6,99 € |
+      WETZENMEHL 1,18 € 1
+      JOGHURT NACH GRIECH, A 2,19 € 1
+      NATURLAND BIO FRUCHTMA 1,15 €1
+      NL BIO APFELMUS 3606 0,75 € 1
+      ERDBEERKONFI TURE 1,59 € 1
+      KONFITÜRE 4508 1,79€ 1
+      HAHN. SCHENKELSTEAKS - 3,99 € |
+      TK BIO-GEMUSEPFANNE 2,49 € |
+      KNABBERSTICKS QS 90g 1,69 € 1
+      ALMETTE 0°99 ¢ 7
+      ZU ZAHLEN 113,73 €
+      Kartenzahlung
+    OCR
+
+    it "extracts the obvious product lines that used to fail (≥ 10)" do
+      expect(items.size).to be >= 10
+    end
+
+    it "handles `€ <digit>` (full VAT) and `€ |` (OCR-mis-read 1) tax tails" do
+      expect(items).to include("ALLERGIKERKISSEN",
+                               "NATURLAND BIO H-MILCH",
+                               "WETZENMEHL")
+    end
+
+    it "drops quantity-hint continuation lines (`_ 4x 1,28`)" do
+      expect(items).not_to include(a_string_matching(/\A_? ?\d+x/))
+    end
+
+    it "recovers from common OCR misreads in the price area (`0°99 ¢` → 0,99 €)" do
+      expect(items).to include("ALMETTE")
+    end
+
+    it "stops at the total line (no products from below ZU ZAHLEN)" do
+      expect(items.join("|")).not_to include("Kartenzahlung")
+    end
+  end
 end

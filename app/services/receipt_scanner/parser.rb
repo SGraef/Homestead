@@ -10,8 +10,39 @@ module ReceiptScanner
   # a final total) and let the user correct the rest in the confirm UI.
   class Parser
     PRICE_RE = /(?<sign>-)?(?<int>\d{1,4})[.,](?<dec>\d{2})/
-    LINE_ITEM_RE = /\A(?<name>.+?)\s+(?<sign>-)?(?<int>\d{1,4})[.,](?<dec>\d{2})\b\s*[A-Z]?\s*\z/
+
+    # Anchored at end of line with tolerant tail-matching:
+    # accepts an optional currency token (€, EUR, OCR-mis-read ¢) and an
+    # optional tax-group code -- which in German receipts is usually a
+    # bare digit (1 = full VAT, 2 = reduced) but can also be a letter
+    # (A/B) or `|` (OCR-miss for 1). Allows a trailing OCR junk char
+    # like `]` so a line that ends with a stray bracket still matches.
+    LINE_ITEM_RE = /
+      \A
+      (?<name>.+?)                              # product name (non-greedy)
+      \s+
+      (?<sign>-)?
+      (?<int>\d{1,4})[.,](?<dec>\d{2})          # 12,34 or 12.34
+      \s*
+      (?:€|EUR|euro?|¢)?                        # optional currency token
+      \s*
+      (?:[A-Z]|\d|\|)?                          # tax code: A-Z, digit (1 or 2 in DE), or | OCR-miss
+      \s*
+      [\])]?                                   # tolerate one trailing OCR junk char
+      \s*
+      \z
+    /xi
+
     QTY_RE = /\A(?<qty>\d+(?:[.,]\d+)?)\s*(?:x|X|st[uü]ck|\*)\s*/i
+
+    # Quantity-hint continuation lines from the OCR ("_ 4x 1,28",
+    # "2x 0,89 €", "| 2 x 0,208"). These belong to the previous
+    # product line, not their own. The current parser collapses them
+    # into a too-short name and drops them anyway, but matching them
+    # explicitly here keeps detect_line_items from ever creating a
+    # bogus row for them (and gives us a place to fold them into the
+    # previous item's unit price later).
+    QTY_HINT_LINE_RE = /\A[\s_|]*\d+(?:[.,]\d+)?\s*[xX*]\s*\d/
 
     # The keyword groups below filter out non-product lines that happen to
     # match the "<name> <amount>" pattern (totals, tax breakdowns, payment
@@ -47,8 +78,19 @@ module ReceiptScanner
 
     def initialize(raw_text)
       @lines = raw_text.to_s.lines
-                       .map { |l| l.strip.gsub(/\s{2,}/, " ") }
+                       .map { |l| normalize_line(l) }
                        .reject(&:empty?)
+    end
+
+    # Targeted fixes for OCR misreads in the price area. We are
+    # deliberately conservative -- substitutions that could plausibly
+    # corrupt a real product name are gated on context (digit
+    # neighbours).
+    def normalize_line(line)
+      line.strip
+          .gsub(/\s{2,}/, " ")
+          .gsub("¢", "€")                  # cent symbol mis-OCR'd for euro
+          .gsub(/(?<=\d)°(?=\d)/, ",")     # degree sign mis-OCR'd for comma
     end
 
     def parse
@@ -138,7 +180,8 @@ module ReceiptScanner
         line.include?("%") || # tax-rate row
         line.match?(%r{\A\d+[./]\d+}) || # bare date / receipt no
         line.match?(/\b(str|straße|tel|fax|gmbh|http|www)\b/i) || # address / footer
-        line.match?(/\A[a-z]\s+\d+[%,.]/i)                        # "A 19% …" / "B 7% …"
+        line.match?(/\A[a-z]\s+\d+[%,.]/i) ||                     # "A 19% …" / "B 7% …"
+        line.match?(QTY_HINT_LINE_RE) # "_ 4x 1,28", "2x 0,89 €"
     end
 
     def cents(match)
