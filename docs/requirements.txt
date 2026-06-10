@@ -7,6 +7,10 @@
 # Bump these on a schedule -- nothing here is security-critical, but
 # Material's release cadence is fast and pinning to old versions misses
 # accessibility / theming improvements.
-mkdocs-material==9.5.46
+# mkdocs-material < 9.7 + pymdown-extensions < 10.12 had a regression
+# where fenced code blocks (``` … ```) were silently dropped to plain
+# text under some configs. Don't downgrade below these pins without
+# re-checking docs/observability and docs/api page rendering.
+mkdocs-material==9.7.6
 mkdocs-material-extensions==1.3.1
-pymdown-extensions==10.11.2
+pymdown-extensions==10.21.3
