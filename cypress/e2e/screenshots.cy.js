@@ -43,8 +43,18 @@ describe("Documentation screenshots", () => {
 
   it("captures grocery views", () => {
     cap("/grocery_items", "grocery-list")
-    cap("/grocery_items", "grocery-offer-match", () => {
-      cy.get(".chip.success").first().scrollIntoView()
+    // Offer-chip variant only renders when the seed actually has a
+    // matched current offer for one of the grocery rows. Capture the
+    // chip-scrolled screenshot when present; otherwise reuse the
+    // plain list view -- better than failing the run for missing
+    // seed data.
+    cy.visit("/grocery_items")
+    cy.wait(400)
+    cy.get("body").then(($body) => {
+      if ($body.find(".chip.success").length) {
+        cy.get(".chip.success").first().scrollIntoView()
+      }
+      cy.screenshot("grocery-offer-match", { capture: "viewport", overwrite: true })
     })
   })
 
@@ -76,7 +86,8 @@ describe("Documentation screenshots", () => {
 
   it("captures the offers page", () => {
     cap("/offers", "offers")
-    cap("/manual_offers/new", "offers-manual")
+    // Routed under `path: "offers/manual"` (see config/routes.rb).
+    cap("/offers/manual/new", "offers-manual")
   })
 
   it("captures the inbound email config", () => {
@@ -84,8 +95,11 @@ describe("Documentation screenshots", () => {
   })
 
   it("captures the PWA install hint", () => {
-    // No native install prompt to capture; use the manifest page as a
-    // proxy and let the docs editor crop / annotate after the fact.
-    cap("/manifest.json", "pwa-install")
+    // Cypress refuses to `cy.visit()` non-HTML responses (the manifest
+    // is application/manifest+json), and the OS-native "Add to Home
+    // Screen" prompt isn't reachable from inside the browser anyway.
+    // Use the logged-in dashboard as a stand-in showing what the
+    // installed PWA opens to; the docs editor crops/annotates after.
+    cap("/", "pwa-install")
   })
 })
