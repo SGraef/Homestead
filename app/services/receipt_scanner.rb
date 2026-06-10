@@ -46,8 +46,43 @@ module ReceiptScanner
     # @param image_path [String, Pathname] path to a readable image file
     # @return [Outcome]
     def call(image_path)
-      raw = adapter.extract_text(image_path.to_s)
-      Outcome.new(raw_text: raw, result: Parser.parse(raw))
+      Telemetry.in_span("receipt_scanner.call",
+                        attributes: { "receipt_scanner.image_path" => image_path.to_s }) do |span|
+        started = Time.current
+        raw     = adapter.extract_text(image_path.to_s)
+        result  = Parser.parse(raw)
+
+        if span.respond_to?(:set_attribute)
+          span.set_attribute("receipt_scanner.raw_text_length", raw.to_s.length)
+          span.set_attribute("receipt_scanner.line_items_count", result.line_items.size)
+          span.set_attribute("receipt_scanner.detected_total_cents", result.subtotal_cents || 0)
+        end
+
+        duration_ms = ((Time.current - started) * 1000).to_i
+        record_metrics(raw, result, duration_ms)
+
+        Outcome.new(raw_text: raw, result: result)
+      end
+    end
+
+    private
+
+    def record_metrics(raw, result, duration_ms)
+      Telemetry.histogram("pantria.receipt_scanner.duration_ms",
+                          unit:        "ms",
+                          description: "End-to-end time from image -> parsed Result")
+               .record(duration_ms)
+
+      Telemetry.counter("pantria.receipt_scanner.line_items_detected",
+                        description: "Number of product lines the parser pulled from the OCR text")
+               .add(result.line_items.size)
+
+      # Detect "empty OCR" failures so they show up on a dashboard
+      # rather than being silently swallowed.
+      return unless raw.to_s.strip.empty?
+
+      Telemetry.counter("pantria.receipt_scanner.empty_ocr_total",
+                        description: "Receipts whose OCR returned no text at all").add(1)
     end
   end
 end

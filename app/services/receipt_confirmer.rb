@@ -33,18 +33,34 @@ class ReceiptConfirmer
 
   # @return [Receipt]
   def call
-    Receipt.transaction do
-      store = resolve_store
-      @receipt.update!(store: store)
+    Telemetry.in_span("receipt_confirmer.call",
+                      attributes: {
+                        "pantria.receipt.id"            => @receipt.id,
+                        "pantria.household.id"          => @household.id,
+                        "pantria.receipt.lines_in_form" => decisions.size
+                      }) do |span|
+      counts = Hash.new(0)
+      Receipt.transaction do
+        store = resolve_store
+        @receipt.update!(store: store)
 
-      decisions.each do |line_id, decision|
-        line = @receipt.receipt_line_items.find(line_id)
-        apply(line, decision)
+        decisions.each do |line_id, decision|
+          line = @receipt.receipt_line_items.find(line_id)
+          apply(line, decision)
+          counts[decision[:action].to_s] += 1
+        end
+
+        @receipt.update!(status: "confirmed", confirmed_at: Time.current)
       end
 
-      @receipt.update!(status: "confirmed", confirmed_at: Time.current)
+      if span.respond_to?(:set_attribute)
+        counts.each { |action, n| span.set_attribute("pantria.receipt.action_#{action}", n) }
+      end
+      Telemetry.counter("pantria.receipts.confirmed_total",
+                        description: "Receipts the user has confirmed (terminal state)").add(1)
+
+      @receipt
     end
-    @receipt
   end
 
   private
@@ -138,6 +154,8 @@ class ReceiptConfirmer
     return if product.product_synonyms.exists?(normalized_term: normalized)
 
     product.product_synonyms.create!(term: term)
+    Telemetry.counter("pantria.synonyms.created_total",
+                      description: "ProductSynonym rows promoted from receipt confirmations").add(1)
   end
 
   # Stores the *per-piece* amount (total / pieces, integer-cent rounded) so
