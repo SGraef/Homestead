@@ -5,6 +5,10 @@ and barcode-driven inventory updates. German-first UI with English fallback,
 REST API for mobile / automation clients, and an OCR pipeline that turns
 supermarket receipts into structured products, stores and prices.
 
+📚 **Full documentation lives at [sgraef.github.io/Pantria](https://sgraef.github.io/Pantria/)**
+— quick start, feature deep-dives, REST API reference, PWA + Android TWA
+build, observability (OpenTelemetry) setup, and deployment notes.
+
 > ⚠️ **Heads-up: this app is vibe coded.**
 >
 > Pantria was built largely through pair-programming with an LLM rather than

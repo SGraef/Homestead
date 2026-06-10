@@ -1,0 +1,118 @@
+site_name: Pantria
+site_description: Household ERP — food storage, multi-store price tracking, barcode-driven inventory, German receipts in & out.
+site_url: https://sgraef.github.io/Pantria/
+repo_url: https://github.com/SGraef/Pantria
+repo_name: SGraef/Pantria
+copyright: "&copy; 2026 Sascha Schlobinski — MIT licensed"
+
+# Source content lives in /docs at the repo root.
+docs_dir: docs
+site_dir: site
+
+# Generated, never committed.
+strict: false
+
+# ---- Theme ---------------------------------------------------------------
+theme:
+  name: material
+  language: en
+  logo: assets/mark.svg
+  favicon: assets/mark.svg
+  palette:
+    # Light mode = the Pantria brand colour.
+    - scheme: default
+      primary: deep orange
+      accent: brown
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode for late-night reading.
+    - scheme: slate
+      primary: deep orange
+      accent: brown
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: DM Sans
+    code: JetBrains Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.highlight
+    - search.share
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/SGraef/Pantria
+      name: Pantria on GitHub
+
+# ---- Markdown extensions -------------------------------------------------
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+# ---- Navigation ----------------------------------------------------------
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Features:
+      - features/index.md
+      - Storage: features/storage.md
+      - Grocery list: features/grocery-list.md
+      - Barcode scanning: features/barcode-scanning.md
+      - Receipt OCR: features/receipts.md
+      - Recipes & meal plan: features/recipes.md
+      - Offers: features/offers.md
+      - Inbound email: features/inbound-email.md
+  - Mobile:
+      - PWA & Android: pwa-android.md
+  - Operations:
+      - Deployment: deployment.md
+      - REST API: api.md
+      - Observability: observability.md
+  - Contributing: contributing.md
+
+# Editor-internal: the screenshots dir's README is documentation for
+# contributors, not part of the public site. `mkdocs build --strict`
+# would otherwise warn about an orphan page.
+not_in_nav: |
+  screenshots/README.md
