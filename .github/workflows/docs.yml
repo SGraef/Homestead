@@ -1,0 +1,81 @@
+# Builds the MkDocs site (Material theme) and deploys it to GitHub
+# Pages on every push to main that touches the docs or its config.
+#
+# First-time setup: under repo Settings -> Pages, set "Build and
+# deployment" -> Source = "GitHub Actions". Workflow has the
+# permissions blocks below so it can publish without any extra
+# tokens or PATs.
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - ".github/workflows/docs.yml"
+  pull_request:
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - ".github/workflows/docs.yml"
+  # Allow manual runs from the Actions tab for the
+  # "I changed an SVG, rebuild the site" case.
+  workflow_dispatch:
+
+# Cancel in-flight runs for the same ref when a new commit lands.
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          # actions/setup-python's default cache scan only looks at the
+          # repo root. Our deps live at docs/requirements.txt so point
+          # it there explicitly -- otherwise the run errors out with
+          # "No file ... matched to **/requirements.txt".
+          cache-dependency-path: docs/requirements.txt
+
+      - name: Install MkDocs + Material theme
+        run: |
+          pip install --upgrade pip
+          pip install -r docs/requirements.txt
+
+      - name: Build site
+        run: mkdocs build --strict
+        env:
+          # Strict mode catches broken internal links + missing
+          # references, which is what you want for a docs site.
+          # If a build fails on a real edge case, drop `--strict`
+          # in the Build step above.
+          MKDOCS_STRICT: "1"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    # Only deploy from main; PR builds verify the site builds cleanly
+    # but don't publish.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
