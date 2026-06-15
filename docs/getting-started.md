@@ -22,12 +22,13 @@ docker compose up --build  # first boot also runs db:prepare
 ```
 
 Open <http://localhost:3000>, click **Sign up**, create the first user.
-That user becomes admin of the household it creates.
+That first user becomes admin of the household it creates.
 
-!!! tip "First-login household"
-    Pantria is multi-household out of the box. Your sign-up creates one
-    household and makes you admin; invite family members by email from
-    `/households`.
+!!! tip "First-run sign-up"
+    Pantria runs one household per instance. The **first** sign-up on a fresh
+    instance creates the household and makes you its admin. After that,
+    self-registration is closed — add further members by email from
+    `/household`.
 
 ## Production
 

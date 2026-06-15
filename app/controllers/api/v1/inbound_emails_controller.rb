@@ -52,9 +52,7 @@ module Api
       private
 
       def scoped_sources
-        scope = InboundEmailSource.where(user: @current_user)
-        scope = scope.where(household: @current_household) if request.headers["X-Household-Id"].present?
-        scope
+        InboundEmailSource.where(user: @current_user, household: @current_household)
       end
 
       def find_owned(id)

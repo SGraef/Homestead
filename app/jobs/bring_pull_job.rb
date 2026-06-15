@@ -11,10 +11,17 @@ class BringPullJob < ApplicationJob
   retry_on Bring::Error, attempts: 3, wait: :polynomially_longer
   discard_on ActiveJob::DeserializationError, ActiveRecord::RecordNotFound, Bring::AuthError
 
-  # Fan out to every connected household. Convenient one-liner for cron:
+  # Enqueue a pull for the single household, if it has Bring! connected.
+  # Convenient one-liner for cron:
   #   bin/rails runner 'BringPullJob.sync_all'
+  # Scoped to {Household.current} so a database upgraded from the old
+  # multi-household schema never syncs orphaned households' connections.
   def self.sync_all
-    BringConnection.where.not(access_token: [nil, ""])
+    household = Household.current
+    return unless household
+
+    BringConnection.where(household_id: household.id)
+                   .where.not(access_token: [nil, ""])
                    .where.not(default_list_uuid: [nil, ""])
                    .find_each { |c| perform_later(c.household_id) }
   end

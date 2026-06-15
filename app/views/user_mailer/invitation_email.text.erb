@@ -1,0 +1,9 @@
+<%= t("user_mailer.invitation_email.greeting", household: @household.name) %>
+
+<%= t("user_mailer.invitation_email.intro", household: @household.name) %>
+
+<%= t("user_mailer.invitation_email.cta") %>
+<%= @url %>
+
+<%= t("user_mailer.invitation_email.expiry", days: Invitation::EXPIRES_IN.in_days.to_i) %>
+<%= t("user_mailer.invitation_email.ignore") %>

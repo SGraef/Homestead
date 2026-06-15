@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 # typed: true
 
-# Base class for all Pundit policies. Records authorization decisions against
-# the user's household memberships -- a user may only act on records that
-# belong to a household they are a member of.
+# Base class for all Pundit policies. Pantria is single-household-per-instance,
+# so every authenticated user is a member of the one household and has full
+# access to its data -- there is no cross-tenant gatekeeping. The only
+# distinction left is `household_admin?`, which governs settings, member
+# management and destructive deletes.
 class ApplicationPolicy
   attr_reader :user, :record
 
@@ -24,29 +26,20 @@ class ApplicationPolicy
 
   protected
 
-  # @return [Household, nil]
-  def household_for(record)
-    return record if record.is_a?(Household)
-    return record.household if record.respond_to?(:household)
-
-    nil
-  end
-
+  # Any authenticated user belongs to the single household. (The constructor
+  # already rejects a nil user.)
   def household_member?
-    h = household_for(record)
-    return true if h.nil? # class-level checks fall through
-
-    user.households.exists?(id: h.id)
+    true
   end
 
+  # Admin of the one household this instance serves. Admin status is
+  # instance-wide -- it does not depend on the specific record.
   def household_admin?
-    h = household_for(record)
-    return false unless h
-
-    user.admin_of?(h)
+    household = Household.current
+    household.present? && user.admin_of?(household)
   end
 
-  # Default scope: only records belonging to households the user is a member of.
+  # Every record belongs to the one household, so the scope is unfiltered.
   class Scope
     attr_reader :user, :scope
 
@@ -56,12 +49,7 @@ class ApplicationPolicy
     end
 
     def resolve
-      household_ids = user.households.select(:id)
-      if scope.respond_to?(:column_names) && scope.column_names.include?("household_id")
-        scope.where(household_id: household_ids)
-      else
-        scope.all
-      end
+      scope.all
     end
   end
 end

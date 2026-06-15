@@ -26,10 +26,14 @@ module InboundReceipts
 
     SEARCH_CRITERIA = %w[UNSEEN].freeze
 
-    # Drain every configured source.
+    # Drain every configured source for the single household. Scoped to
+    # {Household.current} so a database upgraded from the old multi-household
+    # schema never polls orphaned households' inboxes.
     # @return [Result]
     def call
-      call_for(InboundEmailSource.includes(:user, :household).to_a)
+      household = Household.current
+      sources = household ? household.inbound_email_sources.includes(:user, :household).to_a : []
+      call_for(sources)
     end
 
     # Drain a specific subset (used by the API trigger).

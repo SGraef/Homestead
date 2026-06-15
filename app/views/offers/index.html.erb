@@ -23,7 +23,7 @@
                   class: "btn btn-sm secondary",
                   data: { turbo_confirm: t("offer.reset_confirm") } %>
   <% else %>
-    <%= link_to t("offer.set_postcode"), edit_household_path(current_household),
+    <%= link_to t("offer.set_postcode"), edit_household_path,
                 class: "btn btn-sm" %>
   <% end %>
   <%= link_to t("offer.manual.add_button"), new_manual_offer_path,

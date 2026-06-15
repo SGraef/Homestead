@@ -127,7 +127,7 @@ class ProductsController < ApplicationController
   def ensure_household
     return if current_household
 
-    redirect_to new_household_path, alert: t("flash.create_household_first")
+    redirect_to root_path, alert: t("flash.create_household_first")
   end
 
   def set_product

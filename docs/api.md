@@ -20,9 +20,9 @@ Authorization: Bearer <token>
 ```
 
 Tokens are per-user, never expire by themselves, and can be revoked from
-the user's account page. They identify the user; whichever household
-they're admin/member of via `current_user.households` is the tenant
-scope for every API call.
+the user's account page. They identify the user; the single household this
+instance serves (`Household.current`) is the scope for every API call. The
+old `X-Household-Id` header is no longer used.
 
 ## Endpoints
 

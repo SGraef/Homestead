@@ -60,7 +60,7 @@ en:
     recipes: "Recipes"
     meal_plan: "Meal plan"
     jobs: "Jobs"
-    households: "Households"
+    household: "Household"
     logout: "Logout"
     login: "Login"
     sign_up: "Sign up"
@@ -77,7 +77,7 @@ en:
     signed_out: "You have been signed out."
     invalid_login: "Invalid email or password."
     not_authorized: "You are not authorized to perform this action."
-    create_household_first: "Create a household first."
+    create_household_first: "No household is set up on this instance yet."
 
   notices:
     product_saved:    "Product saved."
@@ -106,15 +106,14 @@ en:
     grocery_removed:  "Removed."
     household_created:  "Household created."
     household_updated:  "Household updated."
-    household_removed:  "Household removed."
-    household_switched: "Now using %{name}."
-    household_left:     "Left %{name}."
-    last_admin_cannot_leave: "You're the last admin — promote someone else first or delete the household."
     cannot_demote_last_admin: "Can't demote the only remaining admin."
     cannot_remove_last_admin: "Can't remove the only remaining admin."
     member_added:      "Member added."
     member_updated:    "Member role updated."
     member_removed:    "Member removed."
+    member_invited:    "Invitation sent to %{email}."
+    invitation_revoked: "Invitation revoked."
+    invalid_email:     "Please enter a valid email address."
     user_not_found:    "User not found."
     receipt_uploaded:  "Receipt uploaded — OCR is running."
     receipt_confirmed: "Receipt confirmed — products, store and prices saved."
@@ -135,6 +134,7 @@ en:
     create_one:        "Create one"
     remember_me:       "Remember me"
     activation_email_sent: "Account created — please activate it via the link we just emailed you."
+    registration_closed: "Sign-up is closed on this instance. Ask an admin to add you from the household settings page."
     forgot_password:   "Forgot password?"
 
   activation:
@@ -150,6 +150,13 @@ en:
     email_sent:      "If an account exists for that address, we've sent instructions."
     invalid:         "Link is invalid or has expired."
     success:         "Password changed. You can sign in now."
+
+  invitation:
+    title:         "Join the household"
+    intro:         "You've been invited to %{household} on Pantria (%{email}). Pick a password to finish setting up your account."
+    accept_button: "Create account & join"
+    invalid:       "This invitation link is invalid or has expired. Ask an admin to send a new one."
+    accepted:      "Welcome! Your account is ready."
 
   activerecord:
     errors:
@@ -183,6 +190,14 @@ en:
       cta:      "Click the link below to set a new password:"
       reset:    "Reset password"
       ignore:   "If this wasn't you, just ignore this email."
+    invitation_email:
+      subject:  "You've been invited to %{household} on Pantria"
+      greeting: "You're invited to %{household}"
+      intro:    "an admin has invited you to join the %{household} household on Pantria."
+      cta:      "Click the link below to set your password and join:"
+      accept:   "Accept invitation"
+      expiry:   "This invitation expires in %{days} days."
+      ignore:   "If you weren't expecting this, just ignore this email."
 
   dashboard:
     title:           "Dashboard"
@@ -198,8 +213,7 @@ en:
     open_items:
       one:   "%{count} open item."
       other: "%{count} open items."
-    welcome:         "Welcome! Create a household to get started."
-    new_household:   "New household"
+    welcome:         "Welcome to Pantria! Add your first storage item or scan a barcode to get started."
     spending_card:   "Spending this month"
     expense_breakdown: "Open breakdown"
 
@@ -655,27 +669,23 @@ en:
       keep_password: "Leave blank to keep the saved password"
 
   household:
-    title:       "Households"
-    intro:       "You can belong to several households — switch which one is active or invite people to share storage and shopping."
-    empty:       "You're not a member of any household yet."
-    new_title:   "New household"
+    title:       "Household"
+    intro:       "Settings for this instance's household. Admins can rename it, set the postcode for local offers, and manage who has access."
     edit_title:  "Edit household"
-    new_button:  "New household"
     members:     "Members"
     member_count:
       one:  "%{count} member"
       other: "%{count} members"
     add_member:  "Add member"
+    add_member_hint: "Enter an email. If they already have an account they're added immediately; otherwise we email them an invite to set a password."
     invite:      "Invite"
-    use:         "Use this household"
-    current:     "current"
+    pending_invitations: "Pending invitations"
+    invited_pending: "invite sent — not yet accepted"
+    revoke_invite: "Revoke"
+    revoke_invite_confirm: "Revoke this invitation?"
     you:         "you"
-    leave:       "Leave household"
-    leave_confirm: "Leave this household?"
-    delete_confirm: "Delete this household and all its data?"
     timezone:    "Timezone"
     postcode:    "Postcode"
-    role_label:  "Your role"
     postal_code_hint: "Optional — used to fetch local Marktguru offers (DE 5-digit code)."
     flaschenpost_warehouse_id:      "Flaschenpost warehouse ID"
     flaschenpost_warehouse_id_hint: "Optional — integer ID for Flaschenpost's delivery warehouse. Find it once in your browser's devtools (Network tab) while loading a Flaschenpost category page with your ZIP set; look for /php-product-api/.../warehouse/<N>/."

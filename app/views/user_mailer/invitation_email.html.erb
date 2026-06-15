@@ -1,0 +1,6 @@
+<h1><%= t("user_mailer.invitation_email.greeting", household: @household.name) %></h1>
+<p><%= t("user_mailer.invitation_email.intro", household: @household.name) %></p>
+<p><%= t("user_mailer.invitation_email.cta") %></p>
+<p><%= link_to t("user_mailer.invitation_email.accept"), @url %></p>
+<p style="color:#666;font-size:.85em"><%= t("user_mailer.invitation_email.expiry", days: Invitation::EXPIRES_IN.in_days.to_i) %></p>
+<p style="color:#666;font-size:.85em"><%= t("user_mailer.invitation_email.ignore") %></p>

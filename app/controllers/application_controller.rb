@@ -2,8 +2,9 @@
 # typed: false
 
 # Base controller for the entire app. Wires up Sorcery for current_user and
-# Pundit for authorization. The current household is resolved from the
-# `:household_id` session key (set after login).
+# Pundit for authorization. Pantria is single-household-per-instance, so the
+# current household is simply {Household.current} -- there is no per-session or
+# per-user household selection.
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
   include LocaleSwitching
@@ -17,13 +18,9 @@ class ApplicationController < ActionController::Base
 
   private
 
-  # @return [Household, nil] The household actively in use this session.
+  # @return [Household, nil] The sole household this instance serves.
   def current_household
-    @current_household ||= begin
-      id = session[:household_id]
-      household = current_user&.households&.find_by(id: id) if id
-      household || current_user&.default_household
-    end
+    @current_household ||= Household.current
   end
 
   def not_authenticated

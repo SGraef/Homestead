@@ -58,7 +58,7 @@
         <a href="<%= offers_path %>" class="nav-link"><%= t("nav.offers") %></a>
         <a href="<%= recipes_path %>" class="nav-link"><%= t("nav.recipes") %></a>
         <a href="<%= meal_plan_path %>" class="nav-link"><%= t("nav.meal_plan") %></a>
-        <a href="<%= households_path %>" class="nav-link"><%= t("nav.households") %></a>
+        <a href="<%= household_path %>" class="nav-link"><%= t("nav.household") %></a>
         <a href="/jobs" class="nav-link"><%= t("nav.jobs") %></a>
         <span class="nav-spacer"></span>
         <span class="locale">
@@ -85,7 +85,9 @@
           <% end %>
         </span>
         <a href="<%= login_path %>" class="nav-link"><%= t("nav.login") %></a>
-        <%= link_to t("nav.sign_up"), new_registration_path, class: "btn btn-sm" %>
+        <% if Household.current.nil? %>
+          <%= link_to t("nav.sign_up"), new_registration_path, class: "btn btn-sm" %>
+        <% end %>
       <% end %>
     </header>
 

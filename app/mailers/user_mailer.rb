@@ -33,6 +33,20 @@ class UserMailer < ApplicationMailer
     mail to: user.email, subject: t("user_mailer.reset_password_email.subject")
   end
 
+  # Admin-issued invitation to join the household. The plaintext token is passed
+  # explicitly (it is never persisted) so the link survives ActiveJob
+  # serialization when delivered later.
+  #
+  # @param invitation [Invitation]
+  # @param token [String] the one-time plaintext invite token
+  def invitation_email(invitation, token)
+    @invitation = invitation
+    @household  = invitation.household
+    @url        = invitation_url(token: token, host: mail_host, port: mail_port)
+    mail to:      invitation.email,
+         subject: t("user_mailer.invitation_email.subject", household: @household.name)
+  end
+
   private
 
   # `default_url_options[:host]` is set per env in `config/environments/*.rb`,

@@ -66,7 +66,7 @@ de:
     recipes: "Rezepte"
     meal_plan: "Essensplan"
     jobs: "Jobs"
-    households: "Haushalte"
+    household: "Haushalt"
     logout: "Abmelden"
     login: "Anmelden"
     sign_up: "Registrieren"
@@ -83,7 +83,7 @@ de:
     signed_out: "Du wurdest abgemeldet."
     invalid_login: "Ungültige E-Mail oder Passwort."
     not_authorized: "Du bist nicht berechtigt, diese Aktion auszuführen."
-    create_household_first: "Lege zuerst einen Haushalt an."
+    create_household_first: "Für diese Instanz ist noch kein Haushalt eingerichtet."
 
   notices:
     product_saved:    "Produkt gespeichert."
@@ -112,15 +112,14 @@ de:
     grocery_removed:  "Entfernt."
     household_created:  "Haushalt erstellt."
     household_updated:  "Haushalt aktualisiert."
-    household_removed:  "Haushalt entfernt."
-    household_switched: "%{name} ist jetzt aktiv."
-    household_left:     "%{name} verlassen."
-    last_admin_cannot_leave: "Du bist der letzte Admin — bestimme zuerst eine andere Person als Admin oder lösche den Haushalt."
     cannot_demote_last_admin: "Der letzte verbleibende Admin kann nicht degradiert werden."
     cannot_remove_last_admin: "Der letzte verbleibende Admin kann nicht entfernt werden."
     member_added:      "Mitglied hinzugefügt."
     member_updated:    "Rolle aktualisiert."
     member_removed:    "Mitglied entfernt."
+    member_invited:    "Einladung an %{email} gesendet."
+    invitation_revoked: "Einladung zurückgezogen."
+    invalid_email:     "Bitte gib eine gültige E-Mail-Adresse ein."
     user_not_found:    "Benutzer nicht gefunden."
     receipt_uploaded:  "Beleg hochgeladen — OCR läuft im Hintergrund."
     receipt_confirmed: "Beleg bestätigt — Produkte, Geschäft und Preise gespeichert."
@@ -141,6 +140,7 @@ de:
     create_one:        "Jetzt erstellen"
     remember_me:       "Eingeloggt bleiben"
     activation_email_sent: "Konto erstellt — bitte aktiviere es über den Link, den wir dir gerade per E-Mail geschickt haben."
+    registration_closed: "Die Registrierung ist auf dieser Instanz geschlossen. Bitte einen Admin, dich über die Haushaltseinstellungen hinzuzufügen."
     forgot_password:   "Passwort vergessen?"
 
   activation:
@@ -156,6 +156,13 @@ de:
     email_sent:      "Falls für diese Adresse ein Konto existiert, haben wir eine E-Mail mit weiteren Schritten gesendet."
     invalid:         "Link ungültig oder abgelaufen."
     success:         "Passwort geändert. Du kannst dich jetzt anmelden."
+
+  invitation:
+    title:         "Haushalt beitreten"
+    intro:         "Du wurdest zu %{household} bei Pantria eingeladen (%{email}). Lege ein Passwort fest, um dein Konto fertig einzurichten."
+    accept_button: "Konto erstellen & beitreten"
+    invalid:       "Dieser Einladungslink ist ungültig oder abgelaufen. Bitte einen Admin um einen neuen."
+    accepted:      "Willkommen! Dein Konto ist fertig."
 
   user_mailer:
     activation_needed_email:
@@ -177,6 +184,14 @@ de:
       cta:      "Klicke auf den folgenden Link, um ein neues Passwort zu setzen:"
       reset:    "Passwort zurücksetzen"
       ignore:   "Wenn du das nicht warst, kannst du diese E-Mail ignorieren."
+    invitation_email:
+      subject:  "Du wurdest zu %{household} bei Pantria eingeladen"
+      greeting: "Du bist zu %{household} eingeladen"
+      intro:    "ein Admin hat dich eingeladen, dem Haushalt %{household} bei Pantria beizutreten."
+      cta:      "Klicke auf den folgenden Link, um dein Passwort zu setzen und beizutreten:"
+      accept:   "Einladung annehmen"
+      expiry:   "Diese Einladung läuft in %{days} Tagen ab."
+      ignore:   "Falls du das nicht erwartet hast, kannst du diese E-Mail ignorieren."
 
   dashboard:
     title:           "Übersicht"
@@ -192,8 +207,7 @@ de:
     open_items:
       one:   "%{count} offener Eintrag."
       other: "%{count} offene Einträge."
-    welcome:         "Willkommen! Lege einen Haushalt an, um zu beginnen."
-    new_household:   "Neuer Haushalt"
+    welcome:         "Willkommen bei Pantria! Füge deinen ersten Vorratsartikel hinzu oder scanne einen Barcode, um zu beginnen."
     spending_card:   "Ausgaben (Monat)"
     expense_breakdown: "Aufschlüsselung öffnen"
 
@@ -649,27 +663,23 @@ de:
       keep_password: "Leer lassen, um das gespeicherte Passwort zu behalten"
 
   household:
-    title:       "Haushalte"
-    intro:       "Du kannst Mitglied mehrerer Haushalte sein — wechsle den aktiven Haushalt oder lade weitere Personen ein."
-    empty:       "Du bist noch in keinem Haushalt Mitglied."
-    new_title:   "Neuer Haushalt"
+    title:       "Haushalt"
+    intro:       "Einstellungen für den Haushalt dieser Instanz. Admins können ihn umbenennen, die PLZ für regionale Angebote setzen und den Zugriff verwalten."
     edit_title:  "Haushalt bearbeiten"
-    new_button:  "Neuer Haushalt"
     members:     "Mitglieder"
     member_count:
       one:   "%{count} Mitglied"
       other: "%{count} Mitglieder"
     add_member:  "Mitglied hinzufügen"
+    add_member_hint: "Gib eine E-Mail-Adresse ein. Hat die Person bereits ein Konto, wird sie sofort hinzugefügt; andernfalls senden wir ihr eine Einladung zum Festlegen eines Passworts."
     invite:      "Einladen"
-    use:         "Diesen Haushalt verwenden"
-    current:     "aktiv"
+    pending_invitations: "Ausstehende Einladungen"
+    invited_pending: "Einladung gesendet — noch nicht angenommen"
+    revoke_invite: "Zurückziehen"
+    revoke_invite_confirm: "Diese Einladung zurückziehen?"
     you:         "du"
-    leave:       "Haushalt verlassen"
-    leave_confirm:  "Diesen Haushalt verlassen?"
-    delete_confirm: "Diesen Haushalt mit allen Daten löschen?"
     timezone:    "Zeitzone"
     postcode:    "Postleitzahl"
-    role_label:  "Deine Rolle"
     role:        "Rolle"
     postal_code_hint: "Optional — wird genutzt, um regionale Marktguru-Angebote zu laden (5-stellige PLZ)."
     flaschenpost_warehouse_id:      "Flaschenpost Warehouse-ID"
