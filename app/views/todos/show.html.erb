@@ -1,0 +1,36 @@
+<% content_for :title, @todo.title %>
+<p><%= link_to t("todo.back"), todos_path %></p>
+<h1><%= @todo.title %> <%= todo_status_badge(@todo) %></h1>
+
+<% if @todo.description.present? %>
+  <div><%= simple_format(@todo.description) %></div>
+<% end %>
+
+<dl class="kv">
+  <dt><%= t("todo.creator") %></dt><dd><%= member_name(@todo.creator) %></dd>
+  <% if @todo.completed_at %>
+    <dt><%= t("todo.completed_at") %></dt><dd><%= l(@todo.completed_at, format: :short) %></dd>
+  <% end %>
+</dl>
+
+<p style="display:flex;gap:var(--sp-1);flex-wrap:wrap">
+  <% if (nxt = @todo.next_state) %>
+    <%= button_to t("todo.advance_to.#{nxt}"), transition_todo_path(@todo, to: nxt),
+                  method: :post, class: "btn btn-sm", form: { style: "display:inline" } %>
+  <% end %>
+  <% if @todo.status == "done" %>
+    <%= button_to t("todo.reopen"), transition_todo_path(@todo, to: "in_progress"),
+                  method: :post, class: "btn btn-sm secondary", form: { style: "display:inline" } %>
+  <% end %>
+  <%= link_to t("common.edit"), edit_todo_path(@todo), class: "btn btn-sm secondary" %>
+  <% if policy(@todo).destroy? %>
+    <%= button_to t("common.delete"), todo_path(@todo), method: :delete, class: "btn btn-sm warn",
+                  data: { turbo_confirm: t("todo.delete_confirm") }, form: { style: "display:inline" } %>
+  <% end %>
+</p>
+
+<h2><%= t("todo.comments") %></h2>
+<div id="<%= dom_id(@todo, :comments) %>">
+  <%= render @todo.todo_comments %>
+</div>
+<%= render "todo_comments/form", todo: @todo, comment: @comment %>

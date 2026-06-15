@@ -53,6 +53,28 @@ de:
     search: "Suchen"
     clear: "Zurücksetzen"
 
+  todo:
+    title: "Aufgaben"
+    new: "Neue Aufgabe"
+    edit: "Aufgabe bearbeiten"
+    back: "Zurück zu den Aufgaben"
+    empty: "Noch keine Aufgaben."
+    creator: "Erstellt von"
+    completed_at: "Erledigt"
+    assigned_to: "zugewiesen an %{name}"
+    comments: "Kommentare"
+    add_comment: "Kommentar hinzufügen"
+    comment_placeholder: "Schreib einen Kommentar…"
+    delete_confirm: "Diese Aufgabe löschen?"
+    reopen: "Wieder öffnen"
+    states:
+      open: "Offen"
+      in_progress: "In Arbeit"
+      done: "Erledigt"
+    advance_to:
+      in_progress: "Starten"
+      done: "Erledigen"
+
   nav:
     storage: "Vorrat"
     freezer: "Tiefkühler"
@@ -65,6 +87,7 @@ de:
     offers: "Angebote"
     recipes: "Rezepte"
     meal_plan: "Essensplan"
+    todos: "Aufgaben"
     jobs: "Jobs"
     household: "Haushalt"
     logout: "Abmelden"
@@ -122,6 +145,10 @@ de:
     invalid_email:     "Bitte gib eine gültige E-Mail-Adresse ein."
     user_not_found:    "Benutzer nicht gefunden."
     receipt_uploaded:  "Beleg hochgeladen — OCR läuft im Hintergrund."
+    todo_created:      "Aufgabe erstellt."
+    todo_updated:      "Aufgabe aktualisiert."
+    todo_deleted:      "Aufgabe gelöscht."
+    todo_invalid_transition: "Diese Statusänderung ist nicht erlaubt."
     receipt_confirmed: "Beleg bestätigt — Produkte, Geschäft und Preise gespeichert."
     receipt_removed:      "Beleg entfernt."
     receipt_reprocessing: "OCR läuft erneut — aktualisiere die Seite, um das Ergebnis zu sehen."

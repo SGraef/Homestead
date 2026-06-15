@@ -47,6 +47,28 @@ en:
     search: "Search"
     clear: "Clear"
 
+  todo:
+    title: "Todos"
+    new: "New todo"
+    edit: "Edit todo"
+    back: "Back to todos"
+    empty: "No todos yet."
+    creator: "Created by"
+    completed_at: "Completed"
+    assigned_to: "assigned to %{name}"
+    comments: "Comments"
+    add_comment: "Add comment"
+    comment_placeholder: "Write a comment…"
+    delete_confirm: "Delete this todo?"
+    reopen: "Reopen"
+    states:
+      open: "Open"
+      in_progress: "In progress"
+      done: "Done"
+    advance_to:
+      in_progress: "Start"
+      done: "Mark done"
+
   nav:
     storage: "Storage"
     freezer: "Freezer"
@@ -59,6 +81,7 @@ en:
     offers: "Offers"
     recipes: "Recipes"
     meal_plan: "Meal plan"
+    todos: "Todos"
     jobs: "Jobs"
     household: "Household"
     logout: "Logout"
@@ -116,6 +139,10 @@ en:
     invalid_email:     "Please enter a valid email address."
     user_not_found:    "User not found."
     receipt_uploaded:  "Receipt uploaded — OCR is running."
+    todo_created:      "Todo created."
+    todo_updated:      "Todo updated."
+    todo_deleted:      "Todo deleted."
+    todo_invalid_transition: "That status change isn't allowed."
     receipt_confirmed: "Receipt confirmed — products, store and prices saved."
     receipt_removed:      "Receipt removed."
     receipt_reprocessing: "Re-running OCR — refresh the page to see the result."

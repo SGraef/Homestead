@@ -1,0 +1,10 @@
+<%= tag.div id: dom_id(todo_comment), class: "card card-flat", style: "margin-bottom:var(--sp-1)" do %>
+  <div class="caption">
+    <%= member_name(todo_comment.user) %> · <%= l(todo_comment.created_at, format: :short) %>
+  </div>
+  <div><%= simple_format(todo_comment.body) %></div>
+  <% if policy(todo_comment).destroy? %>
+    <%= button_to t("common.delete"), todo_comment_path(todo_comment.todo, todo_comment),
+                  method: :delete, class: "btn btn-sm tertiary", form: { style: "display:inline" } %>
+  <% end %>
+<% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000035) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000037) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -517,6 +517,34 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000035) do
     t.index ["household_id"], name: "index_stores_on_household_id"
   end
 
+  create_table "todo_comments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "todo_id", null: false
+    t.bigint "user_id"
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_todo_comments_on_household_id"
+    t.index ["todo_id"], name: "index_todo_comments_on_todo_id"
+    t.index ["user_id"], name: "index_todo_comments_on_user_id"
+  end
+
+  create_table "todos", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "creator_id"
+    t.bigint "assignee_id"
+    t.string "title", null: false
+    t.text "description"
+    t.string "status", default: "open", null: false
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignee_id"], name: "index_todos_on_assignee_id"
+    t.index ["creator_id"], name: "index_todos_on_creator_id"
+    t.index ["household_id", "status"], name: "index_todos_on_household_id_and_status"
+    t.index ["household_id"], name: "index_todos_on_household_id"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "email", null: false
     t.string "crypted_password"
@@ -586,4 +614,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000035) do
   add_foreign_key "storage_items", "locations"
   add_foreign_key "storage_items", "products"
   add_foreign_key "stores", "households"
+  add_foreign_key "todo_comments", "households"
+  add_foreign_key "todo_comments", "todos"
+  add_foreign_key "todo_comments", "users"
+  add_foreign_key "todos", "households"
+  add_foreign_key "todos", "users", column: "assignee_id"
+  add_foreign_key "todos", "users", column: "creator_id"
 end

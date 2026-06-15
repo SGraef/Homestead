@@ -37,6 +37,8 @@ class Household < ApplicationRecord
   has_many :inbound_email_sources, dependent: :destroy
   has_many :recipes, dependent: :destroy
   has_many :meal_plan_entries, dependent: :destroy
+  has_many :todos, dependent: :destroy
+  has_many :todo_comments, dependent: :destroy
 
   after_create :seed_default_offer_categories
 

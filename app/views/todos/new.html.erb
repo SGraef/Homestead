@@ -1,0 +1,4 @@
+<% content_for :title, t("todo.new") %>
+<p><%= link_to t("todo.back"), todos_path %></p>
+<h1><%= t("todo.new") %></h1>
+<%= render "form", todo: @todo %>
