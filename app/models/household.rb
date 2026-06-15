@@ -1,9 +1,24 @@
 # frozen_string_literal: true
 # typed: false
 
-# A Household is the top-level tenancy boundary in Pantria. All food storage,
-# grocery and price data is owned by exactly one household.
+# A Household owns all food storage, grocery and price data. Pantria runs
+# single-household-per-instance: one deployment serves exactly one household,
+# resolved via {Household.current}. The schema still carries `household_id`
+# everywhere (kept for non-destructive upgrades), but there is only ever one
+# active household per install.
 class Household < ApplicationRecord
+  # The sole household this instance serves. Defined as the oldest household
+  # (lowest id) so that databases upgraded from the old multi-household schema
+  # deterministically pick one canonical household without touching the others'
+  # rows. Computed fresh on every call (never memoize at class level) so the
+  # first-run sign-up that creates the household, and tests that build one, see
+  # it immediately. Returns nil on a brand-new, empty database.
+  #
+  # @return [Household, nil]
+  def self.current
+    order(:id).first
+  end
+
   has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships
   has_many :stores, dependent: :destroy

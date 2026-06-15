@@ -31,7 +31,7 @@ build, observability (OpenTelemetry) setup, and deployment notes.
 
 ## Features
 
-- **Multi-household** — switch between households, invite members, per-household offer/blocklist/retailer settings.
+- **Single household per instance** — one deployment serves exactly one household; admins add members by email. All household data is shared with every member (no cross-tenant gatekeeping).
 - **Vorrat / Storage** — what's in the pantry, fridge, freezer or cellar; per-product search; expiry warnings on the dashboard.
 - **Tiefkühler / Freezer** — dedicated page (`/freezer`) for both bought-and-frozen items and homemade meals (g / portions / l). 3-month "stale in the freezer" warning on the dashboard, configurable via `FREEZER_STALE_DAYS`.
 - **Einkaufsliste / Grocery list** — needed → purchased → automatic storage entry. Rows surface a "best current offer" chip when a matching offer exists. Optional **two-way Bring! sync** (`/bring_connection`): Pantria → Bring on every write (push) plus a Bring → Pantria pull every 5 minutes via Solid Queue's recurring scheduler (manual "Sync now" available too). Loops are prevented by a thread-local skip flag so pull-time writes don't bounce back to Bring!.

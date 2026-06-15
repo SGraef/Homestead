@@ -9,7 +9,6 @@ class SessionsController < ApplicationController
   def create
     user = login(params[:email], params[:password], params[:remember_me])
     if user
-      session[:household_id] = user.default_household&.id
       flash[:notice] = t("flash.signed_in", email: user.email)
       redirect_to root_path
     else

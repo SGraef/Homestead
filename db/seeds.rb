@@ -12,9 +12,9 @@ end
 # save. update_columns skips callbacks (no activation-success email needed).
 user.update_columns(activation_state: "active", activation_token: nil) unless user.activation_state == "active"
 
-household = Household.find_or_create_by!(name: "Demo-Haushalt") do |h|
-  h.timezone = "Europe/Berlin"
-end
+# Single-household-per-instance: reuse the existing household if there is one,
+# otherwise create the demo household. Never creates a second household.
+household = Household.current || Household.create!(name: "Demo-Haushalt", timezone: "Europe/Berlin")
 Membership.find_or_create_by!(user: user, household: household) { |m| m.role = "admin" }
 
 store = household.stores.find_or_create_by!(name: "Supermarkt um die Ecke") do |s|

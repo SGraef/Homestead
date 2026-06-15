@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 # typed: false
 
-# A user authenticates with email + password (Sorcery) and may belong to one or
-# many households via {Membership}. All Pundit checks scope through the user's
-# household memberships.
+# A user authenticates with email + password (Sorcery) and is a member of the
+# single household this instance serves (via {Membership}). Because Pantria is
+# single-household-per-instance, every member has full access to the household's
+# data; the membership role (admin/member) only governs settings, member
+# management and destructive deletes.
 #
 # @!attribute [rw] email
 #   @return [String] unique email used as login
@@ -28,9 +30,11 @@ class User < ApplicationRecord
 
   before_save { self.email = email&.downcase&.strip }
 
-  # @return [Household, nil] the first household the user belongs to
+  # @return [Household, nil] the sole household this instance serves. Kept for
+  #   backward compatibility; delegates to {Household.current} so it can never
+  #   disagree with the instance-wide canonical household.
   def default_household
-    households.first
+    Household.current
   end
 
   # @param household [Household]

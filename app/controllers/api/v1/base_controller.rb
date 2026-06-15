@@ -29,12 +29,7 @@ module Api
 
         api_token.touch_used!
         @current_user      = api_token.user
-        @current_household = resolve_household
-      end
-
-      def resolve_household
-        id = request.headers["X-Household-Id"].presence || params[:household_id].presence
-        @current_user.households.find_by(id: id) || @current_user.default_household
+        @current_household = Household.current
       end
 
       def render_error(status, message)

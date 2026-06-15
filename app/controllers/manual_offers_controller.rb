@@ -58,7 +58,7 @@ class ManualOffersController < ApplicationController
   private
 
   def ensure_household
-    redirect_to new_household_path, alert: t("flash.create_household_first") unless current_household
+    redirect_to root_path, alert: t("flash.create_household_first") unless current_household
   end
 
   # Manual entries are only ever created/edited via this controller, so

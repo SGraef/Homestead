@@ -15,11 +15,15 @@ RSpec.describe ProductPolicy do
     expect(policy.show?).to be true
   end
 
-  it "rejects strangers" do
-    expect(described_class.new(other_user, product).show?).to be false
+  it "lets any authenticated user read (single household, no cross-tenant gatekeeping)" do
+    expect(described_class.new(other_user, product).show?).to be true
   end
 
-  it "only admins may destroy" do
+  it "rejects unauthenticated access" do
+    expect { described_class.new(nil, product) }.to raise_error(Pundit::NotAuthorizedError)
+  end
+
+  it "only admins of the single household may destroy" do
     other_member = create(:user)
     Membership.create!(user: other_member, household: household, role: "member")
     expect(described_class.new(other_member, product).destroy?).to be false

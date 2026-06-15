@@ -19,19 +19,18 @@ Rails.application.routes.draw do
   # --- Web (Hotwire / ERB) --------------------------------------------------
   root to: "dashboard#index"
 
-  # Declared above `resources :households` so the literal path
-  # /households/inbound_emails wins against the dynamic
-  # /households/:id pattern that would otherwise try to look up a
-  # Household with id="inbound_emails" and 404.
+  # Path kept under `households/` (plural) for backward compatibility with
+  # existing links and docs, even though the household itself is now a singular
+  # resource at `/household`.
   resources :inbound_email_sources,
             only: %i[index new create edit update destroy],
             path: "households/inbound_emails"
 
-  resources :households, only: %i[index show new create edit update destroy] do
-    member do
-      post :switch       # set session[:household_id] and use this household
-      delete :leave      # current_user removes their own membership
-    end
+  # Single household per instance: a singular resource for the household
+  # settings page plus its member management. No index/switch/create/destroy --
+  # the one household is created at first-run sign-up (see RegistrationsController)
+  # and resolved everywhere via Household.current.
+  resource :household, only: %i[show edit update] do
     resources :memberships, only: %i[create update destroy]
   end
 

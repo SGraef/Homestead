@@ -41,7 +41,7 @@ class OfferBlocklistEntriesController < ApplicationController
   private
 
   def ensure_household
-    redirect_to new_household_path, alert: t("flash.create_household_first") unless current_household
+    redirect_to root_path, alert: t("flash.create_household_first") unless current_household
   end
 
   # Drop already-synced offers whose title matches the new pattern.

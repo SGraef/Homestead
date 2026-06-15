@@ -1,11 +1,7 @@
 <% content_for :title, @household.name %>
-<% is_admin   = policy(@household).update? %>
-<% is_current = (@household.id == current_household&.id) %>
+<% is_admin = policy(@household).update? %>
 
-<h1>
-  <%= @household.name %>
-  <% if is_current %><span class="pill"><%= t("household.current") %></span><% end %>
-</h1>
+<h1><%= @household.name %></h1>
 
 <dl class="kv">
   <dt><%= t("household.timezone") %></dt><dd><%= @household.timezone %></dd>
@@ -15,29 +11,12 @@
 </dl>
 
 <p style="display:flex;gap:var(--sp-1);flex-wrap:wrap;margin:var(--sp-2) 0">
-  <% unless is_current %>
-    <%= button_to t("household.use"), switch_household_path(@household),
-                  method: :post, class: "btn btn-sm",
-                  form: { style: "display:inline" } %>
-  <% end %>
-  <%= link_to t("common.edit"), edit_household_path(@household),
-              class: "btn btn-sm secondary" %>
-  <% if is_current %>
-    <%= link_to t("inbound_email.nav_link"), inbound_email_sources_path,
+  <% if is_admin %>
+    <%= link_to t("common.edit"), edit_household_path,
                 class: "btn btn-sm secondary" %>
   <% end %>
-  <% unless is_admin && @household.memberships.where(role: "admin").count == 1 %>
-    <%= button_to t("household.leave"), leave_household_path(@household),
-                  method: :delete, class: "btn btn-sm warn",
-                  data: { turbo_confirm: t("household.leave_confirm") },
-                  form: { style: "display:inline" } %>
-  <% end %>
-  <% if is_admin %>
-    <%= button_to t("common.delete"), household_path(@household),
-                  method: :delete, class: "btn btn-sm warn",
-                  data: { turbo_confirm: t("household.delete_confirm") },
-                  form: { style: "display:inline" } %>
-  <% end %>
+  <%= link_to t("inbound_email.nav_link"), inbound_email_sources_path,
+              class: "btn btn-sm secondary" %>
 </p>
 
 <h2><%= t("household.members") %></h2>
@@ -53,7 +32,7 @@
 
       <span style="display:flex;gap:var(--sp-1);align-items:center;flex-wrap:wrap">
         <% if is_admin %>
-          <%= form_with url: household_membership_path(@household, m),
+          <%= form_with url: household_membership_path(m),
                         method: :patch, local: true,
                         style: "display:inline-flex;gap:var(--sp-1)" do |f| %>
             <%= f.select "membership[role]",
@@ -61,7 +40,7 @@
                          { selected: m.role } %>
             <%= f.submit t("common.save"), class: "btn btn-sm secondary" %>
           <% end %>
-          <%= button_to t("common.delete"), household_membership_path(@household, m),
+          <%= button_to t("common.delete"), household_membership_path(m),
                         method: :delete, class: "btn btn-sm warn",
                         data: { turbo_confirm: t("household.remove_member_confirm") },
                         form: { style: "display:inline" } %>
@@ -75,7 +54,7 @@
 
 <% if is_admin %>
   <h3><%= t("household.add_member") %></h3>
-  <%= form_with url: household_memberships_path(@household), local: true do |f| %>
+  <%= form_with url: household_memberships_path, local: true do |f| %>
     <p>
       <%= f.email_field "membership[email]", placeholder: "user@example.com", required: true %>
       <%= f.select "membership[role]",

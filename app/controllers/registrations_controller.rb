@@ -3,6 +3,7 @@
 
 class RegistrationsController < ApplicationController
   skip_before_action :require_login, only: %i[new create]
+  before_action :require_first_run, only: %i[new create]
 
   def new
     @user = User.new
@@ -10,8 +11,10 @@ class RegistrationsController < ApplicationController
 
   # On successful sign-up we leave the user in `activation_state: "pending"`;
   # the Sorcery `user_activation` submodule generates the token and mails it
-  # via {UserMailer#activation_needed_email}. The household is created up
-  # front so the very first sign-in after activation already has a tenancy.
+  # via {UserMailer#activation_needed_email}. This is the FIRST-RUN bootstrap:
+  # the single household is created here, and the first user becomes its admin.
+  # After this, self-registration is closed -- admins add further members by
+  # email from the household settings page.
   def create
     @user = User.new(user_params)
 
@@ -28,6 +31,15 @@ class RegistrationsController < ApplicationController
   end
 
   private
+
+  # Self-registration is only open on a brand-new, empty instance. Once the
+  # single household (or any user) exists, the sign-up surface is closed and
+  # new members are added by an admin instead.
+  def require_first_run
+    return if Household.current.nil? && User.none?
+
+    redirect_to login_path, alert: t("auth.registration_closed")
+  end
 
   def user_params
     params.require(:user).permit(:email, :name, :password, :password_confirmation)

@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 # typed: true
 
-# Fan-out: enqueue one {SyncOffersJob} per household that has a postcode
-# configured. Called by Solid Queue's recurring scheduler (see
-# config/recurring.yml) -- a single tick fans out, individual household
-# jobs run on the default queue and don't block one another.
+# Recurring entry point (see config/recurring.yml): enqueue a {SyncOffersJob}
+# for the single household if it has a postcode configured. Scoped to
+# {Household.current} so a database upgraded from the old multi-household
+# schema never pulls offers for orphaned households.
 class SyncAllOffersJob < ApplicationJob
   queue_as :default
 
   def perform
-    Household.where.not(postal_code: [nil, ""]).find_each do |h|
-      SyncOffersJob.perform_later(h.id)
-    end
+    household = Household.current
+    return if household.nil? || household.postal_code.to_s.strip.blank?
+
+    SyncOffersJob.perform_later(household.id)
   end
 end

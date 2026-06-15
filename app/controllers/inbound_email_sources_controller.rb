@@ -87,6 +87,6 @@ class InboundEmailSourcesController < ApplicationController
   end
 
   def ensure_household
-    redirect_to new_household_path, alert: t("flash.create_household_first") unless current_household
+    redirect_to root_path, alert: t("flash.create_household_first") unless current_household
   end
 end
