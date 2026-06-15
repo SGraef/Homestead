@@ -6,13 +6,22 @@ class MembershipsController < ApplicationController
 
   def create
     authorize @household, :update?
-    user = User.find_by(email: params.dig(:membership, :email)&.downcase&.strip)
-    return redirect_to(household_path, alert: t("notices.user_not_found")) unless user
+    email = params.dig(:membership, :email).to_s.downcase.strip
+    role  = params.dig(:membership, :role).presence || "member"
+    user  = User.find_by(email: email)
 
-    @household.memberships.find_or_create_by!(user: user) do |m|
-      m.role = params.dig(:membership, :role).presence || "member"
+    if user
+      @household.memberships.find_or_create_by!(user: user) { |m| m.role = role }
+      redirect_to household_path, notice: t("notices.member_added")
+    elsif email.match?(URI::MailTo::EMAIL_REGEXP)
+      # No account yet: self-registration is closed, so issue a tokened invite.
+      invitation = Invitation.invite!(household: @household, email: email,
+                                      role: role, invited_by: current_user)
+      UserMailer.invitation_email(invitation, invitation.plaintext).deliver_later
+      redirect_to household_path, notice: t("notices.member_invited", email: email)
+    else
+      redirect_to household_path, alert: t("notices.invalid_email")
     end
-    redirect_to household_path, notice: t("notices.member_added")
   end
 
   def update

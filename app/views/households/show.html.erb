@@ -53,7 +53,28 @@
 </ul>
 
 <% if is_admin %>
+  <% pending = @household.invitations.pending.order(:created_at) %>
+  <% if pending.any? %>
+    <h3><%= t("household.pending_invitations") %></h3>
+    <ul style="list-style:none;padding:0">
+      <% pending.each do |inv| %>
+        <li class="card card-flat" style="margin-bottom:var(--sp-1);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--sp-2)">
+          <span>
+            <%= inv.email %>
+            <span class="pill"><%= t("household.roles.#{inv.role}") %></span>
+            <span class="caption"><%= t("household.invited_pending") %></span>
+          </span>
+          <%= button_to t("household.revoke_invite"), household_invitation_path(inv),
+                        method: :delete, class: "btn btn-sm warn",
+                        data: { turbo_confirm: t("household.revoke_invite_confirm") },
+                        form: { style: "display:inline" } %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
   <h3><%= t("household.add_member") %></h3>
+  <p class="caption"><%= t("household.add_member_hint") %></p>
   <%= form_with url: household_memberships_path, local: true do |f| %>
     <p>
       <%= f.email_field "membership[email]", placeholder: "user@example.com", required: true %>

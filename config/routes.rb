@@ -16,6 +16,11 @@ Rails.application.routes.draw do
   # Password reset flow.
   resources :password_resets, only: %i[new create edit update], param: :token
 
+  # Tokened invite-acceptance flow (admins issue invites from /household; new
+  # members set their name + password here). Public — reached while logged out.
+  get   "/invitations/:token", to: "invitations#show",   as: :invitation
+  patch "/invitations/:token", to: "invitations#update"
+
   # --- Web (Hotwire / ERB) --------------------------------------------------
   root to: "dashboard#index"
 
@@ -32,6 +37,7 @@ Rails.application.routes.draw do
   # and resolved everywhere via Household.current.
   resource :household, only: %i[show edit update] do
     resources :memberships, only: %i[create update destroy]
+    resources :invitations, only: %i[destroy] # admin revoke of a pending invite
   end
 
   resources :stores

@@ -28,6 +28,14 @@ RSpec.describe "Household settings" do
         .to change { household.reload.memberships.count }.by(1)
       expect(household.users).to include(newcomer)
     end
+
+    it "invites a brand-new email by issuing a pending invitation + email" do
+      expect do
+        post household_memberships_path, params: { membership: { email: "fresh@example.com", role: "member" } }
+      end.to change { Invitation.pending.count }.by(1)
+        .and have_enqueued_mail(UserMailer, :invitation_email)
+      expect(response).to redirect_to(household_path)
+    end
   end
 
   describe "as a non-admin member" do

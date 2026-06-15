@@ -117,6 +117,9 @@ de:
     member_added:      "Mitglied hinzugefügt."
     member_updated:    "Rolle aktualisiert."
     member_removed:    "Mitglied entfernt."
+    member_invited:    "Einladung an %{email} gesendet."
+    invitation_revoked: "Einladung zurückgezogen."
+    invalid_email:     "Bitte gib eine gültige E-Mail-Adresse ein."
     user_not_found:    "Benutzer nicht gefunden."
     receipt_uploaded:  "Beleg hochgeladen — OCR läuft im Hintergrund."
     receipt_confirmed: "Beleg bestätigt — Produkte, Geschäft und Preise gespeichert."
@@ -154,6 +157,13 @@ de:
     invalid:         "Link ungültig oder abgelaufen."
     success:         "Passwort geändert. Du kannst dich jetzt anmelden."
 
+  invitation:
+    title:         "Haushalt beitreten"
+    intro:         "Du wurdest zu %{household} bei Pantria eingeladen (%{email}). Lege ein Passwort fest, um dein Konto fertig einzurichten."
+    accept_button: "Konto erstellen & beitreten"
+    invalid:       "Dieser Einladungslink ist ungültig oder abgelaufen. Bitte einen Admin um einen neuen."
+    accepted:      "Willkommen! Dein Konto ist fertig."
+
   user_mailer:
     activation_needed_email:
       subject:  "Bitte aktiviere dein Pantria-Konto"
@@ -174,6 +184,14 @@ de:
       cta:      "Klicke auf den folgenden Link, um ein neues Passwort zu setzen:"
       reset:    "Passwort zurücksetzen"
       ignore:   "Wenn du das nicht warst, kannst du diese E-Mail ignorieren."
+    invitation_email:
+      subject:  "Du wurdest zu %{household} bei Pantria eingeladen"
+      greeting: "Du bist zu %{household} eingeladen"
+      intro:    "ein Admin hat dich eingeladen, dem Haushalt %{household} bei Pantria beizutreten."
+      cta:      "Klicke auf den folgenden Link, um dein Passwort zu setzen und beizutreten:"
+      accept:   "Einladung annehmen"
+      expiry:   "Diese Einladung läuft in %{days} Tagen ab."
+      ignore:   "Falls du das nicht erwartet hast, kannst du diese E-Mail ignorieren."
 
   dashboard:
     title:           "Übersicht"
@@ -653,7 +671,12 @@ de:
       one:   "%{count} Mitglied"
       other: "%{count} Mitglieder"
     add_member:  "Mitglied hinzufügen"
+    add_member_hint: "Gib eine E-Mail-Adresse ein. Hat die Person bereits ein Konto, wird sie sofort hinzugefügt; andernfalls senden wir ihr eine Einladung zum Festlegen eines Passworts."
     invite:      "Einladen"
+    pending_invitations: "Ausstehende Einladungen"
+    invited_pending: "Einladung gesendet — noch nicht angenommen"
+    revoke_invite: "Zurückziehen"
+    revoke_invite_confirm: "Diese Einladung zurückziehen?"
     you:         "du"
     timezone:    "Zeitzone"
     postcode:    "Postleitzahl"

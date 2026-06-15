@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000034) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000035) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -114,6 +114,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000034) do
     t.index ["household_id", "imap_host", "imap_username", "folder"], name: "idx_inbound_email_sources_unique_per_household", unique: true
     t.index ["household_id"], name: "index_inbound_email_sources_on_household_id"
     t.index ["user_id"], name: "index_inbound_email_sources_on_user_id"
+  end
+
+  create_table "invitations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "invited_by_id"
+    t.string "email", null: false
+    t.string "role", default: "member", null: false
+    t.string "token_digest", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "accepted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "email"], name: "index_invitations_on_household_id_and_email"
+    t.index ["household_id"], name: "index_invitations_on_household_id"
+    t.index ["invited_by_id"], name: "index_invitations_on_invited_by_id"
+    t.index ["token_digest"], name: "index_invitations_on_token_digest", unique: true
   end
 
   create_table "locations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -532,6 +548,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000034) do
   add_foreign_key "grocery_items", "stores"
   add_foreign_key "inbound_email_sources", "households", on_delete: :cascade
   add_foreign_key "inbound_email_sources", "users", on_delete: :cascade
+  add_foreign_key "invitations", "households"
+  add_foreign_key "invitations", "users", column: "invited_by_id"
   add_foreign_key "locations", "households"
   add_foreign_key "meal_plan_entries", "households", on_delete: :cascade
   add_foreign_key "meal_plan_entries", "recipes", on_delete: :cascade

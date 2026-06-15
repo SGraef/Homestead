@@ -21,6 +21,7 @@ class Household < ApplicationRecord
 
   has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships
+  has_many :invitations, dependent: :destroy
   has_many :stores, dependent: :destroy
   has_many :products, dependent: :destroy
   has_many :storage_items, dependent: :destroy

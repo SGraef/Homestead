@@ -111,6 +111,9 @@ en:
     member_added:      "Member added."
     member_updated:    "Member role updated."
     member_removed:    "Member removed."
+    member_invited:    "Invitation sent to %{email}."
+    invitation_revoked: "Invitation revoked."
+    invalid_email:     "Please enter a valid email address."
     user_not_found:    "User not found."
     receipt_uploaded:  "Receipt uploaded — OCR is running."
     receipt_confirmed: "Receipt confirmed — products, store and prices saved."
@@ -148,6 +151,13 @@ en:
     invalid:         "Link is invalid or has expired."
     success:         "Password changed. You can sign in now."
 
+  invitation:
+    title:         "Join the household"
+    intro:         "You've been invited to %{household} on Pantria (%{email}). Pick a password to finish setting up your account."
+    accept_button: "Create account & join"
+    invalid:       "This invitation link is invalid or has expired. Ask an admin to send a new one."
+    accepted:      "Welcome! Your account is ready."
+
   activerecord:
     errors:
       models:
@@ -180,6 +190,14 @@ en:
       cta:      "Click the link below to set a new password:"
       reset:    "Reset password"
       ignore:   "If this wasn't you, just ignore this email."
+    invitation_email:
+      subject:  "You've been invited to %{household} on Pantria"
+      greeting: "You're invited to %{household}"
+      intro:    "an admin has invited you to join the %{household} household on Pantria."
+      cta:      "Click the link below to set your password and join:"
+      accept:   "Accept invitation"
+      expiry:   "This invitation expires in %{days} days."
+      ignore:   "If you weren't expecting this, just ignore this email."
 
   dashboard:
     title:           "Dashboard"
@@ -659,7 +677,12 @@ en:
       one:  "%{count} member"
       other: "%{count} members"
     add_member:  "Add member"
+    add_member_hint: "Enter an email. If they already have an account they're added immediately; otherwise we email them an invite to set a password."
     invite:      "Invite"
+    pending_invitations: "Pending invitations"
+    invited_pending: "invite sent — not yet accepted"
+    revoke_invite: "Revoke"
+    revoke_invite_confirm: "Revoke this invitation?"
     you:         "you"
     timezone:    "Timezone"
     postcode:    "Postcode"
