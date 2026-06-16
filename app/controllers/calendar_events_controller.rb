@@ -4,7 +4,7 @@
 class CalendarEventsController < ApplicationController
   include HouseholdTimeZone
   before_action :ensure_household
-  before_action :set_event, only: %i[edit update destroy]
+  before_action :set_event, only: %i[edit update destroy create_todo]
 
   def new
     @event = current_household.calendar_events.new(starts_at: default_start)
@@ -38,6 +38,23 @@ class CalendarEventsController < ApplicationController
     authorize @event
     @event.destroy
     redirect_to calendar_path, notice: t("notices.event_deleted")
+  end
+
+  # POST /calendar/events/:id/create_todo — make a todo from a task-like manual
+  # event (C7). One-hop: a generated event is never task_like?, so this never
+  # loops; the new todo carries provenance and never spawns an event back.
+  def create_todo
+    authorize @event, :show?
+    if @event.task_like? && !Todo.exists?(source_calendar_event_id: @event.id)
+      todo = current_household.todos.create!(
+        title: @event.title, creator: current_user,
+        due_on: @event.starts_at.in_time_zone(current_household.timezone).to_date,
+        source: "calendar_extraction", source_calendar_event: @event
+      )
+      redirect_to todo, notice: t("notices.todo_created")
+    else
+      redirect_to edit_calendar_event_path(@event)
+    end
   end
 
   private

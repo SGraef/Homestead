@@ -6,7 +6,8 @@
 # no admin-editable states), mirroring the GroceryItem::STATUSES /
 # Membership::ROLES string-constant precedent.
 class Todo < ApplicationRecord
-  STATES = %w[open in_progress done].freeze
+  STATES  = %w[open in_progress done].freeze
+  SOURCES = %w[manual calendar_extraction].freeze
 
   # Allowed state transitions. A target not listed for the current state (and a
   # no-op self-transition) is rejected by {#transition_to} — callers rely on
@@ -20,6 +21,7 @@ class Todo < ApplicationRecord
   belongs_to :household
   belongs_to :creator,  class_name: "User", optional: true
   belongs_to :assignee, class_name: "User", optional: true
+  belongs_to :source_calendar_event, class_name: "CalendarEvent", optional: true
 
   has_many :todo_comments, -> { order(:created_at) }, dependent: :destroy
   has_many :todo_follows, dependent: :destroy
@@ -27,6 +29,7 @@ class Todo < ApplicationRecord
 
   validates :title, presence: true, length: { maximum: 200 }
   validates :status, inclusion: { in: STATES }
+  validates :source, inclusion: { in: SOURCES }
   validate  :assignee_in_household
 
   scope :open_state,   -> { where(status: "open") }

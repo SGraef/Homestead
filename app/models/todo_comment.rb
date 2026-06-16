@@ -7,6 +7,7 @@ class TodoComment < ApplicationRecord
   belongs_to :household
   belongs_to :todo
   belongs_to :user, optional: true
+  has_many :suggestion_dismissals, dependent: :destroy
 
   validates :body, presence: true
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000043) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000045) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -581,6 +581,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000043) do
     t.index ["household_id"], name: "index_stores_on_household_id"
   end
 
+  create_table "suggestion_dismissals", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "todo_comment_id", null: false
+    t.string "span_hash", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["todo_comment_id", "span_hash"], name: "index_suggestion_dismissals_on_todo_comment_id_and_span_hash", unique: true
+    t.index ["todo_comment_id"], name: "index_suggestion_dismissals_on_todo_comment_id"
+  end
+
   create_table "todo_comments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "todo_id", null: false
@@ -616,11 +625,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000043) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.date "due_on"
+    t.string "source", default: "manual", null: false
+    t.bigint "source_calendar_event_id"
     t.index ["assignee_id"], name: "index_todos_on_assignee_id"
     t.index ["creator_id"], name: "index_todos_on_creator_id"
     t.index ["household_id", "due_on"], name: "index_todos_on_household_id_and_due_on"
     t.index ["household_id", "status"], name: "index_todos_on_household_id_and_status"
     t.index ["household_id"], name: "index_todos_on_household_id"
+    t.index ["source_calendar_event_id"], name: "index_todos_on_source_calendar_event_id"
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -698,12 +710,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000043) do
   add_foreign_key "storage_items", "locations"
   add_foreign_key "storage_items", "products"
   add_foreign_key "stores", "households"
+  add_foreign_key "suggestion_dismissals", "todo_comments"
   add_foreign_key "todo_comments", "households"
   add_foreign_key "todo_comments", "todos"
   add_foreign_key "todo_comments", "users"
   add_foreign_key "todo_follows", "households"
   add_foreign_key "todo_follows", "todos"
   add_foreign_key "todo_follows", "users"
+  add_foreign_key "todos", "calendar_events", column: "source_calendar_event_id"
   add_foreign_key "todos", "households"
   add_foreign_key "todos", "users", column: "assignee_id"
   add_foreign_key "todos", "users", column: "creator_id"

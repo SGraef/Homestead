@@ -89,7 +89,12 @@ Rails.application.routes.draw do
       post   :follow
       delete :unfollow
     end
-    resources :comments, only: %i[create destroy], controller: "todo_comments"
+    resources :comments, only: %i[create destroy], controller: "todo_comments" do
+      member do
+        post :confirm_event      # turn a detected date into a calendar event (C5)
+        post :dismiss_suggestion # never re-offer this comment's date
+      end
+    end
   end
 
   resources :notifications, only: %i[index] do
@@ -103,7 +108,9 @@ Rails.application.routes.draw do
 
   # Calendar (month/agenda/day via ?view=, navigated by ?date=).
   resource :calendar, only: :show, controller: "calendars"
-  resources :calendar_events, only: %i[new create edit update destroy], path: "calendar/events"
+  resources :calendar_events, only: %i[new create edit update destroy], path: "calendar/events" do
+    member { post :create_todo } # make a todo from a task-like event (C7)
+  end
 
   resources :expenses, only: :index
 

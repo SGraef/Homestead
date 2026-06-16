@@ -6,9 +6,20 @@
 # the keyword loop (a non-"manual" event is never re-scanned).
 class CalendarEvent < ApplicationRecord
   SOURCES = %w[manual comment_extraction todo].freeze
+  # Keywords that make a manually-created event "task-like" (offers a todo, C7).
+  TASK_TRIGGERS = %w[aufgabe todo erledigen besorgen kaufen anrufen mitbringen abgeben].freeze
 
   belongs_to :household
   belongs_to :source_record, polymorphic: true, optional: true
+
+  # Only manual events are scan-eligible for the event->todo direction; a
+  # generated event (comment_extraction) is never re-scanned (loop guard).
+  def task_like?
+    return false unless source == "manual"
+
+    down = title.to_s.downcase
+    TASK_TRIGGERS.any? { |k| down.include?(k) }
+  end
 
   validates :title, presence: true, length: { maximum: 200 }
   validates :starts_at, presence: true

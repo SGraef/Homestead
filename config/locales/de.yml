@@ -124,6 +124,11 @@ de:
       starts_at: "Beginn"
       ends_at: "Ende"
       all_day: "Ganztägig"
+    suggestion:
+      detected: "Termin erkannt: %{when}"
+      confirm: "In Kalender übernehmen"
+      dismiss: "Verwerfen"
+      create_todo: "Aufgabe aus Termin erstellen"
 
   nav:
     storage: "Vorrat"

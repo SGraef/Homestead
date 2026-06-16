@@ -118,6 +118,11 @@ en:
       starts_at: "Starts"
       ends_at: "Ends"
       all_day: "All day"
+    suggestion:
+      detected: "Date detected: %{when}"
+      confirm: "Add to calendar"
+      dismiss: "Dismiss"
+      create_todo: "Create todo from this event"
 
   nav:
     storage: "Storage"
