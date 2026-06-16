@@ -102,6 +102,9 @@ nav:
       - Receipt OCR: features/receipts.md
       - Recipes & meal plan: features/recipes.md
       - Offers: features/offers.md
+      - Todos: features/todos.md
+      - Calendar: features/calendar.md
+      - Calendar sync (Google): features/calendar-sync.md
       - Inbound email: features/inbound-email.md
   - Mobile:
       - PWA & Android: pwa-android.md
@@ -109,10 +112,13 @@ nav:
       - Deployment: deployment.md
       - REST API: api.md
       - Observability: observability.md
+      - Google Calendar OAuth: google-calendar-oauth-setup.md
   - Contributing: contributing.md
 
-# Editor-internal: the screenshots dir's README is documentation for
-# contributors, not part of the public site. `mkdocs build --strict`
-# would otherwise warn about an orphan page.
+# Editor-internal pages that are intentionally not part of the public site.
+# Without this, `mkdocs build --strict` fails on these as orphan pages.
 not_in_nav: |
   screenshots/README.md
+  todo-calendar-spec.md
+  specs/caldav-sync.md
+  specs/caldav-sync-google-addendum.md
