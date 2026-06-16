@@ -67,6 +67,7 @@ de:
     comment_placeholder: "Schreib einen Kommentar…"
     delete_confirm: "Diese Aufgabe löschen?"
     reopen: "Wieder öffnen"
+    due_on: "Fällig am"
     assignee: "Zugewiesen"
     assign: "Zuweisen"
     unassigned: "Nicht zugewiesen"
@@ -96,6 +97,27 @@ de:
       title: "Neuer Kommentar"
       body: "Neuer Kommentar zu %{title}"
 
+  calendar:
+    title: "Kalender"
+    today: "Heute"
+    empty: "Nichts geplant."
+    back: "Zurück zum Kalender"
+    new_event: "Neuer Termin"
+    edit_event: "Termin bearbeiten"
+    delete_confirm: "Diesen Termin löschen?"
+    all_day: "Ganztägig"
+    views:
+      month: "Monat"
+      agenda: "Agenda"
+      day: "Tag"
+    legend:
+      event: "Termin"
+      todo_due: "Aufgabe fällig"
+    event:
+      starts_at: "Beginn"
+      ends_at: "Ende"
+      all_day: "Ganztägig"
+
   nav:
     storage: "Vorrat"
     freezer: "Tiefkühler"
@@ -109,6 +131,7 @@ de:
     recipes: "Rezepte"
     meal_plan: "Essensplan"
     todos: "Aufgaben"
+    calendar: "Kalender"
     notifications: "Benachrichtigungen"
     jobs: "Jobs"
     household: "Haushalt"
@@ -173,6 +196,9 @@ de:
     todo_invalid_transition: "Diese Statusänderung ist nicht erlaubt."
     todo_followed:     "Du folgst dieser Aufgabe jetzt."
     todo_unfollowed:   "Du folgst dieser Aufgabe nicht mehr."
+    event_created:     "Termin erstellt."
+    event_updated:     "Termin aktualisiert."
+    event_deleted:     "Termin gelöscht."
     receipt_confirmed: "Beleg bestätigt — Produkte, Geschäft und Preise gespeichert."
     receipt_removed:      "Beleg entfernt."
     receipt_reprocessing: "OCR läuft erneut — aktualisiere die Seite, um das Ergebnis zu sehen."

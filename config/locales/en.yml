@@ -61,6 +61,7 @@ en:
     comment_placeholder: "Write a comment…"
     delete_confirm: "Delete this todo?"
     reopen: "Reopen"
+    due_on: "Due date"
     assignee: "Assignee"
     assign: "Assign"
     unassigned: "Unassigned"
@@ -90,6 +91,27 @@ en:
       title: "New comment"
       body: "New comment on %{title}"
 
+  calendar:
+    title: "Calendar"
+    today: "Today"
+    empty: "Nothing scheduled."
+    back: "Back to calendar"
+    new_event: "New event"
+    edit_event: "Edit event"
+    delete_confirm: "Delete this event?"
+    all_day: "All day"
+    views:
+      month: "Month"
+      agenda: "Agenda"
+      day: "Day"
+    legend:
+      event: "Event"
+      todo_due: "Todo due"
+    event:
+      starts_at: "Starts"
+      ends_at: "Ends"
+      all_day: "All day"
+
   nav:
     storage: "Storage"
     freezer: "Freezer"
@@ -103,6 +125,7 @@ en:
     recipes: "Recipes"
     meal_plan: "Meal plan"
     todos: "Todos"
+    calendar: "Calendar"
     notifications: "Notifications"
     jobs: "Jobs"
     household: "Household"
@@ -167,6 +190,9 @@ en:
     todo_invalid_transition: "That status change isn't allowed."
     todo_followed:     "You're now following this todo."
     todo_unfollowed:   "You unfollowed this todo."
+    event_created:     "Event created."
+    event_updated:     "Event updated."
+    event_deleted:     "Event deleted."
     receipt_confirmed: "Receipt confirmed — products, store and prices saved."
     receipt_removed:      "Receipt removed."
     receipt_reprocessing: "Re-running OCR — refresh the page to see the result."

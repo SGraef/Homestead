@@ -1,0 +1,27 @@
+<div class="caption" style="margin-bottom:var(--sp-1)"><%= l(@date, format: "%B %Y") %></div>
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">
+  <% I18n.t("date.abbr_day_names").rotate(1).each do |wd| %>
+    <div class="caption" style="text-align:center;font-weight:600"><%= wd %></div>
+  <% end %>
+
+  <% calendar_weeks(@range).each do |week| %>
+    <% week.each do |day| %>
+      <% in_month = (day.month == @date.month) %>
+      <div data-cal-day="<%= day.iso8601 %>" id="<%= cal_day_cell_id(day) %>"
+           class="card card-flat"
+           style="min-height:88px;padding:var(--sp-1);<%= 'opacity:.45' unless in_month %><%= ';outline:2px solid var(--accent)' if day == Date.current %>">
+        <div class="caption" style="text-align:right"><%= day.day %></div>
+        <% Array(@events_by_day[day]).each do |event| %>
+          <%= render "calendars/event_chip", event: event %>
+        <% end %>
+        <% Array(@todos_by_day[day]).each do |todo| %>
+          <%= render "calendars/todo_chip", todo: todo %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+<p class="caption" style="margin-top:var(--sp-2)">
+  <span class="pill"><%= t("calendar.legend.event") %></span>
+  <span class="pill warn"><%= t("calendar.legend.todo_due") %></span>
+</p>

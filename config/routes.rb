@@ -97,6 +97,10 @@ Rails.application.routes.draw do
     collection { post :read_all }
   end
 
+  # Calendar (month/agenda/day via ?view=, navigated by ?date=).
+  resource :calendar, only: :show, controller: "calendars"
+  resources :calendar_events, only: %i[new create edit update destroy], path: "calendar/events"
+
   resources :expenses, only: :index
 
   resources :offers, only: :index do

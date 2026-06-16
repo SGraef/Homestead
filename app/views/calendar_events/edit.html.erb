@@ -1,0 +1,9 @@
+<% content_for :title, t("calendar.edit_event") %>
+<p><%= link_to t("calendar.back"), calendar_path %></p>
+<h1><%= t("calendar.edit_event") %></h1>
+<%= render "form" %>
+
+<% if policy(@event).destroy? %>
+  <%= button_to t("common.delete"), calendar_event_path(@event), method: :delete,
+                class: "btn btn-sm warn", data: { turbo_confirm: t("calendar.delete_confirm") } %>
+<% end %>

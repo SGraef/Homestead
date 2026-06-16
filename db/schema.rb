@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000040) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000042) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -67,6 +67,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000040) do
     t.datetime "updated_at", null: false
     t.string "token_type", limit: 32, default: "Bearer"
     t.index ["household_id"], name: "index_bring_connections_on_household_id", unique: true
+  end
+
+  create_table "calendar_events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "title", null: false
+    t.datetime "starts_at", null: false
+    t.datetime "ends_at"
+    t.boolean "all_day", default: false, null: false
+    t.string "source", default: "manual", null: false
+    t.string "source_record_type"
+    t.bigint "source_record_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "starts_at"], name: "index_calendar_events_on_household_id_and_starts_at"
+    t.index ["household_id"], name: "index_calendar_events_on_household_id"
+    t.index ["source_record_type", "source_record_id"], name: "index_calendar_events_on_source_record"
   end
 
   create_table "grocery_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -583,8 +599,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000040) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "due_on"
     t.index ["assignee_id"], name: "index_todos_on_assignee_id"
     t.index ["creator_id"], name: "index_todos_on_creator_id"
+    t.index ["household_id", "due_on"], name: "index_todos_on_household_id_and_due_on"
     t.index ["household_id", "status"], name: "index_todos_on_household_id_and_status"
     t.index ["household_id"], name: "index_todos_on_household_id"
   end
@@ -615,6 +633,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000040) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "api_tokens", "users"
   add_foreign_key "bring_connections", "households"
+  add_foreign_key "calendar_events", "households"
   add_foreign_key "grocery_items", "households"
   add_foreign_key "grocery_items", "products"
   add_foreign_key "grocery_items", "stores"

@@ -41,6 +41,7 @@ class Household < ApplicationRecord
   has_many :todo_comments, dependent: :destroy
   has_many :todo_follows, dependent: :destroy
   has_many :notifications, dependent: :destroy
+  has_many :calendar_events, dependent: :destroy
 
   after_create :seed_default_offer_categories
 

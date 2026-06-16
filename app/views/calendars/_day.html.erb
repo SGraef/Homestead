@@ -1,0 +1,10 @@
+<% events = Array(@events_by_day[@date]); dues = Array(@todos_by_day[@date]) %>
+<div class="card card-flat" data-cal-day="<%= @date.iso8601 %>">
+  <h2 style="margin-top:0"><%= l(@date, format: :long) %></h2>
+  <% if events.empty? && dues.empty? %>
+    <p class="caption"><%= t("calendar.empty") %></p>
+  <% else %>
+    <% events.each do |event| %><%= render "calendars/event_chip", event: event %><% end %>
+    <% dues.each do |todo| %><%= render "calendars/todo_chip", todo: todo %><% end %>
+  <% end %>
+</div>
