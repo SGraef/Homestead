@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000035) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_01_000001) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -57,8 +57,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000035) do
     t.string "bring_user_uuid", null: false
     t.string "default_list_uuid"
     t.string "default_list_name"
-    t.string "access_token", limit: 1024
-    t.string "refresh_token", limit: 1024
+    t.text "access_token"
+    t.text "refresh_token"
     t.datetime "access_token_expires_at"
     t.string "country_code", limit: 2, default: "DE"
     t.string "last_error", limit: 500

@@ -10,11 +10,14 @@
 # tries the refresh endpoint; if that fails too, `access_token` is cleared
 # and the household has to reconnect via the connect form.
 #
-# NOTE: tokens here are sensitive — in production enable Active Record
-# Encryption (`encrypts :access_token, :refresh_token`) once your app has
-# encryption keys configured in `Rails.application.credentials`.
+# Tokens are encrypted at rest via Active Record encryption (keys derived from
+# SECRET_KEY_BASE — see config/initializers/active_record_encryption.rb;
+# rotating it makes stored tokens unreadable, so reconnect after rotation).
 class BringConnection < ApplicationRecord
   belongs_to :household
+
+  encrypts :access_token
+  encrypts :refresh_token
 
   validates :bring_email,     presence: true
   validates :bring_user_uuid, presence: true

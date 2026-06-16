@@ -22,6 +22,19 @@ RUN apt-get update -qq \
       tesseract-ocr tesseract-ocr-eng tesseract-ocr-deu \
  && rm -rf /var/lib/apt/lists/*
 
+# Harden ImageMagick for the receipt-upload pipeline. Resource limits are
+# ENFORCED via these env vars (our IM6 build ignores policy.xml; it honours
+# MAGICK_*_LIMIT env vars and the `-limit` flags the OCR adapter passes).
+# policy.xml ships to its canonical path as best-effort defense-in-depth.
+ENV MAGICK_MEMORY_LIMIT=256MiB \
+    MAGICK_MAP_LIMIT=512MiB \
+    MAGICK_DISK_LIMIT=1GiB \
+    MAGICK_AREA_LIMIT=128MP \
+    MAGICK_WIDTH_LIMIT=16KP \
+    MAGICK_HEIGHT_LIMIT=16KP \
+    MAGICK_TIME_LIMIT=120
+COPY config/imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
+
 COPY Gemfile Gemfile.lock* ./
 RUN bundle install --jobs 4
 

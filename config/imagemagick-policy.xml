@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<policymap>
+  <!--
+    Hardened ImageMagick policy for Pantria (installed at
+    /etc/ImageMagick-6/policy.xml via the Docker images). `convert` only
+    preprocesses uploaded receipt IMAGES (JPEG/PNG/HEIC); PDFs are rasterized by
+    poppler (pdftoppm), never ImageMagick — so the PDF/PostScript/Ghostscript
+    coders are disabled below.
+
+    NOTE: our Debian reproducible-build ImageMagick 6 silently IGNORES this
+    file (verified: malformed XML here raises no parse error and a coder/limit
+    rule never takes effect). It is shipped only as best-effort defense-in-depth
+    for hosts that DO honour it. The controls actually enforced in our images:
+      • resource limits  -> MAGICK_*_LIMIT env vars (Dockerfiles) + `-limit`
+                            flags on every `convert` call (ReceiptScanner).
+      • coder/RCE guard  -> magic-byte raster allowlist in
+                            ReceiptScanner::Adapters::Tesseract#raster_image?,
+                            which keeps script files away from `convert`.
+  -->
+
+  <!-- Resource limits: stop decompression bombs / DoS from uploaded receipts. -->
+  <policy domain="resource" name="memory" value="256MiB"/>
+  <policy domain="resource" name="map" value="512MiB"/>
+  <policy domain="resource" name="width" value="16KP"/>
+  <policy domain="resource" name="height" value="16KP"/>
+  <policy domain="resource" name="area" value="128MP"/>
+  <policy domain="resource" name="disk" value="1GiB"/>
+  <policy domain="resource" name="list-length" value="128"/>
+  <policy domain="resource" name="time" value="120"/>
+
+  <!-- Block SSRF via remote image delegates. -->
+  <policy domain="delegate" rights="none" pattern="HTTPS"/>
+  <policy domain="delegate" rights="none" pattern="HTTP"/>
+
+  <!-- Disable Ghostscript / PostScript / PDF coders (RCE vector). Safe: PDFs go
+       through poppler, not ImageMagick. Image coders (JPEG/PNG/HEIC) stay on. -->
+  <policy domain="coder" rights="none" pattern="{PS,PS2,PS3,EPS,PDF,XPS}"/>
+
+  <!-- Disable scripting + indirect/remote coders. -->
+  <policy domain="coder" rights="none" pattern="MSL"/>
+  <policy domain="coder" rights="none" pattern="MVG"/>
+  <policy domain="coder" rights="none" pattern="URL"/>
+  <policy domain="coder" rights="none" pattern="FTP"/>
+  <policy domain="coder" rights="none" pattern="EPHEMERAL"/>
+  <policy domain="coder" rights="none" pattern="TEXT"/>
+  <policy domain="coder" rights="none" pattern="SHOW"/>
+  <policy domain="coder" rights="none" pattern="WIN"/>
+  <policy domain="coder" rights="none" pattern="PLT"/>
+
+  <!-- Forbid indirect reads (@filename) which can leak local files. -->
+  <policy domain="path" rights="none" pattern="@*"/>
+</policymap>
