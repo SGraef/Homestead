@@ -34,6 +34,46 @@ RSpec.describe ReceiptScanner::Adapters::Tesseract do
       expect(adapter.extract_text(img_path)).to eq("raw image text")
     end
 
+    it "passes enforced resource -limit flags to convert" do
+      img_path = File.join(tmp, "img.png")
+      File.binwrite(img_path, "\x89PNG\r\n\x1a\nfake")
+
+      convert_args = nil
+      allow(Open3).to receive(:capture3) do |_env, cmd, *rest|
+        case cmd
+        when "convert"
+          convert_args = rest
+          File.binwrite(rest.last, "\x89PNG\r\n\x1a\npre")
+          ["", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+        when "tesseract"
+          ["text", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+        end
+      end
+
+      adapter.extract_text(img_path)
+      joined = convert_args.join(" ")
+      expect(joined).to include("-limit memory 256MiB")
+      expect(joined).to include("-limit area 128MP")
+      expect(joined).to include("-limit width 16KP")
+      expect(joined).to include("-limit time 120")
+    end
+
+    it "skips convert and OCRs the original when the file is not a known raster image" do
+      # A misnamed ImageMagick script (MVG) -- never hand this to convert.
+      script_path = File.join(tmp, "evil.png")
+      File.binwrite(script_path, "push graphic-context\nimage over 0,0 0,0 'http://x/'\n")
+
+      called = []
+      allow(Open3).to receive(:capture3) do |_env, cmd, *_rest|
+        called << cmd
+        ["original text", "", instance_double(Process::Status, success?: true, exitstatus: 0)] if cmd == "tesseract"
+      end
+
+      expect(Rails.logger).to receive(:warn).with(/unrecognized image format/i)
+      expect(adapter.extract_text(script_path)).to eq("original text")
+      expect(called).not_to include("convert")
+    end
+
     it "retries with fallback PSMs when the configured PSM returns empty text" do
       img_path = File.join(tmp, "img.png")
       File.binwrite(img_path, "\x89PNG\r\n\x1a\nfake")

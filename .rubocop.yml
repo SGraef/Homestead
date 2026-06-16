@@ -7,6 +7,12 @@
 #
 # 2. Surface real signal — security/correctness cops, naming, suspicious
 #    blocks — without drowning it in cosmetic noise.
+#
+# RuboCop is BLOCKING in CI (ROADMAP M0c). `.rubocop_todo.yml` grandfathers
+# the pre-existing offenses so only NEW ones fail the build; burn it down
+# over time.
+
+inherit_from: .rubocop_todo.yml
 
 require:
   - rubocop-rails
@@ -103,6 +109,17 @@ Layout/LineLength:
   Exclude:
     - "db/schema.rb"
     - "db/migrate/*"
+    # Ratchet baseline (M0c): pre-existing long lines in the merged
+    # todos+calendar code. Grandfathered here rather than in
+    # .rubocop_todo.yml because this explicit Max overrides the inherited
+    # file. Burn these down (mostly long JSON fixtures in specs).
+    - "app/controllers/calendar_connections_controller.rb"
+    - "spec/jobs/deliver_push_job_spec.rb"
+    - "spec/requests/calendar_modal_spec.rb"
+    - "spec/requests/calendar_sync_hardening_spec.rb"
+    - "spec/requests/calendar_two_way_spec.rb"
+    - "spec/services/calendar_sync/pull_spec.rb"
+    - "spec/services/calendar_sync/push_spec.rb"
 
 # --------------------------------------------------------------------
 # Rails / RSpec niceties.

@@ -1,0 +1,184 @@
+# Pantria RuboCop ratchet baseline (ROADMAP M0c, CI ratchet part 1).
+#
+# Regenerated with `rubocop --auto-gen-config` after the todos+calendar
+# features (#11, #12) merged into main, so it grandfathers the offenses that
+# already existed when RuboCop was made BLOCKING. The build fails only on NEW
+# offenses. Burn these down over time and delete the entries as you go.
+#
+# NOTE: Layout/LineLength is grandfathered in .rubocop.yml's own
+# `Layout/LineLength: Exclude` instead of here — its explicit `Max: 120`
+# there overrides any Max we set in this inherited file.
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+Layout/EmptyLineAfterGuardClause:
+  Exclude:
+    - 'app/services/german_date_extractor.rb'
+
+# Offense count: 3
+# This cop supports safe autocorrection (--autocorrect).
+Layout/EmptyLinesAfterModuleInclusion:
+  Exclude:
+    - 'app/controllers/calendar_events_controller.rb'
+    - 'app/controllers/calendars_controller.rb'
+    - 'app/controllers/todo_comments_controller.rb'
+
+# Offense count: 11
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowForAlignment, AllowBeforeTrailingComments, ForceEqualSignAlignment.
+Layout/ExtraSpacing:
+  Exclude:
+    - 'app/controllers/todo_comments_controller.rb'
+    - 'app/policies/todo_comment_policy.rb'
+    - 'app/services/calendar_sync/google/api_client.rb'
+    - 'config/routes.rb'
+    - 'db/migrate/20260101000036_create_todos.rb'
+    - 'spec/migrations/backfill_single_household_memberships_spec.rb'
+    - 'spec/models/bring_connection_spec.rb'
+    - 'spec/models/household_spec.rb'
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, IndentationWidth.
+# SupportedStyles: special_inside_parentheses, consistent, align_brackets
+Layout/FirstArrayElementIndentation:
+  Exclude:
+    - 'lib/tasks/single_household.rake'
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, IndentationWidth.
+# SupportedStyles: special_inside_parentheses, consistent, align_braces
+Layout/FirstHashElementIndentation:
+  Exclude:
+    - 'spec/services/calendar_sync/pull_spec.rb'
+
+# Offense count: 9
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowMultipleStyles, EnforcedHashRocketStyle, EnforcedColonStyle, EnforcedLastArgumentHashStyle.
+# SupportedHashRocketStyles: key, separator, table
+# SupportedColonStyles: key, separator, table
+# SupportedLastArgumentHashStyles: always_inspect, always_ignore, ignore_implicit, ignore_explicit
+Layout/HashAlignment:
+  Exclude:
+    - 'app/controllers/todo_comments_controller.rb'
+    - 'app/controllers/todos_controller.rb'
+    - 'db/migrate/20260101000047_add_sync_anchors_to_calendar_events.rb'
+    - 'spec/services/calendar_sync/pull_spec.rb'
+
+# Offense count: 3
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, IndentationWidth.
+# SupportedStyles: aligned, indented, indented_relative_to_receiver
+Layout/MultilineMethodCallIndentation:
+  Exclude:
+    - 'spec/requests/households_spec.rb'
+    - 'spec/services/calendar_sync/pull_spec.rb'
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowForAlignment, EnforcedStyleForExponentOperator, EnforcedStyleForRationalLiterals.
+# SupportedStylesForExponentOperator: space, no_space
+# SupportedStylesForRationalLiterals: space, no_space
+Layout/SpaceAroundOperators:
+  Exclude:
+    - 'app/controllers/todo_comments_controller.rb'
+    - 'spec/models/household_spec.rb'
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowedMethods, AllowedPatterns.
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - 'spec/services/calendar_sync/pull_spec.rb'
+
+# Offense count: 1
+Lint/StructNewOverride:
+  Exclude:
+    - 'app/services/german_date_extractor.rb'
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+Lint/UselessAssignment:
+  Exclude:
+    - 'spec/requests/todo_notifications_spec.rb'
+
+# Offense count: 3
+# Configuration parameters: CountComments, CountAsOne, AllowedMethods, AllowedPatterns, inherit_mode.
+# AllowedMethods: refine
+Metrics/BlockLength:
+  Max: 41
+
+# Offense count: 1
+# Configuration parameters: Max, CountKeywordArgs, MaxOptionalParameters.
+Metrics/ParameterLists:
+  Exclude:
+    - 'app/services/todo_notifications.rb'
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, BlockForwardingName.
+# SupportedStyles: anonymous, explicit
+Naming/BlockForwarding:
+  Exclude:
+    - 'app/controllers/concerns/household_time_zone.rb'
+
+# Offense count: 2
+RSpec/LeakyLocalVariable:
+  Exclude:
+    - 'spec/models/todo_spec.rb'
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: ExpectedOrder.
+# ExpectedOrder: index, show, new, edit, create, update, destroy
+Rails/ActionOrder:
+  Exclude:
+    - 'app/controllers/calendar_events_controller.rb'
+    - 'app/controllers/todos_controller.rb'
+
+# Offense count: 2
+# This cop supports unsafe autocorrection (--autocorrect-all).
+Rails/Pluck:
+  Exclude:
+    - 'spec/requests/api/v1/single_household_spec.rb'
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowOnlyRestArgument, UseAnonymousForwarding, RedundantRestArgumentNames, RedundantKeywordRestArgumentNames, RedundantBlockArgumentNames.
+# RedundantRestArgumentNames: args, arguments
+# RedundantKeywordRestArgumentNames: kwargs, options, opts
+# RedundantBlockArgumentNames: blk, block, proc
+Style/ArgumentsForwarding:
+  Exclude:
+    - 'app/controllers/concerns/household_time_zone.rb'
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+Style/IfUnlessModifier:
+  Exclude:
+    - 'app/controllers/calendar_connections_controller.rb'
+    - 'app/services/calendar_sync/google/oauth.rb'
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+Style/RedundantParentheses:
+  Exclude:
+    - 'app/controllers/calendar_events_controller.rb'
+    - 'app/services/german_date_extractor.rb'
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+Style/RescueModifier:
+  Exclude:
+    - 'app/controllers/calendar_events_controller.rb'
+    - 'app/services/german_date_extractor.rb'
+
+# Offense count: 3
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: single_quotes, double_quotes
+Style/StringLiteralsInInterpolation:
+  Exclude:
+    - 'app/helpers/calendars_helper.rb'
+    - 'app/services/german_date_extractor.rb'

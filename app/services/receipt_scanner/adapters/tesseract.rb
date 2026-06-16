@@ -36,6 +36,39 @@ module ReceiptScanner
       PREPROCESS_ENABLED = ENV.fetch("OCR_PREPROCESS", "1") != "0"
       MIN_PREPROCESS_WIDTH = ENV.fetch("OCR_MIN_WIDTH", "1800").to_i
 
+      # Resource caps handed to every `convert` invocation. These are the
+      # *enforced* hardening layer: ImageMagick's policy.xml is silently
+      # ignored by the Debian reproducible-build IM6 in our images, but
+      # command-line `-limit` flags (and the matching MAGICK_*_LIMIT env vars
+      # set in the Dockerfiles) are honoured. They stop decompression bombs
+      # and runaway memory/time from a malicious receipt upload.
+      CONVERT_LIMITS = %w[
+        -limit memory 256MiB
+        -limit map 512MiB
+        -limit disk 1GiB
+        -limit area 128MP
+        -limit width 16KP
+        -limit height 16KP
+        -limit time 120
+      ].freeze
+
+      # Magic-byte allowlist of raster formats we hand to `convert`. A file
+      # whose extension says ".jpg" but whose bytes are an MVG/MSL/SVG script
+      # would otherwise be auto-detected and *executed* by ImageMagick (the
+      # classic "ImageTragick" coder-RCE/SSRF vector). policy.xml would
+      # normally disable those coders, but it is inert in our IM6 build, so we
+      # gate at the application layer instead: anything not on this list skips
+      # `convert` entirely and is OCR'd as-is (tesseract/Leptonica have no
+      # scripting coders). HEIF/HEIC (iPhone uploads) carry an "ftyp" box at
+      # offset 4.
+      RASTER_MAGIC_PREFIXES = [
+        "\xFF\xD8\xFF".b,          # JPEG
+        "\x89PNG\r\n\x1A\n".b,     # PNG
+        "GIF87a".b, "GIF89a".b,    # GIF
+        "BM".b,                    # BMP
+        "II*\x00".b, "MM\x00*".b   # TIFF (little/big endian)
+      ].freeze
+
       def initialize(lang: DEFAULT_LANG, psm: DEFAULT_PSM, pdf_dpi: PDF_DPI)
         @lang    = lang
         @psm     = psm
@@ -65,6 +98,20 @@ module ReceiptScanner
       # take the right branch.
       def pdf?(path)
         File.binread(path, 4) == "%PDF"
+      rescue StandardError
+        false
+      end
+
+      # True only for files whose leading bytes are a known raster image, plus
+      # the WEBP and HEIF/HEIC container formats (brand box at offset 4). Used
+      # to keep crafted script files (MVG/MSL/SVG) away from ImageMagick.
+      def raster_image?(path)
+        head = File.binread(path, 16).to_s.b
+        return true if RASTER_MAGIC_PREFIXES.any? { |p| head.start_with?(p) }
+        return true if head.start_with?("RIFF".b) && head[8, 4] == "WEBP".b
+        return true if head[4, 4] == "ftyp".b # HEIF/HEIC/AVIF family
+
+        false
       rescue StandardError
         false
       end
@@ -123,9 +170,17 @@ module ReceiptScanner
       #   -sharpen       cheap edge sharpening helps the LSTM model.
       #   -strip         drops EXIF (we don't need it post-orient).
       def preprocess_image!(src_path, dst_path)
+        # Never feed a non-raster file to ImageMagick: a misnamed MVG/MSL/SVG
+        # script would be auto-detected and executed (ImageTragick). OCR the
+        # original directly instead -- tesseract has no scripting coders.
+        unless raster_image?(src_path)
+          Rails.logger.warn("[ReceiptScanner] unrecognized image format; skipping convert preprocess")
+          return FileUtils.cp(src_path, dst_path)
+        end
+
         out, err, status = Open3.capture3(
           ocr_env,
-          "convert", src_path,
+          "convert", *CONVERT_LIMITS, src_path,
           "-auto-orient",
           "-colorspace", "Gray",
           "-normalize",

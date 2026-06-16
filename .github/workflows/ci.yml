@@ -24,10 +24,9 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-      # `continue-on-error` mirrors the gitlab-ci `allow_failure: true`:
-      # style violations don't block the rest of the pipeline.
+      # BLOCKING (ROADMAP M0c). `.rubocop_todo.yml` grandfathers the
+      # pre-existing offenses, so this fails the build only on NEW ones.
       - name: RuboCop
-        continue-on-error: true
         run: bundle exec rubocop --parallel --format progress
 
   sorbet:
@@ -37,6 +36,10 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+      # Non-gating spike (ROADMAP M0c). `srb tc` reports ~464 errors today,
+      # almost all "method does not exist" against Rails DSLs (validates,
+      # belongs_to, scope) because no Rails RBIs are generated yet. Kept
+      # visible-but-non-blocking until tapioca RBIs land in a later milestone.
       - name: Sorbet type-check
         continue-on-error: true
         run: bundle exec srb tc
@@ -65,6 +68,9 @@ jobs:
       DATABASE_USERNAME: pantria
       DATABASE_PASSWORD: pantria
       DATABASE_NAME: pantria_test
+      # Turn on SimpleCov (spec_helper gates it on COVERAGE=1) so the
+      # coverage summary below has something to print. Non-gating for now.
+      COVERAGE: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
@@ -80,6 +86,17 @@ jobs:
         run: bundle exec rails db:prepare
       - name: RSpec
         run: bundle exec rspec --format progress --format RspecJunitFormatter --out tmp/rspec.xml
+      # Non-gating coverage report (ROADMAP M0c). Prints the line-coverage
+      # percentage to the job summary; never fails the build (no threshold
+      # yet — that's a later ratchet step).
+      - name: Coverage summary
+        if: always()
+        run: |
+          if [ -f coverage/.last_run.json ]; then
+            ruby -rjson -e 'pct = JSON.parse(File.read("coverage/.last_run.json")).dig("result", "line"); puts "Line coverage: #{pct}%"' | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No coverage/.last_run.json produced (SimpleCov did not run)." | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Upload JUnit + coverage
         if: always()
         uses: actions/upload-artifact@v4
