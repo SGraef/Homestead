@@ -14,6 +14,9 @@
     <link rel="icon" type="image/svg+xml" href="<%= asset_path("mark.svg") %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <% if Rails.application.config.x.vapid[:public_key].present? %>
+      <meta name="vapid-public-key" content="<%= Rails.application.config.x.vapid[:public_key] %>">
+    <% end %>
     <%# Apply persisted theme before stylesheets so we don't flash the wrong palette. %>
     <script>
       (function() {
@@ -58,6 +61,10 @@
         <a href="<%= offers_path %>" class="nav-link"><%= t("nav.offers") %></a>
         <a href="<%= recipes_path %>" class="nav-link"><%= t("nav.recipes") %></a>
         <a href="<%= meal_plan_path %>" class="nav-link"><%= t("nav.meal_plan") %></a>
+        <a href="<%= todos_path %>" class="nav-link"><%= t("nav.todos") %></a>
+        <a href="<%= calendar_path %>" class="nav-link"><%= t("nav.calendar") %></a>
+        <%= turbo_stream_from current_user, :notifications %>
+        <%= render "notifications/bell", user: current_user %>
         <a href="<%= household_path %>" class="nav-link"><%= t("nav.household") %></a>
         <a href="/jobs" class="nav-link"><%= t("nav.jobs") %></a>
         <span class="nav-spacer"></span>

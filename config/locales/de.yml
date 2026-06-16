@@ -53,6 +53,83 @@ de:
     search: "Suchen"
     clear: "Zurücksetzen"
 
+  todo:
+    title: "Aufgaben"
+    new: "Neue Aufgabe"
+    edit: "Aufgabe bearbeiten"
+    back: "Zurück zu den Aufgaben"
+    empty: "Noch keine Aufgaben."
+    creator: "Erstellt von"
+    completed_at: "Erledigt"
+    assigned_to: "zugewiesen an %{name}"
+    comments: "Kommentare"
+    add_comment: "Kommentar hinzufügen"
+    comment_placeholder: "Schreib einen Kommentar…"
+    delete_confirm: "Diese Aufgabe löschen?"
+    reopen: "Wieder öffnen"
+    due_on: "Fällig am"
+    assignee: "Zugewiesen"
+    assign: "Zuweisen"
+    unassigned: "Nicht zugewiesen"
+    follow: "Folgen"
+    unfollow: "Nicht mehr folgen"
+    states:
+      open: "Offen"
+      in_progress: "In Arbeit"
+      done: "Erledigt"
+    advance_to:
+      in_progress: "Starten"
+      done: "Erledigen"
+
+  notification:
+    title: "Benachrichtigungen"
+    empty: "Keine Benachrichtigungen."
+    unread: "Neu"
+    mark_all_read: "Alle als gelesen markieren"
+    all_read: "Alle Benachrichtigungen als gelesen markiert."
+    status_changed: "Status geändert zu %{state}"
+    assigned:
+      title: "Dir wurde eine Aufgabe zugewiesen"
+      body: "%{title}"
+    todo_changed:
+      title: "Eine Aufgabe, der du folgst, hat sich geändert"
+    comment_added:
+      title: "Neuer Kommentar"
+      body: "Neuer Kommentar zu %{title}"
+
+  push:
+    enable: "Push-Benachrichtigungen aktivieren"
+    enabled: "Push-Benachrichtigungen sind auf diesem Gerät aktiv."
+    denied: "Benachrichtigungen sind blockiert — Updates siehst du hier in der Glocke."
+    unsupported: "Dieser Browser unterstützt kein Push (die Glocke siehst du trotzdem). Auf dem iPhone füge Pantria zuerst zum Home-Bildschirm hinzu."
+    error: "Push konnte nicht aktiviert werden. Bitte erneut versuchen."
+
+  calendar:
+    title: "Kalender"
+    today: "Heute"
+    empty: "Nichts geplant."
+    back: "Zurück zum Kalender"
+    new_event: "Neuer Termin"
+    edit_event: "Termin bearbeiten"
+    delete_confirm: "Diesen Termin löschen?"
+    all_day: "Ganztägig"
+    views:
+      month: "Monat"
+      agenda: "Agenda"
+      day: "Tag"
+    legend:
+      event: "Termin"
+      todo_due: "Aufgabe fällig"
+    event:
+      starts_at: "Beginn"
+      ends_at: "Ende"
+      all_day: "Ganztägig"
+    suggestion:
+      detected: "Termin erkannt: %{when}"
+      confirm: "In Kalender übernehmen"
+      dismiss: "Verwerfen"
+      create_todo: "Aufgabe aus Termin erstellen"
+
   nav:
     storage: "Vorrat"
     freezer: "Tiefkühler"
@@ -65,6 +142,9 @@ de:
     offers: "Angebote"
     recipes: "Rezepte"
     meal_plan: "Essensplan"
+    todos: "Aufgaben"
+    calendar: "Kalender"
+    notifications: "Benachrichtigungen"
     jobs: "Jobs"
     household: "Haushalt"
     logout: "Abmelden"
@@ -122,6 +202,15 @@ de:
     invalid_email:     "Bitte gib eine gültige E-Mail-Adresse ein."
     user_not_found:    "Benutzer nicht gefunden."
     receipt_uploaded:  "Beleg hochgeladen — OCR läuft im Hintergrund."
+    todo_created:      "Aufgabe erstellt."
+    todo_updated:      "Aufgabe aktualisiert."
+    todo_deleted:      "Aufgabe gelöscht."
+    todo_invalid_transition: "Diese Statusänderung ist nicht erlaubt."
+    todo_followed:     "Du folgst dieser Aufgabe jetzt."
+    todo_unfollowed:   "Du folgst dieser Aufgabe nicht mehr."
+    event_created:     "Termin erstellt."
+    event_updated:     "Termin aktualisiert."
+    event_deleted:     "Termin gelöscht."
     receipt_confirmed: "Beleg bestätigt — Produkte, Geschäft und Preise gespeichert."
     receipt_removed:      "Beleg entfernt."
     receipt_reprocessing: "OCR läuft erneut — aktualisiere die Seite, um das Ergebnis zu sehen."

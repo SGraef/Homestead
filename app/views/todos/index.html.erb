@@ -1,0 +1,11 @@
+<% content_for :title, t("todo.title") %>
+<h1><%= t("todo.title") %></h1>
+<p><%= link_to t("todo.new"), new_todo_path, class: "btn" %></p>
+
+<div id="todos">
+  <% if @todos.any? %>
+    <%= render @todos %>
+  <% else %>
+    <p class="caption"><%= t("todo.empty") %></p>
+  <% end %>
+</div>

@@ -1,0 +1,37 @@
+<% content_for :title, t("notification.title") %>
+<h1><%= t("notification.title") %></h1>
+
+<div data-controller="push-subscribe"
+     data-push-subscribe-create-url="<%= push_subscriptions_path %>"
+     data-push-subscribe-enabled="<%= t('push.enabled') %>"
+     data-push-subscribe-denied="<%= t('push.denied') %>"
+     data-push-subscribe-unsupported="<%= t('push.unsupported') %>"
+     data-push-subscribe-error="<%= t('push.error') %>"
+     style="margin-bottom:var(--sp-2)">
+  <button type="button" class="btn btn-sm secondary"
+          data-push-subscribe-target="button"
+          data-action="push-subscribe#enable"><%= t("push.enable") %></button>
+  <span class="caption" data-push-subscribe-target="status"></span>
+</div>
+
+<% if @notifications.any? %>
+  <p>
+    <%= button_to t("notification.mark_all_read"), read_all_notifications_path,
+                  method: :post, class: "btn btn-sm secondary", form: { style: "display:inline" } %>
+  </p>
+  <ul style="list-style:none;padding:0">
+    <% @notifications.each do |n| %>
+      <li class="card card-flat" style="margin-bottom:var(--sp-1);<%= "opacity:.6" unless n.read? %>">
+        <%= button_to read_notification_path(n), method: :post,
+                      class: "btn-link", form: { style: "display:block;text-align:left;width:100%" } do %>
+          <% unless n.read? %><span class="pill warn"><%= t("notification.unread") %></span> <% end %>
+          <strong><%= n.title %></strong>
+          <% if n.body.present? %><div><%= n.body %></div><% end %>
+          <div class="caption"><%= l(n.created_at, format: :short) %></div>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="caption"><%= t("notification.empty") %></p>
+<% end %>

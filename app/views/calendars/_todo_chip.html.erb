@@ -1,0 +1,5 @@
+<%= link_to todo_path(todo), class: "pill warn",
+            title: todo.title, data: { turbo_frame: "_top" },
+            style: "display:block;margin-top:2px;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" do %>
+  ☑ <%= todo.title %>
+<% end %>

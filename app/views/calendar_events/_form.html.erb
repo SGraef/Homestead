@@ -1,0 +1,12 @@
+<%= form_with model: @event, local: true do |f| %>
+  <% if @event.errors.any? %>
+    <div class="flash alert"><%= @event.errors.full_messages.to_sentence %></div>
+  <% end %>
+  <p><%= f.label :title %><br><%= f.text_field :title, required: true, style: "width:100%" %></p>
+  <p><%= f.label :starts_at, t("calendar.event.starts_at") %><br>
+     <%= f.datetime_local_field :starts_at %></p>
+  <p><%= f.label :ends_at, t("calendar.event.ends_at") %><br>
+     <%= f.datetime_local_field :ends_at %></p>
+  <p><label><%= f.check_box :all_day %> <%= t("calendar.event.all_day") %></label></p>
+  <p><%= f.submit class: "btn" %></p>
+<% end %>
