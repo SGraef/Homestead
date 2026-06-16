@@ -113,3 +113,39 @@ async function cacheFirst(request) {
     return new Response("", { status: 504, statusText: "Asset unavailable" });
   }
 }
+
+// --- Web Push ------------------------------------------------------------
+// A push arrives with a JSON payload {title, body, url, tag}. Show a
+// notification; clicking it focuses an existing client at the deep link or
+// opens a new window.
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (_) {
+    data = { body: event.data ? event.data.text() : "" };
+  }
+
+  const title = data.title || "Pantria";
+  const options = {
+    body: data.body || "",
+    tag: data.tag,
+    data: { url: data.url || "/" },
+    icon: "<%= asset_path("pwa/icon-192.png") %>",
+    badge: "<%= asset_path("pwa/icon-192.png") %>"
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/";
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(url) && "focus" in client) return client.focus();
+      }
+      if (clients.openWindow) return clients.openWindow(url);
+    })
+  );
+});

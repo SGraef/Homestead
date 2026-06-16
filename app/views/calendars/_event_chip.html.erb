@@ -1,0 +1,13 @@
+<% if event.recurring? %>
+  <%# Recurring events synced from a remote calendar are read-only here. %>
+  <span class="pill" title="<%= "#{event.title} (#{t('calendar.recurring')})" %>"
+        style="display:block;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+    ↻ <%= cal_event_time(event) %> · <%= event.title %>
+  </span>
+<% else %>
+  <%= link_to edit_calendar_event_path(event), class: "pill",
+              title: event.title, data: { turbo_frame: "modal" },
+              style: "display:block;margin-top:2px;text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" do %>
+    <%= cal_event_time(event) %> · <%= event.title %>
+  <% end %>
+<% end %>

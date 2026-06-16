@@ -1,0 +1,9 @@
+<%= turbo_frame_tag dom_id(todo, :new_comment) do %>
+  <%= form_with model: comment, url: todo_comments_path(todo), local: true do |f| %>
+    <p>
+      <%= f.text_area :body, rows: 2, placeholder: t("todo.comment_placeholder"),
+                      required: true, style: "width:100%" %>
+    </p>
+    <p><%= f.submit t("todo.add_comment"), class: "btn btn-sm" %></p>
+  <% end %>
+<% end %>

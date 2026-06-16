@@ -1,0 +1,36 @@
+<div class="caption" style="margin-bottom:var(--sp-1)"><%= l(@date, format: "%B %Y") %></div>
+<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;max-width:100%">
+  <% I18n.t("date.abbr_day_names").rotate(1).each do |wd| %>
+    <div class="caption" style="text-align:center;font-weight:600;min-width:0"><%= wd %></div>
+  <% end %>
+
+  <% cap = 4 %>
+  <% calendar_weeks(@range).each do |week| %>
+    <% week.each do |day| %>
+      <% in_month = (day.month == @date.month) %>
+      <% items = Array(@events_by_day[day]) + Array(@todos_by_day[day]) %>
+      <div data-cal-day="<%= day.iso8601 %>" id="<%= cal_day_cell_id(day) %>"
+           class="card card-flat"
+           style="min-height:88px;min-width:0;overflow:hidden;padding:var(--sp-1);<%= 'opacity:.45' unless in_month %><%= ';outline:2px solid var(--accent)' if day == Date.current %>">
+        <div class="caption" style="text-align:right"><%= day.day %></div>
+        <% items.first(cap).each do |item| %>
+          <% if item.is_a?(CalendarEvent) %>
+            <%= render "calendars/event_chip", event: item %>
+          <% else %>
+            <%= render "calendars/todo_chip", todo: item %>
+          <% end %>
+        <% end %>
+        <% if items.size > cap %>
+          <%= link_to t("calendar.more", count: items.size - cap),
+                      calendar_path(date: day.iso8601, view: "day"),
+                      class: "caption", data: { turbo_frame: "_top" },
+                      style: "display:block;margin-top:2px" %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+<p class="caption" style="margin-top:var(--sp-2)">
+  <span class="pill"><%= t("calendar.legend.event") %></span>
+  <span class="pill warn"><%= t("calendar.legend.todo_due") %></span>
+</p>

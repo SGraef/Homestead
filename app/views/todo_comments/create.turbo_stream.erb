@@ -1,0 +1,5 @@
+<%# The new comment is appended on every client (incl. the actor) via the
+    TodoComment broadcast; the form response just resets the input. %>
+<%= turbo_stream.replace dom_id(@todo, :new_comment) do %>
+  <%= render "todo_comments/form", todo: @todo, comment: @todo.todo_comments.new %>
+<% end %>

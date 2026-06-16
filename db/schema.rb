@@ -69,6 +69,47 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_01_000001) do
     t.index ["household_id"], name: "index_bring_connections_on_household_id", unique: true
   end
 
+  create_table "calendar_connections", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "provider", default: "google", null: false
+    t.string "client_id"
+    t.text "client_secret"
+    t.text "access_token"
+    t.text "refresh_token"
+    t.datetime "token_expires_at"
+    t.string "calendar_id"
+    t.string "sync_token", limit: 1024
+    t.string "status", default: "disconnected", null: false
+    t.string "last_error_code"
+    t.datetime "last_synced_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_calendar_connections_on_household_id", unique: true
+  end
+
+  create_table "calendar_events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "title", null: false
+    t.datetime "starts_at", null: false
+    t.datetime "ends_at"
+    t.boolean "all_day", default: false, null: false
+    t.string "source", default: "manual", null: false
+    t.string "source_record_type"
+    t.bigint "source_record_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "calendar_connection_id"
+    t.string "remote_id"
+    t.string "etag"
+    t.string "sync_origin", default: "local", null: false
+    t.boolean "recurring", default: false, null: false
+    t.index ["calendar_connection_id", "remote_id"], name: "index_calendar_events_on_connection_and_remote_id", unique: true
+    t.index ["calendar_connection_id"], name: "index_calendar_events_on_calendar_connection_id"
+    t.index ["household_id", "starts_at"], name: "index_calendar_events_on_household_id_and_starts_at"
+    t.index ["household_id"], name: "index_calendar_events_on_household_id"
+    t.index ["source_record_type", "source_record_id"], name: "index_calendar_events_on_source_record"
+  end
+
   create_table "grocery_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "product_id"
@@ -167,6 +208,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_01_000001) do
     t.index ["household_id"], name: "index_memberships_on_household_id"
     t.index ["user_id", "household_id"], name: "index_memberships_on_user_id_and_household_id", unique: true
     t.index ["user_id"], name: "index_memberships_on_user_id"
+  end
+
+  create_table "notifications", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "actor_id"
+    t.string "notifiable_type"
+    t.bigint "notifiable_id"
+    t.string "kind", null: false
+    t.string "title", null: false
+    t.text "body"
+    t.string "url"
+    t.string "dedup_key", null: false
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_notifications_on_actor_id"
+    t.index ["dedup_key"], name: "index_notifications_on_dedup_key", unique: true
+    t.index ["household_id"], name: "index_notifications_on_household_id"
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "offer_blocklist_entries", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -299,6 +362,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_01_000001) do
     t.index ["household_id"], name: "index_products_on_household_id"
   end
 
+  create_table "push_subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "household_id", null: false
+    t.text "endpoint", null: false
+    t.string "endpoint_digest", null: false
+    t.string "p256dh", null: false
+    t.string "auth", null: false
+    t.string "user_agent"
+    t.datetime "last_used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["endpoint_digest"], name: "index_push_subscriptions_on_endpoint_digest", unique: true
+    t.index ["household_id"], name: "index_push_subscriptions_on_household_id"
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+  end
+
   create_table "receipt_line_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "receipt_id", null: false
     t.bigint "product_id"
@@ -364,6 +443,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_01_000001) do
     t.string "tags", limit: 500
     t.index ["household_id", "name"], name: "idx_recipes_household_name"
     t.index ["household_id"], name: "index_recipes_on_household_id"
+  end
+
+  create_table "solid_cable_messages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.binary "channel", limit: 1024, null: false
+    t.binary "payload", size: :long, null: false
+    t.datetime "created_at", null: false
+    t.bigint "channel_hash", null: false
+    t.index ["channel"], name: "index_solid_cable_messages_on_channel"
+    t.index ["channel_hash"], name: "index_solid_cable_messages_on_channel_hash"
+    t.index ["created_at"], name: "index_solid_cable_messages_on_created_at"
   end
 
   create_table "solid_queue_blocked_executions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -517,6 +606,60 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_01_000001) do
     t.index ["household_id"], name: "index_stores_on_household_id"
   end
 
+  create_table "suggestion_dismissals", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "todo_comment_id", null: false
+    t.string "span_hash", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["todo_comment_id", "span_hash"], name: "index_suggestion_dismissals_on_todo_comment_id_and_span_hash", unique: true
+    t.index ["todo_comment_id"], name: "index_suggestion_dismissals_on_todo_comment_id"
+  end
+
+  create_table "todo_comments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "todo_id", null: false
+    t.bigint "user_id"
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_todo_comments_on_household_id"
+    t.index ["todo_id"], name: "index_todo_comments_on_todo_id"
+    t.index ["user_id"], name: "index_todo_comments_on_user_id"
+  end
+
+  create_table "todo_follows", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "todo_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_todo_follows_on_household_id"
+    t.index ["todo_id", "user_id"], name: "index_todo_follows_on_todo_id_and_user_id", unique: true
+    t.index ["todo_id"], name: "index_todo_follows_on_todo_id"
+    t.index ["user_id"], name: "index_todo_follows_on_user_id"
+  end
+
+  create_table "todos", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "creator_id"
+    t.bigint "assignee_id"
+    t.string "title", null: false
+    t.text "description"
+    t.string "status", default: "open", null: false
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.date "due_on"
+    t.string "source", default: "manual", null: false
+    t.bigint "source_calendar_event_id"
+    t.index ["assignee_id"], name: "index_todos_on_assignee_id"
+    t.index ["creator_id"], name: "index_todos_on_creator_id"
+    t.index ["household_id", "due_on"], name: "index_todos_on_household_id_and_due_on"
+    t.index ["household_id", "status"], name: "index_todos_on_household_id_and_status"
+    t.index ["household_id"], name: "index_todos_on_household_id"
+    t.index ["source_calendar_event_id"], name: "index_todos_on_source_calendar_event_id"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "email", null: false
     t.string "crypted_password"
@@ -543,6 +686,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_01_000001) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "api_tokens", "users"
   add_foreign_key "bring_connections", "households"
+  add_foreign_key "calendar_connections", "households"
+  add_foreign_key "calendar_events", "calendar_connections"
+  add_foreign_key "calendar_events", "households"
   add_foreign_key "grocery_items", "households"
   add_foreign_key "grocery_items", "products"
   add_foreign_key "grocery_items", "stores"
@@ -555,6 +701,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_01_000001) do
   add_foreign_key "meal_plan_entries", "recipes", on_delete: :cascade
   add_foreign_key "memberships", "households"
   add_foreign_key "memberships", "users"
+  add_foreign_key "notifications", "households"
+  add_foreign_key "notifications", "users"
+  add_foreign_key "notifications", "users", column: "actor_id"
   add_foreign_key "offer_blocklist_entries", "households", on_delete: :cascade
   add_foreign_key "offer_categories", "households", on_delete: :cascade
   add_foreign_key "offer_category_keywords", "offer_categories", on_delete: :cascade
@@ -568,6 +717,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_01_000001) do
   add_foreign_key "product_barcodes", "products"
   add_foreign_key "product_synonyms", "products"
   add_foreign_key "products", "households"
+  add_foreign_key "push_subscriptions", "households"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "receipt_line_items", "products"
   add_foreign_key "receipt_line_items", "receipts"
   add_foreign_key "receipts", "households"
@@ -586,4 +737,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_01_000001) do
   add_foreign_key "storage_items", "locations"
   add_foreign_key "storage_items", "products"
   add_foreign_key "stores", "households"
+  add_foreign_key "suggestion_dismissals", "todo_comments"
+  add_foreign_key "todo_comments", "households"
+  add_foreign_key "todo_comments", "todos"
+  add_foreign_key "todo_comments", "users"
+  add_foreign_key "todo_follows", "households"
+  add_foreign_key "todo_follows", "todos"
+  add_foreign_key "todo_follows", "users"
+  add_foreign_key "todos", "calendar_events", column: "source_calendar_event_id"
+  add_foreign_key "todos", "households"
+  add_foreign_key "todos", "users", column: "assignee_id"
+  add_foreign_key "todos", "users", column: "creator_id"
 end

@@ -1,0 +1,19 @@
+<%= tag.div id: dom_id(todo), class: "card card-flat", style: "margin-bottom:var(--sp-2);display:flex;justify-content:space-between;align-items:center;gap:var(--sp-2);flex-wrap:wrap" do %>
+  <div>
+    <%= link_to todo.title, todo_path(todo), style: "font-weight:600" %>
+    <div class="caption">
+      <%= todo_status_badge(todo) %>
+      <% if todo.assignee %> · <%= t("todo.assigned_to", name: member_name(todo.assignee)) %><% end %>
+    </div>
+  </div>
+  <div style="display:flex;gap:var(--sp-1);flex-wrap:wrap">
+    <% if (nxt = todo.next_state) %>
+      <%= button_to t("todo.advance_to.#{nxt}"), transition_todo_path(todo, to: nxt),
+                    method: :post, class: "btn btn-sm", form: { style: "display:inline" } %>
+    <% end %>
+    <% if todo.status == "done" %>
+      <%= button_to t("todo.reopen"), transition_todo_path(todo, to: "in_progress"),
+                    method: :post, class: "btn btn-sm secondary", form: { style: "display:inline" } %>
+    <% end %>
+  </div>
+<% end %>

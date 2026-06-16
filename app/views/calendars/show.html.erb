@@ -1,0 +1,33 @@
+<% content_for :title, t("calendar.title") %>
+<%= turbo_frame_tag "calendar" do %>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:var(--sp-2);flex-wrap:wrap;margin-bottom:var(--sp-2)">
+    <h1 style="margin:0"><%= t("calendar.title") %></h1>
+    <div style="display:flex;gap:var(--sp-1);flex-wrap:wrap">
+      <%= link_to "‹", calendar_path(date: calendar_step(@date, @view, -1).iso8601, view: @view), class: "btn btn-sm secondary" %>
+      <%= link_to t("calendar.today"), calendar_path(view: @view), class: "btn btn-sm secondary" %>
+      <%= link_to "›", calendar_path(date: calendar_step(@date, @view, 1).iso8601, view: @view), class: "btn btn-sm secondary" %>
+      <%= link_to t("calendar.new_event"), new_calendar_event_path(date: @date.iso8601), class: "btn btn-sm", data: { turbo_frame: "_top" } %>
+      <% if current_user&.admin_of?(current_household) %>
+        <%= link_to t("calendar_connection.title"), calendar_connection_path, class: "btn btn-sm secondary", data: { turbo_frame: "_top" } %>
+      <% end %>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:var(--sp-1);margin-bottom:var(--sp-2)">
+    <% %w[month agenda day].each do |v| %>
+      <%= link_to t("calendar.views.#{v}"), calendar_path(date: @date.iso8601, view: v),
+                  class: ("btn btn-sm #{v == @view ? '' : 'secondary'}") %>
+    <% end %>
+  </div>
+
+  <%= render "calendars/#{@view}" %>
+<% end %>
+
+<%# Event modal — chips load an event into this Turbo Frame; the controller
+    opens the <dialog>. Lives outside the "calendar" frame so it survives date
+    navigation. %>
+<dialog data-controller="modal"
+        data-action="close->modal#cleanup click->modal#backdropClose"
+        class="modal-dialog">
+  <%= turbo_frame_tag "modal", data: { modal_target: "frame" } %>
+</dialog>
