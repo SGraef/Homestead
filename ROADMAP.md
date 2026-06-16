@@ -50,6 +50,18 @@ Effort key: **S** ≤ ~2 days · **M** ≤ ~1 week · **L** ≤ ~2–3 weeks · 
 
 **Exit criteria:** Posture & conflict-policy decisions recorded in `ROADMAP.md`; Bring! tokens encrypted in DB; upload pipeline has documented decompression/size limits; RuboCop blocking on new offenses; `srb tc` exit status + RuboCop offense count measured (sizes the Sorbet flip).
 
+#### M0 — Status & recorded decisions (✅ delivered)
+
+**Product decisions (PO):**
+- **Deployment posture → internet-exposed behind TLS.** Pantria runs on the public internet behind an HTTPS reverse proxy. The threat model therefore includes brute-force, session/CSRF, and exposed-endpoint abuse on top of data-at-rest. **Consequences:** the M1 SSRF allowlist + private-IP redirect block stays required (it was already posture-independent); **bearer-token rate-limiting is now in-scope for M1** (the `default_household` row in M1 made it posture-conditional — it is now ON); IMAP-TLS enforcement stays in scope.
+- **Bring! conflict policy → union, Bring! wins ties.** On divergence, merge both sides (keep every item present in either system); when the *same* item conflicts (e.g. checked-state differs), the Bring! app's state wins. No silent deletes from a missing-on-one-side item — absence is treated as "not yet synced", not "delete". This is what the M2 Bring! conflict/dedup/race matrix and the M3 live-sync gate are written against.
+- **Success metrics** (emitted via OTel to steer M3 sequencing): time-to-first-storage-item, scans/week, receipts confirmed-vs-discarded, members-per-household, concurrent-edit rate.
+
+**Engineering quick wins (delivered):**
+- **Bring! tokens encrypted at rest** — `encrypts :access_token, :refresh_token`; migration widened columns to `text` and cleared plaintext (benign re-auth). Spec asserts ciphertext ≠ plaintext in the DB.
+- **Upload-pipeline hardening** — our Debian reproducible-build ImageMagick 6 **silently ignores `policy.xml`** (verified: malformed XML raises no parse error; coder/limit rules never apply). Enforced controls instead: resource/DoS limits via `MAGICK_*_LIMIT` env vars + per-`convert` `-limit` flags; coder-RCE (ImageTragick) blocked by an application-layer magic-byte raster allowlist that keeps script files away from `convert`. `policy.xml` still shipped as best-effort defense-in-depth.
+- **CI ratchet part 1** — RuboCop **blocking** with `.rubocop_todo.yml` grandfathering 13 pre-existing offenses (zero LineLength/TrailingComma debt — those were fixed outright); non-gating SimpleCov line-coverage print on the RSpec job; `srb tc` baseline captured: **~464 errors**, almost all Rails-DSL "method does not exist" pending tapioca RBIs (sizes the M1 Sorbet flip — RBIs are a prerequisite, not a quick toggle).
+
 ---
 
 ### M1 — Foundation & Trust (Q1 core)
