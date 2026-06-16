@@ -56,6 +56,13 @@ class CalendarConnectionsController < ApplicationController
     redirect_to calendar_connection_path, notice: t("calendar_connection.calendar_selected")
   end
 
+  # POST /calendar_connection/sync — trigger a pull now (instead of waiting for the poll).
+  def sync
+    authorize @connection, :update?
+    CalendarPollJob.perform_later if @connection.connected? && @connection.calendar_id.present?
+    redirect_to calendar_connection_path, notice: t("calendar_connection.sync_started")
+  end
+
   # DELETE /calendar_connection/disconnect — clear tokens + sync state.
   def disconnect
     authorize @connection, :update?

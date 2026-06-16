@@ -111,6 +111,8 @@ de:
     title: "Kalender"
     today: "Heute"
     empty: "Nichts geplant."
+    recurring: "Wiederkehrend — in deiner Kalender-App bearbeiten"
+    recurring_readonly: "Wiederkehrende Termine sind hier schreibgeschützt. Bearbeite sie in deiner Kalender-App."
     back: "Zurück zum Kalender"
     new_event: "Neuer Termin"
     edit_event: "Termin bearbeiten"
@@ -152,11 +154,18 @@ de:
     disconnect: "Trennen"
     disconnect_confirm: "Google Kalender trennen? Synchronisierte Termine bleiben in Pantria, werden aber nicht mehr aktualisiert."
     disconnected_notice: "Google Kalender getrennt."
+    sync_now: "Jetzt synchronisieren"
+    sync_started: "Synchronisierung gestartet."
     last_synced: "Zuletzt synchronisiert %{at}"
     status:
       disconnected: "Nicht verbunden"
       connected: "Verbunden"
       error: "Sync-Fehler"
+    error_detail:
+      generic: "Die letzte Synchronisierung ist fehlgeschlagen. Versuche „Jetzt synchronisieren“ oder verbinde neu."
+      oauth: "Anmeldung bei Google fehlgeschlagen. Verbinde neu, um den Zugriff zu erneuern."
+      pull: "Änderungen von Google konnten nicht abgerufen werden. Wir versuchen es bei der nächsten Synchronisierung erneut."
+      api: "Google hat eine Anfrage abgelehnt. Versuche „Jetzt synchronisieren“ oder verbinde neu."
 
   nav:
     storage: "Vorrat"

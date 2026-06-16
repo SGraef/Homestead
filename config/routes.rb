@@ -113,6 +113,7 @@ Rails.application.routes.draw do
     post   :connect          # -> redirect to Google consent
     get    :callback         # Google redirects back here
     patch  :select_calendar  # choose which Google calendar to sync
+    post   :sync             # trigger a pull now
     delete :disconnect
   end
   resources :calendar_events, only: %i[new create edit update destroy], path: "calendar/events" do

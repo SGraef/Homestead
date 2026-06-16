@@ -3,13 +3,28 @@
 <h1><%= t("calendar_connection.title") %></h1>
 
 <p>
-  <span class="pill <%= { 'connected' => 'success', 'error' => 'danger' }[@connection.status] %>">
+  <span class="pill <%= { 'connected' => 'success', 'error' => 'danger' }[@connection.status] %>"
+        aria-label="<%= t("calendar_connection.status.#{@connection.status}") %>">
     <%= t("calendar_connection.status.#{@connection.status}") %>
   </span>
   <% if @connection.last_synced_at %>
     <span class="caption"><%= t("calendar_connection.last_synced", at: l(@connection.last_synced_at, format: :short)) %></span>
   <% end %>
 </p>
+
+<% if @connection.status == "error" && @connection.last_error_code.present? %>
+  <div class="flash alert">
+    <%= t("calendar_connection.error_detail.#{@connection.last_error_code}",
+          default: t("calendar_connection.error_detail.generic")) %>
+  </div>
+<% end %>
+
+<% if @connection.connected? %>
+  <p>
+    <%= button_to t("calendar_connection.sync_now"), sync_calendar_connection_path,
+                  method: :post, class: "btn btn-sm secondary", form: { style: "display:inline" } %>
+  </p>
+<% end %>
 
 <p class="caption"><%= t("calendar_connection.intro") %></p>
 

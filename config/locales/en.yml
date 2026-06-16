@@ -105,6 +105,8 @@ en:
     title: "Calendar"
     today: "Today"
     empty: "Nothing scheduled."
+    recurring: "Recurring — edit in your calendar app"
+    recurring_readonly: "Recurring events are read-only here. Edit them in your calendar app."
     back: "Back to calendar"
     new_event: "New event"
     edit_event: "Edit event"
@@ -146,11 +148,18 @@ en:
     disconnect: "Disconnect"
     disconnect_confirm: "Disconnect Google Calendar? Synced events stay in Pantria but stop updating."
     disconnected_notice: "Google Calendar disconnected."
+    sync_now: "Sync now"
+    sync_started: "Sync started."
     last_synced: "Last synced %{at}"
     status:
       disconnected: "Not connected"
       connected: "Connected"
       error: "Sync error"
+    error_detail:
+      generic: "The last sync failed. Try “Sync now”, or reconnect."
+      oauth: "Couldn't sign in to Google. Reconnect to refresh access."
+      pull: "Couldn't fetch changes from Google. We'll retry on the next sync."
+      api: "Google rejected a request. Try “Sync now”, or reconnect."
 
   nav:
     storage: "Storage"
