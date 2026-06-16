@@ -90,6 +90,9 @@ en:
     comment_added:
       title: "New comment"
       body: "New comment on %{title}"
+    calendar_conflict:
+      title: "Calendar event kept your calendar's version"
+      body: "“%{title}” was edited in both places — we kept the version from your calendar."
 
   push:
     enable: "Enable push notifications"

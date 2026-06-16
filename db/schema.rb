@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000047) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000048) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -102,6 +102,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000047) do
     t.string "remote_id"
     t.string "etag"
     t.string "sync_origin", default: "local", null: false
+    t.boolean "recurring", default: false, null: false
     t.index ["calendar_connection_id", "remote_id"], name: "index_calendar_events_on_connection_and_remote_id", unique: true
     t.index ["calendar_connection_id"], name: "index_calendar_events_on_calendar_connection_id"
     t.index ["household_id", "starts_at"], name: "index_calendar_events_on_household_id_and_starts_at"

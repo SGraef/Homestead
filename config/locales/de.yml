@@ -96,6 +96,9 @@ de:
     comment_added:
       title: "Neuer Kommentar"
       body: "Neuer Kommentar zu %{title}"
+    calendar_conflict:
+      title: "Termin: Version aus deinem Kalender behalten"
+      body: "„%{title}“ wurde an beiden Stellen geändert — wir haben die Version aus deinem Kalender behalten."
 
   push:
     enable: "Push-Benachrichtigungen aktivieren"
