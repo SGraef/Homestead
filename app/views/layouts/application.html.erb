@@ -14,6 +14,9 @@
     <link rel="icon" type="image/svg+xml" href="<%= asset_path("mark.svg") %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <% if Rails.application.config.x.vapid[:public_key].present? %>
+      <meta name="vapid-public-key" content="<%= Rails.application.config.x.vapid[:public_key] %>">
+    <% end %>
     <%# Apply persisted theme before stylesheets so we don't flash the wrong palette. %>
     <script>
       (function() {

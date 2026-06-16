@@ -97,6 +97,13 @@ de:
       title: "Neuer Kommentar"
       body: "Neuer Kommentar zu %{title}"
 
+  push:
+    enable: "Push-Benachrichtigungen aktivieren"
+    enabled: "Push-Benachrichtigungen sind auf diesem Gerät aktiv."
+    denied: "Benachrichtigungen sind blockiert — Updates siehst du hier in der Glocke."
+    unsupported: "Dieser Browser unterstützt kein Push (die Glocke siehst du trotzdem). Auf dem iPhone füge Pantria zuerst zum Home-Bildschirm hinzu."
+    error: "Push konnte nicht aktiviert werden. Bitte erneut versuchen."
+
   calendar:
     title: "Kalender"
     today: "Heute"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000042) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000043) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -335,6 +335,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000042) do
     t.index ["barcode"], name: "index_products_on_barcode"
     t.index ["household_id", "barcode"], name: "idx_products_household_barcode", unique: true
     t.index ["household_id"], name: "index_products_on_household_id"
+  end
+
+  create_table "push_subscriptions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "household_id", null: false
+    t.text "endpoint", null: false
+    t.string "endpoint_digest", null: false
+    t.string "p256dh", null: false
+    t.string "auth", null: false
+    t.string "user_agent"
+    t.datetime "last_used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["endpoint_digest"], name: "index_push_subscriptions_on_endpoint_digest", unique: true
+    t.index ["household_id"], name: "index_push_subscriptions_on_household_id"
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
   end
 
   create_table "receipt_line_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -662,6 +678,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000042) do
   add_foreign_key "product_barcodes", "products"
   add_foreign_key "product_synonyms", "products"
   add_foreign_key "products", "households"
+  add_foreign_key "push_subscriptions", "households"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "receipt_line_items", "products"
   add_foreign_key "receipt_line_items", "receipts"
   add_foreign_key "receipts", "households"

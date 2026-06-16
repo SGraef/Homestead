@@ -21,6 +21,12 @@ class Notification < ApplicationRecord
 
   # Live bell: re-render the recipient's bell on every open client.
   after_create_commit :broadcast_bell
+  # Push delivery (one channel among several; the bell is the reliable baseline).
+  after_create_commit :enqueue_push
+
+  def enqueue_push
+    DeliverPushJob.perform_later(id)
+  end
 
   def broadcast_bell
     broadcast_replace_to(

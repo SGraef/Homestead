@@ -91,6 +91,13 @@ en:
       title: "New comment"
       body: "New comment on %{title}"
 
+  push:
+    enable: "Enable push notifications"
+    enabled: "Push notifications are on for this device."
+    denied: "Notifications are blocked — you'll still see updates in the bell here."
+    unsupported: "This browser doesn't support push (you'll still see the bell). On iPhone, add Pantria to your home screen first."
+    error: "Couldn't enable push. Please try again."
+
   calendar:
     title: "Calendar"
     today: "Today"

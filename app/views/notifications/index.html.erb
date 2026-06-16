@@ -1,6 +1,19 @@
 <% content_for :title, t("notification.title") %>
 <h1><%= t("notification.title") %></h1>
 
+<div data-controller="push-subscribe"
+     data-push-subscribe-create-url="<%= push_subscriptions_path %>"
+     data-push-subscribe-enabled="<%= t('push.enabled') %>"
+     data-push-subscribe-denied="<%= t('push.denied') %>"
+     data-push-subscribe-unsupported="<%= t('push.unsupported') %>"
+     data-push-subscribe-error="<%= t('push.error') %>"
+     style="margin-bottom:var(--sp-2)">
+  <button type="button" class="btn btn-sm secondary"
+          data-push-subscribe-target="button"
+          data-action="push-subscribe#enable"><%= t("push.enable") %></button>
+  <span class="caption" data-push-subscribe-target="status"></span>
+</div>
+
 <% if @notifications.any? %>
   <p>
     <%= button_to t("notification.mark_all_read"), read_all_notifications_path,

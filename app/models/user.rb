@@ -19,6 +19,7 @@ class User < ApplicationRecord
   has_many :api_tokens, dependent: :destroy
   has_many :notifications, dependent: :destroy
   has_many :todo_follows, dependent: :destroy
+  has_many :push_subscriptions, dependent: :destroy
 
   validates :email,
             presence:   true,

@@ -47,6 +47,9 @@ gem "solid_queue_dashboard"
 # consistent with Solid Queue.
 gem "solid_cable", "~> 3.0"
 
+# Web Push (VAPID) delivery for PWA notifications. Pure Ruby, no native deps.
+gem "web-push", "~> 3.0"
+
 group :development, :test do
   gem "rspec-rails", "~> 7.1"
   gem "factory_bot_rails", "~> 6.4"
