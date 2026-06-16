@@ -91,6 +91,17 @@ hide:
 
     [:octicons-arrow-right-24: PWA & Android](pwa-android.md)
 
+-   :material-checkbox-marked-outline:{ .lg .middle } **Plan together**
+
+    ---
+
+    Shared todos with states, assignment, follows, comments and PWA push
+    notifications. An in-app calendar that projects todo due-dates and
+    two-way-syncs with Google Calendar.
+
+    [:octicons-arrow-right-24: Todos](features/todos.md) ·
+    [Calendar](features/calendar.md)
+
 </div>
 
 ## At a glance

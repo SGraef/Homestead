@@ -32,6 +32,18 @@ see exactly what's happening behind the screenshot.
     daily sync from Marktguru, kaufDA, MeinProspekt, Flaschenpost.
     Per-household allow-list, keyword-based categorisation, watchlist.
 
+-   :material-checkbox-marked-outline: **[Todos](todos.md)** —
+    shared task list with three states, member assignment, follow,
+    comments, an in-app notification bell and PWA Web Push.
+
+-   :material-calendar-month: **[Calendar](calendar.md)** —
+    server-rendered month/agenda/day views, todo due-date projection,
+    and German date-detection that suggests events from comments.
+
+-   :material-calendar-sync: **[Calendar sync](calendar-sync.md)** —
+    two-way Google Calendar sync, one connection per instance, set up
+    through the UI with your own OAuth client.
+
 -   :material-email-outline: **[Inbound email](inbound-email.md)** —
     IMAP poller pulls receipt attachments from configured mailboxes.
     Trigger on-demand via `POST /api/v1/inbound_emails/poll`.

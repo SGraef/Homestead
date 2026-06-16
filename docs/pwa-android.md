@@ -17,7 +17,8 @@ Out of the box at `/manifest.json` and `/service-worker.js`:
   the offline page at `/offline` when the network is unreachable),
   cache-first for static assets, pass-through for everything else. The
   `vendor/javascript/@zxing--*.js` files are caught by the cache-first
-  rule so the iOS barcode scanner works offline after first load.
+  rule so the iOS barcode scanner works offline after first load. It also
+  carries `push` and `notificationclick` handlers for Web Push (see below).
 - **Layout meta tags**: `<link rel="manifest">`, `apple-touch-icon`,
   `apple-mobile-web-app-capable`, theme-color.
 
@@ -95,5 +96,18 @@ Detailed walkthrough including camera permission semantics:
 - **No real offline editing.** The service worker handles "page is
   cached when network is down"; real offline state + sync would need a
   client-side store. Out of scope.
-- **No push notifications yet.** Web Push works inside a TWA on
-  Android, but Pantria has no push backend wired up.
+
+## Push notifications
+
+Pantria ships a full Web Push stack used by the
+[Todos](features/todos.md#notifications-push) feature — assignment and
+followed-change notifications arrive as native notifications on an installed
+PWA, and tapping one deep-links to the todo.
+
+- Generate a VAPID keypair and set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and
+  `VAPID_SUBJECT=mailto:you@example.com` in the environment. Rotating the keypair
+  invalidates every existing subscription (members must re-subscribe).
+- Members opt in with an explicit tap; the service worker's `push` /
+  `notificationclick` handlers render and route the notification.
+- Web Push needs an **installed** PWA on iOS (16.4+); where push is unavailable,
+  notifications still appear in the in-app bell.
