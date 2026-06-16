@@ -64,6 +64,10 @@ module CalendarSync
       event.source  ||= "manual"
       event.assign_attributes(Google::EventMapper.to_attributes(item))
       event.save!
+    rescue ActiveRecord::RecordNotUnique
+      # A concurrent pull inserted this remote_id first — apply our update to it.
+      existing = @connection.calendar_events.find_by(remote_id: item["id"])
+      existing&.update!(Google::EventMapper.to_attributes(item))
     end
   end
 end

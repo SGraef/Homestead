@@ -107,6 +107,7 @@ en:
     empty: "Nothing scheduled."
     recurring: "Recurring — edit in your calendar app"
     recurring_readonly: "Recurring events are read-only here. Edit them in your calendar app."
+    more: "+%{count} more"
     back: "Back to calendar"
     new_event: "New event"
     edit_event: "Edit event"

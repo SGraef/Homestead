@@ -59,6 +59,15 @@ RSpec.describe CalendarSync::Pull do
     expect(event.pushable?).to be(false)
   end
 
+  it "re-pulling the same event keeps a single row (idempotent upsert)" do
+    stub_events({ items: [{ id: "g5", etag: '"e"', status: "confirmed", summary: "Daily",
+                            start: { dateTime: "2026-06-20T10:00:00+02:00" }, end: { dateTime: "2026-06-20T11:00:00+02:00" } }],
+                  nextSyncToken: "t" })
+    described_class.new(connection).call
+    expect { described_class.new(connection).call }
+      .not_to change { connection.calendar_events.where(remote_id: "g5").count }
+  end
+
   it "recovers from an expired syncToken (410) with a full re-sync" do
     connection.update!(sync_token: "stale")
     stub_request(:get, %r{/calendars/primary/events}).with(query: hash_including("syncToken" => "stale"))

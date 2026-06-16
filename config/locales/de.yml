@@ -113,6 +113,7 @@ de:
     empty: "Nichts geplant."
     recurring: "Wiederkehrend — in deiner Kalender-App bearbeiten"
     recurring_readonly: "Wiederkehrende Termine sind hier schreibgeschützt. Bearbeite sie in deiner Kalender-App."
+    more: "+%{count} weitere"
     back: "Zurück zum Kalender"
     new_event: "Neuer Termin"
     edit_event: "Termin bearbeiten"
