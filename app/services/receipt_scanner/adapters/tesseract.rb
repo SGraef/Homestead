@@ -66,7 +66,7 @@ module ReceiptScanner
         "\x89PNG\r\n\x1A\n".b,     # PNG
         "GIF87a".b, "GIF89a".b,    # GIF
         "BM".b,                    # BMP
-        "II*\x00".b, "MM\x00*".b,  # TIFF (little/big endian)
+        "II*\x00".b, "MM\x00*".b   # TIFF (little/big endian)
       ].freeze
 
       def initialize(lang: DEFAULT_LANG, psm: DEFAULT_PSM, pdf_dpi: PDF_DPI)

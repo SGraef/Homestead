@@ -7,6 +7,12 @@
 #
 # 2. Surface real signal — security/correctness cops, naming, suspicious
 #    blocks — without drowning it in cosmetic noise.
+#
+# RuboCop is BLOCKING in CI (ROADMAP M0c). `.rubocop_todo.yml` grandfathers
+# the pre-existing offenses so only NEW ones fail the build; burn it down
+# over time.
+
+inherit_from: .rubocop_todo.yml
 
 require:
   - rubocop-rails

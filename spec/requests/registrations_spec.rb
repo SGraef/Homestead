@@ -5,7 +5,12 @@ require "rails_helper"
 
 RSpec.describe "Registrations" do
   let(:valid_params) do
-    { user: { email: "first@example.com", name: "First", password: "password123", password_confirmation: "password123" } }
+    {
+      user: {
+        email: "first@example.com", name: "First",
+        password: "password123", password_confirmation: "password123"
+      }
+    }
   end
 
   describe "first run (empty instance)" do

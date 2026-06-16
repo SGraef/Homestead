@@ -1,0 +1,56 @@
+# Pantria RuboCop ratchet baseline (ROADMAP M0c, CI ratchet part 1).
+#
+# Generated with `rubocop --auto-gen-config`. It grandfathers the offenses
+# that already existed when RuboCop was made BLOCKING in CI, so the build
+# fails only on NEW offenses. Burn these down over time and delete the
+# entries as you go; do not add to it.
+#
+# Note that changes in the inspected code, or installation of new versions
+# of RuboCop, may require this file to be regenerated.
+
+# Offense count: 5
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowForAlignment, AllowBeforeTrailingComments, ForceEqualSignAlignment.
+Layout/ExtraSpacing:
+  Exclude:
+    - 'config/routes.rb'
+    - 'spec/migrations/backfill_single_household_memberships_spec.rb'
+    - 'spec/models/bring_connection_spec.rb'
+    - 'spec/models/household_spec.rb'
+
+# Offense count: 2
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, IndentationWidth.
+# SupportedStyles: special_inside_parentheses, consistent, align_brackets
+Layout/FirstArrayElementIndentation:
+  Exclude:
+    - 'lib/tasks/single_household.rake'
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, IndentationWidth.
+# SupportedStyles: aligned, indented, indented_relative_to_receiver
+Layout/MultilineMethodCallIndentation:
+  Exclude:
+    - 'spec/requests/households_spec.rb'
+
+# Offense count: 1
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowForAlignment, EnforcedStyleForExponentOperator, EnforcedStyleForRationalLiterals.
+# SupportedStylesForExponentOperator: space, no_space
+# SupportedStylesForRationalLiterals: space, no_space
+Layout/SpaceAroundOperators:
+  Exclude:
+    - 'spec/models/household_spec.rb'
+
+# Offense count: 3
+# Configuration parameters: CountComments, CountAsOne, AllowedMethods, AllowedPatterns, inherit_mode.
+# AllowedMethods: refine
+Metrics/BlockLength:
+  Max: 41
+
+# Offense count: 2
+# This cop supports unsafe autocorrection (--autocorrect-all).
+Rails/Pluck:
+  Exclude:
+    - 'spec/requests/api/v1/single_household_spec.rb'
