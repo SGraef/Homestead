@@ -13,6 +13,7 @@
 
 <p class="caption"><%= t("calendar_connection.intro") %></p>
 
+<%# Credentials form (always editable). The redirect URI must be registered in Google Cloud. %>
 <%= form_with model: @connection, url: calendar_connection_path, method: :patch, local: true do |f| %>
   <% if @connection.errors.any? %>
     <div class="flash alert"><%= @connection.errors.full_messages.to_sentence %></div>
@@ -27,7 +28,34 @@
                          placeholder: (@connection.client_secret.present? ? t("calendar_connection.secret_set") : nil) %>
     <span class="caption"><%= t("calendar_connection.client_secret_hint") %></span>
   </p>
+  <p class="caption">
+    <%= t("calendar_connection.redirect_uri_hint") %><br>
+    <code><%= callback_calendar_connection_url %></code>
+  </p>
   <p><%= f.submit t("common.save"), class: "btn" %></p>
 <% end %>
 
-<p class="caption"><%= t("calendar_connection.connect_coming_soon") %></p>
+<hr style="margin:var(--sp-4) 0">
+
+<% if !@connection.configured? %>
+  <p class="caption"><%= t("calendar_connection.connect_coming_soon") %></p>
+
+<% elsif !@connection.connected? %>
+  <%= button_to t("calendar_connection.connect"), connect_calendar_connection_path,
+                method: :post, class: "btn" %>
+
+<% else %>
+  <h2><%= t("calendar_connection.choose_calendar") %></h2>
+  <%= form_with url: select_calendar_calendar_connection_path, method: :patch, local: true do |f| %>
+    <p>
+      <%= f.select :calendar_id,
+                   @calendars.map { |c| [c["summary"], c["id"]] },
+                   { selected: @connection.calendar_id, include_blank: t("calendar_connection.no_calendar") } %>
+      <%= f.submit t("common.save"), class: "btn btn-sm" %>
+    </p>
+  <% end %>
+
+  <%= button_to t("calendar_connection.disconnect"), disconnect_calendar_connection_path,
+                method: :delete, class: "btn btn-sm warn",
+                data: { turbo_confirm: t("calendar_connection.disconnect_confirm") } %>
+<% end %>
