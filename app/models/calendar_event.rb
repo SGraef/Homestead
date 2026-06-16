@@ -11,11 +11,14 @@ class CalendarEvent < ApplicationRecord
 
   belongs_to :household
   belongs_to :source_record, polymorphic: true, optional: true
+  belongs_to :calendar_connection, optional: true
 
-  # Only manual events are scan-eligible for the event->todo direction; a
-  # generated event (comment_extraction) is never re-scanned (loop guard).
+  # Only locally-authored manual events are scan-eligible for the event->todo
+  # direction. A generated event (comment_extraction) OR a pulled remote event
+  # (sync_origin == "remote") is never re-scanned — otherwise a first calendar
+  # sync would spawn a wall of unsolicited todo suggestions (loop guard).
   def task_like?
-    return false unless source == "manual"
+    return false unless source == "manual" && sync_origin == "local"
 
     down = title.to_s.downcase
     TASK_TRIGGERS.any? { |k| down.include?(k) }

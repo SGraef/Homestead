@@ -130,6 +130,20 @@ de:
       dismiss: "Verwerfen"
       create_todo: "Aufgabe aus Termin erstellen"
 
+  calendar_connection:
+    title: "Kalender-Sync"
+    intro: "Zwei-Wege-Sync mit Google Kalender. Füge deine Google-OAuth-Client-Zugangsdaten (aus der Google Cloud Console) ein, speichere und verbinde dann."
+    client_id: "Google-OAuth-Client-ID"
+    client_secret: "Google-OAuth-Client-Secret"
+    client_secret_hint: "Verschlüsselt gespeichert. Leer lassen, um das gespeicherte Secret zu behalten."
+    secret_set: "•••••••• (gespeichert)"
+    connect_coming_soon: "Sobald die Zugangsdaten gespeichert sind, erscheint hier der Schritt „Google Kalender verbinden“."
+    last_synced: "Zuletzt synchronisiert %{at}"
+    status:
+      disconnected: "Nicht verbunden"
+      connected: "Verbunden"
+      error: "Sync-Fehler"
+
   nav:
     storage: "Vorrat"
     freezer: "Tiefkühler"
@@ -211,6 +225,7 @@ de:
     event_created:     "Termin erstellt."
     event_updated:     "Termin aktualisiert."
     event_deleted:     "Termin gelöscht."
+    calendar_connection_saved: "Kalender-Einstellungen gespeichert."
     receipt_confirmed: "Beleg bestätigt — Produkte, Geschäft und Preise gespeichert."
     receipt_removed:      "Beleg entfernt."
     receipt_reprocessing: "OCR läuft erneut — aktualisiere die Seite, um das Ergebnis zu sehen."

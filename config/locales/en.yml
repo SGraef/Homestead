@@ -124,6 +124,20 @@ en:
       dismiss: "Dismiss"
       create_todo: "Create todo from this event"
 
+  calendar_connection:
+    title: "Calendar sync"
+    intro: "Two-way sync with Google Calendar. Paste your Google OAuth client credentials (from the Google Cloud Console), save, then connect."
+    client_id: "Google OAuth client ID"
+    client_secret: "Google OAuth client secret"
+    client_secret_hint: "Stored encrypted. Leave blank to keep the saved secret."
+    secret_set: "•••••••• (saved)"
+    connect_coming_soon: "Once your credentials are saved, the “Connect Google Calendar” step appears here."
+    last_synced: "Last synced %{at}"
+    status:
+      disconnected: "Not connected"
+      connected: "Connected"
+      error: "Sync error"
+
   nav:
     storage: "Storage"
     freezer: "Freezer"
@@ -205,6 +219,7 @@ en:
     event_created:     "Event created."
     event_updated:     "Event updated."
     event_deleted:     "Event deleted."
+    calendar_connection_saved: "Calendar settings saved."
     receipt_confirmed: "Receipt confirmed — products, store and prices saved."
     receipt_removed:      "Receipt removed."
     receipt_reprocessing: "Re-running OCR — refresh the page to see the result."

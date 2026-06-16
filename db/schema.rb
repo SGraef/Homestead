@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000045) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000047) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -69,6 +69,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000045) do
     t.index ["household_id"], name: "index_bring_connections_on_household_id", unique: true
   end
 
+  create_table "calendar_connections", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "provider", default: "google", null: false
+    t.string "client_id"
+    t.text "client_secret"
+    t.text "access_token"
+    t.text "refresh_token"
+    t.datetime "token_expires_at"
+    t.string "calendar_id"
+    t.string "sync_token", limit: 1024
+    t.string "status", default: "disconnected", null: false
+    t.string "last_error_code"
+    t.datetime "last_synced_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_calendar_connections_on_household_id", unique: true
+  end
+
   create_table "calendar_events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.string "title", null: false
@@ -80,6 +98,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000045) do
     t.bigint "source_record_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "calendar_connection_id"
+    t.string "remote_id"
+    t.string "etag"
+    t.string "sync_origin", default: "local", null: false
+    t.index ["calendar_connection_id", "remote_id"], name: "index_calendar_events_on_connection_and_remote_id", unique: true
+    t.index ["calendar_connection_id"], name: "index_calendar_events_on_calendar_connection_id"
     t.index ["household_id", "starts_at"], name: "index_calendar_events_on_household_id_and_starts_at"
     t.index ["household_id"], name: "index_calendar_events_on_household_id"
     t.index ["source_record_type", "source_record_id"], name: "index_calendar_events_on_source_record"
@@ -661,6 +685,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000045) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "api_tokens", "users"
   add_foreign_key "bring_connections", "households"
+  add_foreign_key "calendar_connections", "households"
+  add_foreign_key "calendar_events", "calendar_connections"
   add_foreign_key "calendar_events", "households"
   add_foreign_key "grocery_items", "households"
   add_foreign_key "grocery_items", "products"

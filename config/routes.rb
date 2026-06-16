@@ -108,6 +108,8 @@ Rails.application.routes.draw do
 
   # Calendar (month/agenda/day via ?view=, navigated by ?date=).
   resource :calendar, only: :show, controller: "calendars"
+  # External-calendar sync settings (admin-only). OAuth connect lands in PR2.
+  resource :calendar_connection, only: %i[show update]
   resources :calendar_events, only: %i[new create edit update destroy], path: "calendar/events" do
     member { post :create_todo } # make a todo from a task-like event (C7)
   end
