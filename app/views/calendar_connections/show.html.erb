@@ -56,8 +56,10 @@
   <p class="caption"><%= t("calendar_connection.connect_coming_soon") %></p>
 
 <% elsif !@connection.connected? %>
+  <%# turbo:false so the browser performs a native top-level navigation — Turbo
+      can't follow the cross-origin redirect to Google's consent page. %>
   <%= button_to t("calendar_connection.connect"), connect_calendar_connection_path,
-                method: :post, class: "btn" %>
+                method: :post, class: "btn", form: { data: { turbo: false } } %>
 
 <% else %>
   <h2><%= t("calendar_connection.choose_calendar") %></h2>
