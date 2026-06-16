@@ -4,8 +4,10 @@
 # Receives PushManager subscriptions from the browser (push_subscribe Stimulus
 # controller POSTs subscription.toJSON()). Upserts on the endpoint digest.
 class PushSubscriptionsController < ApplicationController
-  # The browser fetch sends JSON, not a form; skip CSRF (auth is still required).
-  skip_forgery_protection only: %i[create destroy]
+  # CSRF protection stays ON (inherited from ApplicationController). The
+  # push_subscribe Stimulus controller already sends the Rails authenticity
+  # token in the `X-CSRF-Token` header it reads from the <meta> tag, so the
+  # JSON fetch verifies like any other state-changing request — no skip needed.
 
   def create
     endpoint = params[:endpoint].to_s
