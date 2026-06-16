@@ -100,6 +100,7 @@ client, and paste its ID + secret into **Calendar → Calendar sync**.
 | **405 after consent** | You registered the `/calendar_connection/**connect**` path instead of `/calendar_connection/**callback**`. Use the callback path. |
 | **"Access blocked: app not verified"** with no "Advanced" link | The signing-in account isn't allowed. In **Testing** mode, add it under **Test users**; or publish the app **In production** (then "Advanced → Go to … (unsafe)" appears). |
 | **Disconnects after ~7 days** | The app is in **Testing** publishing status (refresh tokens expire in 7 days). Publish it **In production** for long-lived access. |
+| **Connects, but status flips to "Sync error" / picker doesn't appear** (`accessNotConfigured`, HTTP 403 "Google Calendar API has not been used in project … or it is disabled") | You skipped **step 2** — enable the **Google Calendar API** in the project (Library → Google Calendar API → Enable, or the link in Google's error). Wait 1–2 min, then reload the settings page. |
 | **`invalid_client`** | Wrong Client ID/secret, or the secret was rotated in Google. Re-copy both into the settings page and save. |
 | **Nothing syncs after connecting** | Make sure you picked a calendar in the picker, and that the worker process is running (Solid Queue drives the 5-min poll). Use **Sync now** to trigger immediately. |
 

@@ -165,7 +165,7 @@ de:
       generic: "Die letzte Synchronisierung ist fehlgeschlagen. Versuche „Jetzt synchronisieren“ oder verbinde neu."
       oauth: "Anmeldung bei Google fehlgeschlagen. Verbinde neu, um den Zugriff zu erneuern."
       pull: "Änderungen von Google konnten nicht abgerufen werden. Wir versuchen es bei der nächsten Synchronisierung erneut."
-      api: "Google hat eine Anfrage abgelehnt. Versuche „Jetzt synchronisieren“ oder verbinde neu."
+      api: "Google hat eine Anfrage abgelehnt. Stelle sicher, dass die Google Calendar API in deinem Google-Cloud-Projekt aktiviert ist, und lade neu — oder versuche „Jetzt synchronisieren“."
 
   nav:
     storage: "Vorrat"

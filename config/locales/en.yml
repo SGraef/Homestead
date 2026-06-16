@@ -159,7 +159,7 @@ en:
       generic: "The last sync failed. Try “Sync now”, or reconnect."
       oauth: "Couldn't sign in to Google. Reconnect to refresh access."
       pull: "Couldn't fetch changes from Google. We'll retry on the next sync."
-      api: "Google rejected a request. Try “Sync now”, or reconnect."
+      api: "Google rejected a request. Make sure the Google Calendar API is enabled in your Google Cloud project, then reload — or try “Sync now”."
 
   nav:
     storage: "Storage"

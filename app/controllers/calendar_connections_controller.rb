@@ -10,7 +10,7 @@ class CalendarConnectionsController < ApplicationController
 
   def show
     authorize @connection
-    @calendars = @connection.connected? ? load_calendars : []
+    @calendars = @connection.linked? ? load_calendars : []
   end
 
   def update
@@ -78,7 +78,9 @@ class CalendarConnectionsController < ApplicationController
   end
 
   def load_calendars
-    CalendarSync::Google::ApiClient.new(@connection).list_calendars
+    calendars = CalendarSync::Google::ApiClient.new(@connection).list_calendars
+    @connection.update!(status: "connected", last_error_code: nil) unless @connection.connected?
+    calendars
   rescue CalendarSync::Google::Error
     @connection.update(status: "error", last_error_code: "api")
     []

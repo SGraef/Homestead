@@ -19,7 +19,7 @@
   </div>
 <% end %>
 
-<% if @connection.connected? %>
+<% if @connection.linked? %>
   <p>
     <%= button_to t("calendar_connection.sync_now"), sync_calendar_connection_path,
                   method: :post, class: "btn btn-sm secondary", form: { style: "display:inline" } %>
@@ -55,7 +55,7 @@
 <% if !@connection.configured? %>
   <p class="caption"><%= t("calendar_connection.connect_coming_soon") %></p>
 
-<% elsif !@connection.connected? %>
+<% elsif !@connection.linked? %>
   <%# turbo:false so the browser performs a native top-level navigation — Turbo
       can't follow the cross-origin redirect to Google's consent page. %>
   <%= button_to t("calendar_connection.connect"), connect_calendar_connection_path,

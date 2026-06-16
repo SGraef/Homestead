@@ -22,6 +22,13 @@ class CalendarConnection < ApplicationRecord
     status == "connected"
   end
 
+  # OAuth completed (tokens present) — true even if the last API call errored,
+  # so the settings UI keeps showing the picker/sync instead of reverting to the
+  # Connect button on a transient/config failure.
+  def linked?
+    access_token.present? && refresh_token.present?
+  end
+
   def configured?
     client_id.present? && client_secret.present?
   end
