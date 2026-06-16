@@ -1,0 +1,70 @@
+# TEMPORARY preview stack (untracked) — browse the todos-calendar branch at
+# http://localhost:3001. The db is NOT published to the host (avoids the 3306
+# clash with the host MySQL); the app reaches it over the compose network.
+#
+#   docker compose -p pantria-preview -f docker-compose.preview.yml up -d --build
+#   docker compose -p pantria-preview -f docker-compose.preview.yml down -v
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pantria_development
+      MYSQL_USER: pantria
+      MYSQL_PASSWORD: pantria
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -proot --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    # Prepare the DB (create + migrate all phases + seed the demo household),
+    # then start the web server.
+    command: bash -lc "bundle exec rails db:prepare && bin/rails server -b 0.0.0.0 -p 3000"
+    environment:
+      RAILS_ENV: development
+      DATABASE_HOST: db
+      DATABASE_USERNAME: pantria
+      DATABASE_PASSWORD: pantria
+      DATABASE_NAME: pantria_development
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    ports:
+      - "3001:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Solid Queue supervisor: processes enqueued jobs (calendar poll/push, push
+  # notifications, etc.) AND schedules the recurring jobs from recurring.yml.
+  # Without this, jobs sit "pending" forever.
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bash -lc "bundle exec rake solid_queue:start"
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: development
+      DATABASE_HOST: db
+      DATABASE_USERNAME: pantria
+      DATABASE_PASSWORD: pantria
+      DATABASE_NAME: pantria_development
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  bundle_cache:
