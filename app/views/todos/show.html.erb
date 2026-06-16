@@ -1,4 +1,5 @@
 <% content_for :title, @todo.title %>
+<%= turbo_stream_from @todo %>
 <p><%= link_to t("todo.back"), todos_path %></p>
 <h1><%= @todo.title %> <%= todo_status_badge(@todo) %></h1>
 
@@ -51,6 +52,6 @@
 
 <h2><%= t("todo.comments") %></h2>
 <div id="<%= dom_id(@todo, :comments) %>">
-  <%= render @todo.todo_comments %>
+  <%= render partial: "todo_comments/todo_comment", collection: @todo.todo_comments, locals: { interactive: true } %>
 </div>
 <%= render "todo_comments/form", todo: @todo, comment: @comment %>

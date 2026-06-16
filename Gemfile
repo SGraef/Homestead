@@ -42,6 +42,11 @@ gem "solid_queue", "~> 1.0"
 # require-login gate.
 gem "solid_queue_dashboard"
 
+# DB-backed Action Cable pub/sub (no Redis container). Powers live Turbo Stream
+# updates (todo comments, notification bell). Stored in the primary database,
+# consistent with Solid Queue.
+gem "solid_cable", "~> 3.0"
+
 group :development, :test do
   gem "rspec-rails", "~> 7.1"
   gem "factory_bot_rails", "~> 6.4"

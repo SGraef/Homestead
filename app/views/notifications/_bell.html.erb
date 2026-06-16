@@ -1,0 +1,7 @@
+<%# Live-updatable notification bell. Rendered both on page load and via the
+    Notification broadcast (which targets "notification_bell"). Takes `user`
+    explicitly so it never depends on current_user (absent in broadcasts). %>
+<a id="notification_bell" href="<%= notifications_path %>" class="nav-link"
+   aria-label="<%= t("nav.notifications") %>" title="<%= t("nav.notifications") %>">
+  🔔<% unread = user.notifications.unread.count %><% if unread.positive? %> <span class="pill warn"><%= unread %></span><% end %>
+</a>

@@ -3,7 +3,9 @@
     <%= member_name(todo_comment.user) %> · <%= l(todo_comment.created_at, format: :short) %>
   </div>
   <div><%= simple_format(todo_comment.body) %></div>
-  <% if policy(todo_comment).destroy? %>
+  <%# `interactive` is only set on page-load render — never in a broadcast,
+      where there is no current_user (calling it would raise in Sorcery). %>
+  <% if local_assigns[:interactive] && current_user && policy(todo_comment).destroy? %>
     <%= button_to t("common.delete"), todo_comment_path(todo_comment.todo, todo_comment),
                   method: :delete, class: "btn btn-sm tertiary", form: { style: "display:inline" } %>
   <% end %>

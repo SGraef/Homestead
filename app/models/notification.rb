@@ -19,6 +19,18 @@ class Notification < ApplicationRecord
   scope :unread, -> { where(read_at: nil) }
   scope :recent, -> { order(created_at: :desc) }
 
+  # Live bell: re-render the recipient's bell on every open client.
+  after_create_commit :broadcast_bell
+
+  def broadcast_bell
+    broadcast_replace_to(
+      user, :notifications,
+      target:  "notification_bell",
+      partial: "notifications/bell",
+      locals:  { user: user }
+    )
+  end
+
   # Idempotent create keyed on dedup_key: the same domain event (re)processed
   # never yields a second row. A duplicate surfaces as RecordInvalid (model
   # uniqueness validation) or RecordNotUnique (DB index, on a race) — both

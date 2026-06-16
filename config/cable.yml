@@ -4,7 +4,10 @@ development:
 test:
   adapter: test
 
+# DB-backed pub/sub via solid_cable, stored in the primary database (the
+# solid_cable_messages table). No Redis, no extra container — consistent with
+# Solid Queue. message_retention prunes old rows.
 production:
-  adapter: redis
-  url: <%= ENV.fetch("REDIS_URL") { "redis://redis:6379/1" } %>
-  channel_prefix: pantria_production
+  adapter: solid_cable
+  polling_interval: 0.1.seconds
+  message_retention: 1.day
