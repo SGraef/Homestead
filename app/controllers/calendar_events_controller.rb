@@ -5,6 +5,7 @@ class CalendarEventsController < ApplicationController
   include HouseholdTimeZone
   before_action :ensure_household
   before_action :set_event, only: %i[edit update destroy create_todo]
+  before_action :block_recurring, only: %i[edit update destroy]
 
   def new
     @event = current_household.calendar_events.new(starts_at: default_start)
@@ -61,6 +62,11 @@ class CalendarEventsController < ApplicationController
 
   def set_event
     @event = current_household.calendar_events.find(params[:id])
+  end
+
+  # Recurring events synced from a remote calendar are read-only here.
+  def block_recurring
+    redirect_to calendar_path, alert: t("calendar.recurring_readonly") if @event.recurring?
   end
 
   def event_params

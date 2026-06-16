@@ -38,6 +38,7 @@ de:
   common:
     save: "Speichern"
     cancel: "Abbrechen"
+    close: "Schließen"
     delete: "Löschen"
     edit: "Bearbeiten"
     open: "Öffnen"
@@ -96,6 +97,9 @@ de:
     comment_added:
       title: "Neuer Kommentar"
       body: "Neuer Kommentar zu %{title}"
+    calendar_conflict:
+      title: "Termin: Version aus deinem Kalender behalten"
+      body: "„%{title}“ wurde an beiden Stellen geändert — wir haben die Version aus deinem Kalender behalten."
 
   push:
     enable: "Push-Benachrichtigungen aktivieren"
@@ -108,6 +112,9 @@ de:
     title: "Kalender"
     today: "Heute"
     empty: "Nichts geplant."
+    recurring: "Wiederkehrend — in deiner Kalender-App bearbeiten"
+    recurring_readonly: "Wiederkehrende Termine sind hier schreibgeschützt. Bearbeite sie in deiner Kalender-App."
+    more: "+%{count} weitere"
     back: "Zurück zum Kalender"
     new_event: "Neuer Termin"
     edit_event: "Termin bearbeiten"
@@ -129,6 +136,38 @@ de:
       confirm: "In Kalender übernehmen"
       dismiss: "Verwerfen"
       create_todo: "Aufgabe aus Termin erstellen"
+
+  calendar_connection:
+    title: "Kalender-Sync"
+    intro: "Zwei-Wege-Sync mit Google Kalender. Füge deine Google-OAuth-Client-Zugangsdaten (aus der Google Cloud Console) ein, speichere und verbinde dann."
+    client_id: "Google-OAuth-Client-ID"
+    client_secret: "Google-OAuth-Client-Secret"
+    client_secret_hint: "Verschlüsselt gespeichert. Leer lassen, um das gespeicherte Secret zu behalten."
+    secret_set: "•••••••• (gespeichert)"
+    connect_coming_soon: "Speichere oben deine Google-OAuth-Client-ID und das Secret, dann erscheint hier die Schaltfläche „Google Kalender verbinden“."
+    redirect_uri_hint: "Registriere diese Redirect-URI in deinem Google-Cloud-OAuth-Client:"
+    connect: "Google Kalender verbinden"
+    connected_notice: "Google Kalender verbunden."
+    connect_failed: "Verbindung zu Google fehlgeschlagen. Prüfe deine Zugangsdaten und versuche es erneut."
+    not_configured: "Speichere zuerst deine Google-OAuth-Client-ID und das Secret."
+    choose_calendar: "Kalender zum Synchronisieren wählen"
+    no_calendar: "— kein —"
+    calendar_selected: "Kalender ausgewählt."
+    disconnect: "Trennen"
+    disconnect_confirm: "Google Kalender trennen? Synchronisierte Termine bleiben in Pantria, werden aber nicht mehr aktualisiert."
+    disconnected_notice: "Google Kalender getrennt."
+    sync_now: "Jetzt synchronisieren"
+    sync_started: "Synchronisierung gestartet."
+    last_synced: "Zuletzt synchronisiert %{at}"
+    status:
+      disconnected: "Nicht verbunden"
+      connected: "Verbunden"
+      error: "Sync-Fehler"
+    error_detail:
+      generic: "Die letzte Synchronisierung ist fehlgeschlagen. Versuche „Jetzt synchronisieren“ oder verbinde neu."
+      oauth: "Anmeldung bei Google fehlgeschlagen. Verbinde neu, um den Zugriff zu erneuern."
+      pull: "Änderungen von Google konnten nicht abgerufen werden. Wir versuchen es bei der nächsten Synchronisierung erneut."
+      api: "Google hat eine Anfrage abgelehnt. Stelle sicher, dass die Google Calendar API in deinem Google-Cloud-Projekt aktiviert ist, und lade neu — oder versuche „Jetzt synchronisieren“."
 
   nav:
     storage: "Vorrat"
@@ -211,6 +250,7 @@ de:
     event_created:     "Termin erstellt."
     event_updated:     "Termin aktualisiert."
     event_deleted:     "Termin gelöscht."
+    calendar_connection_saved: "Kalender-Einstellungen gespeichert."
     receipt_confirmed: "Beleg bestätigt — Produkte, Geschäft und Preise gespeichert."
     receipt_removed:      "Beleg entfernt."
     receipt_reprocessing: "OCR läuft erneut — aktualisiere die Seite, um das Ergebnis zu sehen."

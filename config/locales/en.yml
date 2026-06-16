@@ -32,6 +32,7 @@ en:
   common:
     save: "Save"
     cancel: "Cancel"
+    close: "Close"
     delete: "Delete"
     edit: "Edit"
     open: "Open"
@@ -90,6 +91,9 @@ en:
     comment_added:
       title: "New comment"
       body: "New comment on %{title}"
+    calendar_conflict:
+      title: "Calendar event kept your calendar's version"
+      body: "“%{title}” was edited in both places — we kept the version from your calendar."
 
   push:
     enable: "Enable push notifications"
@@ -102,6 +106,9 @@ en:
     title: "Calendar"
     today: "Today"
     empty: "Nothing scheduled."
+    recurring: "Recurring — edit in your calendar app"
+    recurring_readonly: "Recurring events are read-only here. Edit them in your calendar app."
+    more: "+%{count} more"
     back: "Back to calendar"
     new_event: "New event"
     edit_event: "Edit event"
@@ -123,6 +130,38 @@ en:
       confirm: "Add to calendar"
       dismiss: "Dismiss"
       create_todo: "Create todo from this event"
+
+  calendar_connection:
+    title: "Calendar sync"
+    intro: "Two-way sync with Google Calendar. Paste your Google OAuth client credentials (from the Google Cloud Console), save, then connect."
+    client_id: "Google OAuth client ID"
+    client_secret: "Google OAuth client secret"
+    client_secret_hint: "Stored encrypted. Leave blank to keep the saved secret."
+    secret_set: "•••••••• (saved)"
+    connect_coming_soon: "Save your Google OAuth client ID and secret above, then the “Connect Google Calendar” button appears here."
+    redirect_uri_hint: "Register this redirect URI in your Google Cloud OAuth client:"
+    connect: "Connect Google Calendar"
+    connected_notice: "Google Calendar connected."
+    connect_failed: "Couldn't connect to Google. Check your credentials and try again."
+    not_configured: "Save your Google OAuth client ID and secret first."
+    choose_calendar: "Choose calendar to sync"
+    no_calendar: "— none —"
+    calendar_selected: "Calendar selected."
+    disconnect: "Disconnect"
+    disconnect_confirm: "Disconnect Google Calendar? Synced events stay in Pantria but stop updating."
+    disconnected_notice: "Google Calendar disconnected."
+    sync_now: "Sync now"
+    sync_started: "Sync started."
+    last_synced: "Last synced %{at}"
+    status:
+      disconnected: "Not connected"
+      connected: "Connected"
+      error: "Sync error"
+    error_detail:
+      generic: "The last sync failed. Try “Sync now”, or reconnect."
+      oauth: "Couldn't sign in to Google. Reconnect to refresh access."
+      pull: "Couldn't fetch changes from Google. We'll retry on the next sync."
+      api: "Google rejected a request. Make sure the Google Calendar API is enabled in your Google Cloud project, then reload — or try “Sync now”."
 
   nav:
     storage: "Storage"
@@ -205,6 +244,7 @@ en:
     event_created:     "Event created."
     event_updated:     "Event updated."
     event_deleted:     "Event deleted."
+    calendar_connection_saved: "Calendar settings saved."
     receipt_confirmed: "Receipt confirmed — products, store and prices saved."
     receipt_removed:      "Receipt removed."
     receipt_reprocessing: "Re-running OCR — refresh the page to see the result."

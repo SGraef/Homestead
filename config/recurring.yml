@@ -24,6 +24,14 @@ default: &default
     queue: default
     description: "Drain the configured IMAP mailbox into pending receipts."
 
+  calendar_poll:
+    class: CalendarPollJob
+    # Pull remote calendar changes (incremental via syncToken). 5 min matches the
+    # other pollers; no-op unless a calendar is connected.
+    schedule: every 5 minutes
+    queue: default
+    description: "Pull external calendar changes into local events."
+
 development:
   <<: *default
 

@@ -1,0 +1,78 @@
+<% content_for :title, t("calendar_connection.title") %>
+<p><%= link_to t("calendar.back"), calendar_path %></p>
+<h1><%= t("calendar_connection.title") %></h1>
+
+<p>
+  <span class="pill <%= { 'connected' => 'success', 'error' => 'danger' }[@connection.status] %>"
+        aria-label="<%= t("calendar_connection.status.#{@connection.status}") %>">
+    <%= t("calendar_connection.status.#{@connection.status}") %>
+  </span>
+  <% if @connection.last_synced_at %>
+    <span class="caption"><%= t("calendar_connection.last_synced", at: l(@connection.last_synced_at, format: :short)) %></span>
+  <% end %>
+</p>
+
+<% if @connection.status == "error" && @connection.last_error_code.present? %>
+  <div class="flash alert">
+    <%= t("calendar_connection.error_detail.#{@connection.last_error_code}",
+          default: t("calendar_connection.error_detail.generic")) %>
+  </div>
+<% end %>
+
+<% if @connection.linked? %>
+  <p>
+    <%= button_to t("calendar_connection.sync_now"), sync_calendar_connection_path,
+                  method: :post, class: "btn btn-sm secondary", form: { style: "display:inline" } %>
+  </p>
+<% end %>
+
+<p class="caption"><%= t("calendar_connection.intro") %></p>
+
+<%# Credentials form (always editable). The redirect URI must be registered in Google Cloud. %>
+<%= form_with model: @connection, url: calendar_connection_path, method: :patch, local: true do |f| %>
+  <% if @connection.errors.any? %>
+    <div class="flash alert"><%= @connection.errors.full_messages.to_sentence %></div>
+  <% end %>
+  <p>
+    <%= f.label :client_id, t("calendar_connection.client_id") %><br>
+    <%= f.text_field :client_id, style: "width:100%", autocomplete: "off" %>
+  </p>
+  <p>
+    <%= f.label :client_secret, t("calendar_connection.client_secret") %><br>
+    <%= f.password_field :client_secret, value: nil, style: "width:100%", autocomplete: "off",
+                         placeholder: (@connection.client_secret.present? ? t("calendar_connection.secret_set") : nil) %>
+    <span class="caption"><%= t("calendar_connection.client_secret_hint") %></span>
+  </p>
+  <p class="caption">
+    <%= t("calendar_connection.redirect_uri_hint") %><br>
+    <code><%= callback_calendar_connection_url %></code>
+  </p>
+  <p><%= f.submit t("common.save"), class: "btn" %></p>
+<% end %>
+
+<hr style="margin:var(--sp-4) 0">
+
+<% if !@connection.configured? %>
+  <p class="caption"><%= t("calendar_connection.connect_coming_soon") %></p>
+
+<% elsif !@connection.linked? %>
+  <%# turbo:false so the browser performs a native top-level navigation — Turbo
+      can't follow the cross-origin redirect to Google's consent page. %>
+  <%= button_to t("calendar_connection.connect"), connect_calendar_connection_path,
+                method: :post, class: "btn", form: { data: { turbo: false } } %>
+
+<% else %>
+  <h2><%= t("calendar_connection.choose_calendar") %></h2>
+  <%= form_with url: select_calendar_calendar_connection_path, method: :patch, local: true do |f| %>
+    <p>
+      <%= f.select :calendar_id,
+                   @calendars.map { |c| [c["summary"], c["id"]] },
+                   { selected: @connection.calendar_id, include_blank: t("calendar_connection.no_calendar") } %>
+      <%= f.submit t("common.save"), class: "btn btn-sm" %>
+    </p>
+  <% end %>
+
+  <%= button_to t("calendar_connection.disconnect"), disconnect_calendar_connection_path,
+                method: :delete, class: "btn btn-sm warn",
+                data: { turbo_confirm: t("calendar_connection.disconnect_confirm") } %>
+<% end %>

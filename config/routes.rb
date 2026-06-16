@@ -108,6 +108,14 @@ Rails.application.routes.draw do
 
   # Calendar (month/agenda/day via ?view=, navigated by ?date=).
   resource :calendar, only: :show, controller: "calendars"
+  # External-calendar sync settings (admin-only) + Google OAuth flow.
+  resource :calendar_connection, only: %i[show update] do
+    post   :connect          # -> redirect to Google consent
+    get    :callback         # Google redirects back here
+    patch  :select_calendar  # choose which Google calendar to sync
+    post   :sync             # trigger a pull now
+    delete :disconnect
+  end
   resources :calendar_events, only: %i[new create edit update destroy], path: "calendar/events" do
     member { post :create_todo } # make a todo from a task-like event (C7)
   end

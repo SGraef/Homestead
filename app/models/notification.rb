@@ -5,7 +5,7 @@
 # baseline (shown in the nav bell); push delivery is layered on later. Reading
 # via the bell or (later) via a push tap marks the same row.
 class Notification < ApplicationRecord
-  KINDS = %w[assigned todo_changed comment_added].freeze
+  KINDS = %w[assigned todo_changed comment_added calendar_conflict].freeze
 
   belongs_to :household
   belongs_to :user # recipient
