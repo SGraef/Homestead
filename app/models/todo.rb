@@ -22,9 +22,12 @@ class Todo < ApplicationRecord
   belongs_to :assignee, class_name: "User", optional: true
 
   has_many :todo_comments, -> { order(:created_at) }, dependent: :destroy
+  has_many :todo_follows, dependent: :destroy
+  has_many :followers, through: :todo_follows, source: :user
 
   validates :title, presence: true, length: { maximum: 200 }
   validates :status, inclusion: { in: STATES }
+  validate  :assignee_in_household
 
   scope :open_state,   -> { where(status: "open") }
   scope :in_progress,  -> { where(status: "in_progress") }
@@ -53,5 +56,32 @@ class Todo < ApplicationRecord
   # @return [String, nil] the next state for the one-tap "advance" pill.
   def next_state
     TRANSITIONS.fetch(status, []).find { |s| STATES.index(s).to_i > STATES.index(status).to_i }
+  end
+
+  # @param user [User]
+  # @return [Boolean]
+  def followed_by?(user)
+    return false unless user
+
+    todo_follows.exists?(user_id: user.id)
+  end
+
+  # @param user [User]
+  def follow!(user)
+    todo_follows.find_or_create_by!(user: user) { |f| f.household = household }
+  end
+
+  # @param user [User]
+  def unfollow!(user)
+    todo_follows.where(user_id: user.id).destroy_all
+  end
+
+  private
+
+  # The assignee must be a member of this todo's household.
+  def assignee_in_household
+    return if assignee_id.nil?
+
+    errors.add(:assignee, :not_a_member) unless household&.users&.exists?(id: assignee_id)
   end
 end

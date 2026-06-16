@@ -1,0 +1,24 @@
+<% content_for :title, t("notification.title") %>
+<h1><%= t("notification.title") %></h1>
+
+<% if @notifications.any? %>
+  <p>
+    <%= button_to t("notification.mark_all_read"), read_all_notifications_path,
+                  method: :post, class: "btn btn-sm secondary", form: { style: "display:inline" } %>
+  </p>
+  <ul style="list-style:none;padding:0">
+    <% @notifications.each do |n| %>
+      <li class="card card-flat" style="margin-bottom:var(--sp-1);<%= "opacity:.6" unless n.read? %>">
+        <%= button_to read_notification_path(n), method: :post,
+                      class: "btn-link", form: { style: "display:block;text-align:left;width:100%" } do %>
+          <% unless n.read? %><span class="pill warn"><%= t("notification.unread") %></span> <% end %>
+          <strong><%= n.title %></strong>
+          <% if n.body.present? %><div><%= n.body %></div><% end %>
+          <div class="caption"><%= l(n.created_at, format: :short) %></div>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="caption"><%= t("notification.empty") %></p>
+<% end %>

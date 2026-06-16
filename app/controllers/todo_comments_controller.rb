@@ -9,6 +9,7 @@ class TodoCommentsController < ApplicationController
     @comment = @todo.todo_comments.new(comment_params.merge(user: current_user, household: current_household))
     authorize @comment
     if @comment.save
+      TodoNotifications.commented(@comment, actor: current_user)
       respond_to do |format|
         format.turbo_stream
         format.html { redirect_to @todo }

@@ -3,7 +3,7 @@
 
 class TodosController < ApplicationController
   before_action :ensure_household
-  before_action :set_todo, only: %i[show edit update destroy transition]
+  before_action :set_todo, only: %i[show edit update destroy transition follow unfollow]
 
   def index
     @todos = policy_scope(current_household.todos)
@@ -38,6 +38,7 @@ class TodosController < ApplicationController
   def update
     authorize @todo
     if @todo.update(todo_params)
+      TodoNotifications.assigned(@todo, actor: current_user) if @todo.saved_change_to_assignee_id?
       redirect_to @todo, notice: t("notices.todo_updated")
     else
       render :edit, status: :unprocessable_content
@@ -54,6 +55,10 @@ class TodosController < ApplicationController
   def transition
     authorize @todo, :transition?
     if @todo.transition_to(params[:to])
+      TodoNotifications.todo_changed(
+        @todo, actor: current_user,
+        summary: t("notification.status_changed", state: t("todo.states.#{@todo.status}"))
+      )
       respond_to do |format|
         format.turbo_stream
         format.html { redirect_to todos_path, notice: t("notices.todo_updated") }
@@ -63,6 +68,20 @@ class TodosController < ApplicationController
     end
   end
 
+  # POST /todos/:id/follow
+  def follow
+    authorize @todo, :show?
+    @todo.follow!(current_user)
+    redirect_to @todo, notice: t("notices.todo_followed")
+  end
+
+  # DELETE /todos/:id/unfollow
+  def unfollow
+    authorize @todo, :show?
+    @todo.unfollow!(current_user)
+    redirect_to @todo, notice: t("notices.todo_unfollowed")
+  end
+
   private
 
   def set_todo
@@ -70,7 +89,7 @@ class TodosController < ApplicationController
   end
 
   def todo_params
-    params.require(:todo).permit(:title, :description, :status)
+    params.require(:todo).permit(:title, :description, :status, :assignee_id)
   end
 
   def ensure_household

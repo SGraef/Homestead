@@ -61,6 +61,11 @@ en:
     comment_placeholder: "Write a comment…"
     delete_confirm: "Delete this todo?"
     reopen: "Reopen"
+    assignee: "Assignee"
+    assign: "Assign"
+    unassigned: "Unassigned"
+    follow: "Follow"
+    unfollow: "Unfollow"
     states:
       open: "Open"
       in_progress: "In progress"
@@ -68,6 +73,22 @@ en:
     advance_to:
       in_progress: "Start"
       done: "Mark done"
+
+  notification:
+    title: "Notifications"
+    empty: "No notifications."
+    unread: "New"
+    mark_all_read: "Mark all read"
+    all_read: "All notifications marked read."
+    status_changed: "Status changed to %{state}"
+    assigned:
+      title: "You were assigned a todo"
+      body: "%{title}"
+    todo_changed:
+      title: "A todo you follow changed"
+    comment_added:
+      title: "New comment"
+      body: "New comment on %{title}"
 
   nav:
     storage: "Storage"
@@ -82,6 +103,7 @@ en:
     recipes: "Recipes"
     meal_plan: "Meal plan"
     todos: "Todos"
+    notifications: "Notifications"
     jobs: "Jobs"
     household: "Household"
     logout: "Logout"
@@ -143,6 +165,8 @@ en:
     todo_updated:      "Todo updated."
     todo_deleted:      "Todo deleted."
     todo_invalid_transition: "That status change isn't allowed."
+    todo_followed:     "You're now following this todo."
+    todo_unfollowed:   "You unfollowed this todo."
     receipt_confirmed: "Receipt confirmed — products, store and prices saved."
     receipt_removed:      "Receipt removed."
     receipt_reprocessing: "Re-running OCR — refresh the page to see the result."

@@ -84,8 +84,17 @@ Rails.application.routes.draw do
   end
 
   resources :todos do
-    member { post :transition } # one-tap state change
+    member do
+      post   :transition # one-tap state change
+      post   :follow
+      delete :unfollow
+    end
     resources :comments, only: %i[create destroy], controller: "todo_comments"
+  end
+
+  resources :notifications, only: %i[index] do
+    member     { post :read }
+    collection { post :read_all }
   end
 
   resources :expenses, only: :index

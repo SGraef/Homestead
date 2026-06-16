@@ -8,10 +8,30 @@
 
 <dl class="kv">
   <dt><%= t("todo.creator") %></dt><dd><%= member_name(@todo.creator) %></dd>
+  <dt><%= t("todo.assignee") %></dt><dd><%= @todo.assignee ? member_name(@todo.assignee) : t("todo.unassigned") %></dd>
   <% if @todo.completed_at %>
     <dt><%= t("todo.completed_at") %></dt><dd><%= l(@todo.completed_at, format: :short) %></dd>
   <% end %>
 </dl>
+
+<div style="display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:flex-end;margin:var(--sp-2) 0">
+  <%= form_with model: @todo, method: :patch, local: true, style: "display:flex;gap:var(--sp-1);align-items:flex-end" do |f| %>
+    <label><%= t("todo.assign") %><br>
+      <%= f.select :assignee_id,
+                   Household.current.users.map { |u| [member_name(u), u.id] },
+                   { include_blank: t("todo.unassigned"), selected: @todo.assignee_id } %>
+    </label>
+    <%= f.submit t("common.save"), class: "btn btn-sm" %>
+  <% end %>
+
+  <% if @todo.followed_by?(current_user) %>
+    <%= button_to t("todo.unfollow"), unfollow_todo_path(@todo), method: :delete,
+                  class: "btn btn-sm secondary", form: { style: "display:inline" } %>
+  <% else %>
+    <%= button_to t("todo.follow"), follow_todo_path(@todo), method: :post,
+                  class: "btn btn-sm secondary", form: { style: "display:inline" } %>
+  <% end %>
+</div>
 
 <p style="display:flex;gap:var(--sp-1);flex-wrap:wrap">
   <% if (nxt = @todo.next_state) %>

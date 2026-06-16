@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_01_000037) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_01_000039) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -167,6 +167,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000037) do
     t.index ["household_id"], name: "index_memberships_on_household_id"
     t.index ["user_id", "household_id"], name: "index_memberships_on_user_id_and_household_id", unique: true
     t.index ["user_id"], name: "index_memberships_on_user_id"
+  end
+
+  create_table "notifications", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "actor_id"
+    t.string "notifiable_type"
+    t.bigint "notifiable_id"
+    t.string "kind", null: false
+    t.string "title", null: false
+    t.text "body"
+    t.string "url"
+    t.string "dedup_key", null: false
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_notifications_on_actor_id"
+    t.index ["dedup_key"], name: "index_notifications_on_dedup_key", unique: true
+    t.index ["household_id"], name: "index_notifications_on_household_id"
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "offer_blocklist_entries", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -529,6 +551,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000037) do
     t.index ["user_id"], name: "index_todo_comments_on_user_id"
   end
 
+  create_table "todo_follows", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "todo_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_todo_follows_on_household_id"
+    t.index ["todo_id", "user_id"], name: "index_todo_follows_on_todo_id_and_user_id", unique: true
+    t.index ["todo_id"], name: "index_todo_follows_on_todo_id"
+    t.index ["user_id"], name: "index_todo_follows_on_user_id"
+  end
+
   create_table "todos", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "creator_id"
@@ -583,6 +617,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000037) do
   add_foreign_key "meal_plan_entries", "recipes", on_delete: :cascade
   add_foreign_key "memberships", "households"
   add_foreign_key "memberships", "users"
+  add_foreign_key "notifications", "households"
+  add_foreign_key "notifications", "users"
+  add_foreign_key "notifications", "users", column: "actor_id"
   add_foreign_key "offer_blocklist_entries", "households", on_delete: :cascade
   add_foreign_key "offer_categories", "households", on_delete: :cascade
   add_foreign_key "offer_category_keywords", "offer_categories", on_delete: :cascade
@@ -617,6 +654,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_01_000037) do
   add_foreign_key "todo_comments", "households"
   add_foreign_key "todo_comments", "todos"
   add_foreign_key "todo_comments", "users"
+  add_foreign_key "todo_follows", "households"
+  add_foreign_key "todo_follows", "todos"
+  add_foreign_key "todo_follows", "users"
   add_foreign_key "todos", "households"
   add_foreign_key "todos", "users", column: "assignee_id"
   add_foreign_key "todos", "users", column: "creator_id"

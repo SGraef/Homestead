@@ -67,6 +67,11 @@ de:
     comment_placeholder: "Schreib einen Kommentar…"
     delete_confirm: "Diese Aufgabe löschen?"
     reopen: "Wieder öffnen"
+    assignee: "Zugewiesen"
+    assign: "Zuweisen"
+    unassigned: "Nicht zugewiesen"
+    follow: "Folgen"
+    unfollow: "Nicht mehr folgen"
     states:
       open: "Offen"
       in_progress: "In Arbeit"
@@ -74,6 +79,22 @@ de:
     advance_to:
       in_progress: "Starten"
       done: "Erledigen"
+
+  notification:
+    title: "Benachrichtigungen"
+    empty: "Keine Benachrichtigungen."
+    unread: "Neu"
+    mark_all_read: "Alle als gelesen markieren"
+    all_read: "Alle Benachrichtigungen als gelesen markiert."
+    status_changed: "Status geändert zu %{state}"
+    assigned:
+      title: "Dir wurde eine Aufgabe zugewiesen"
+      body: "%{title}"
+    todo_changed:
+      title: "Eine Aufgabe, der du folgst, hat sich geändert"
+    comment_added:
+      title: "Neuer Kommentar"
+      body: "Neuer Kommentar zu %{title}"
 
   nav:
     storage: "Vorrat"
@@ -88,6 +109,7 @@ de:
     recipes: "Rezepte"
     meal_plan: "Essensplan"
     todos: "Aufgaben"
+    notifications: "Benachrichtigungen"
     jobs: "Jobs"
     household: "Haushalt"
     logout: "Abmelden"
@@ -149,6 +171,8 @@ de:
     todo_updated:      "Aufgabe aktualisiert."
     todo_deleted:      "Aufgabe gelöscht."
     todo_invalid_transition: "Diese Statusänderung ist nicht erlaubt."
+    todo_followed:     "Du folgst dieser Aufgabe jetzt."
+    todo_unfollowed:   "Du folgst dieser Aufgabe nicht mehr."
     receipt_confirmed: "Beleg bestätigt — Produkte, Geschäft und Preise gespeichert."
     receipt_removed:      "Beleg entfernt."
     receipt_reprocessing: "OCR läuft erneut — aktualisiere die Seite, um das Ergebnis zu sehen."
