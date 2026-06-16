@@ -22,3 +22,12 @@
 
   <%= render "calendars/#{@view}" %>
 <% end %>
+
+<%# Event modal — chips load an event into this Turbo Frame; the controller
+    opens the <dialog>. Lives outside the "calendar" frame so it survives date
+    navigation. %>
+<dialog data-controller="modal"
+        data-action="close->modal#cleanup click->modal#backdropClose"
+        class="modal-dialog">
+  <%= turbo_frame_tag "modal", data: { modal_target: "frame" } %>
+</dialog>

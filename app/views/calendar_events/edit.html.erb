@@ -1,16 +1,28 @@
 <% content_for :title, t("calendar.edit_event") %>
-<p><%= link_to t("calendar.back"), calendar_path %></p>
-<h1><%= t("calendar.edit_event") %></h1>
-<%= render "form" %>
+<%# Rendered into the "modal" Turbo Frame on the calendar (opens the dialog) and
+    also reachable as a full page. Actions break out to _top so a save/delete
+    refreshes the calendar and dismisses the modal. %>
+<%= turbo_frame_tag "modal" do %>
+  <div class="modal-body">
+    <div class="modal-header">
+      <h2><%= t("calendar.edit_event") %></h2>
+      <button type="button" class="btn btn-sm tertiary modal-close"
+              data-action="modal#close" aria-label="<%= t("common.close") %>">✕</button>
+    </div>
 
-<% if event_offers_todo?(@event) %>
-  <p>
-    <%= button_to t("calendar.suggestion.create_todo"), create_todo_calendar_event_path(@event),
-                  method: :post, class: "btn btn-sm secondary" %>
-  </p>
-<% end %>
+    <%= render "form" %>
 
-<% if policy(@event).destroy? %>
-  <%= button_to t("common.delete"), calendar_event_path(@event), method: :delete,
-                class: "btn btn-sm warn", data: { turbo_confirm: t("calendar.delete_confirm") } %>
+    <% if event_offers_todo?(@event) %>
+      <p>
+        <%= button_to t("calendar.suggestion.create_todo"), create_todo_calendar_event_path(@event),
+                      method: :post, class: "btn btn-sm secondary", form: { data: { turbo_frame: "_top" } } %>
+      </p>
+    <% end %>
+
+    <% if policy(@event).destroy? %>
+      <%= button_to t("common.delete"), calendar_event_path(@event), method: :delete,
+                    class: "btn btn-sm warn", form: { data: { turbo_frame: "_top" } },
+                    data: { turbo_confirm: t("calendar.delete_confirm") } %>
+    <% end %>
+  </div>
 <% end %>
