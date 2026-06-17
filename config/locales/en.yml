@@ -1,6 +1,6 @@
 en:
-  app_name: "Pantria"
-  app_tagline: "Household inventory"
+  app_name: "Homestead"
+  app_tagline: "Run your home from one place"
 
   date:
     formats:
@@ -99,7 +99,7 @@ en:
     enable: "Enable push notifications"
     enabled: "Push notifications are on for this device."
     denied: "Notifications are blocked — you'll still see updates in the bell here."
-    unsupported: "This browser doesn't support push (you'll still see the bell). On iPhone, add Pantria to your home screen first."
+    unsupported: "This browser doesn't support push (you'll still see the bell). On iPhone, add Homestead to your home screen first."
     error: "Couldn't enable push. Please try again."
 
   calendar:
@@ -148,7 +148,7 @@ en:
     no_calendar: "— none —"
     calendar_selected: "Calendar selected."
     disconnect: "Disconnect"
-    disconnect_confirm: "Disconnect Google Calendar? Synced events stay in Pantria but stop updating."
+    disconnect_confirm: "Disconnect Google Calendar? Synced events stay in Homestead but stop updating."
     disconnected_notice: "Google Calendar disconnected."
     sync_now: "Sync now"
     sync_started: "Sync started."
@@ -188,7 +188,7 @@ en:
     offline:
       title: "Offline"
       heading: "You're offline"
-      body: "Pantria can't reach the server right now. Check your connection and try again."
+      body: "Homestead can't reach the server right now. Check your connection and try again."
       retry: "Try again"
 
   flash:
@@ -255,8 +255,8 @@ en:
     price_removed:     "Price removed."
 
   auth:
-    sign_in_title:     "Sign in to Pantria"
-    create_account:    "Create your Pantria account"
+    sign_in_title:     "Sign in to Homestead"
+    create_account:    "Create your Homestead account"
     sign_in_button:    "Sign in"
     create_button:     "Create account"
     no_account:        "No account?"
@@ -282,7 +282,7 @@ en:
 
   invitation:
     title:         "Join the household"
-    intro:         "You've been invited to %{household} on Pantria (%{email}). Pick a password to finish setting up your account."
+    intro:         "You've been invited to %{household} on Homestead (%{email}). Pick a password to finish setting up your account."
     accept_button: "Create account & join"
     invalid:       "This invitation link is invalid or has expired. Ask an admin to send a new one."
     accepted:      "Welcome! Your account is ready."
@@ -301,28 +301,28 @@ en:
 
   user_mailer:
     activation_needed_email:
-      subject:  "Please activate your Pantria account"
+      subject:  "Please activate your Homestead account"
       greeting: "Hello %{name},"
-      intro:    "thanks for signing up to Pantria."
+      intro:    "thanks for signing up to Homestead."
       cta:      "Click the link below to activate your account:"
       activate: "Activate account"
       ignore:   "If you didn't request this email, just ignore it."
     activation_success_email:
-      subject:  "Your Pantria account is active"
+      subject:  "Your Homestead account is active"
       greeting: "Hello %{name},"
       body:     "Your account has been activated — you can sign in now."
       sign_in:  "Sign in"
     reset_password_email:
-      subject:  "Pantria password reset"
+      subject:  "Homestead password reset"
       greeting: "Hello %{name},"
       intro:    "we received a request to reset your password."
       cta:      "Click the link below to set a new password:"
       reset:    "Reset password"
       ignore:   "If this wasn't you, just ignore this email."
     invitation_email:
-      subject:  "You've been invited to %{household} on Pantria"
+      subject:  "You've been invited to %{household} on Homestead"
       greeting: "You're invited to %{household}"
-      intro:    "an admin has invited you to join the %{household} household on Pantria."
+      intro:    "an admin has invited you to join the %{household} household on Homestead."
       cta:      "Click the link below to set your password and join:"
       accept:   "Accept invitation"
       expiry:   "This invitation expires in %{days} days."
@@ -342,7 +342,7 @@ en:
     open_items:
       one:   "%{count} open item."
       other: "%{count} open items."
-    welcome:         "Welcome to Pantria! Add your first storage item or scan a barcode to get started."
+    welcome:         "Welcome to Homestead! Add your first storage item or scan a barcode to get started."
     spending_card:   "Spending this month"
     expense_breakdown: "Open breakdown"
 
@@ -489,7 +489,7 @@ en:
   bring:
     title:               "Bring! integration"
     connect_title:       "Connect to Bring!"
-    connect_intro:       "Pantria signs in once with your Bring! credentials, then only keeps a token — your password is never stored."
+    connect_intro:       "Homestead signs in once with your Bring! credentials, then only keeps a token — your password is never stored."
     password:            "Password"
     country:             "Country"
     connect:             "Connect"
@@ -790,7 +790,7 @@ en:
       ssl_hint:     "On for 993 (implicit TLS), off for 143 plain IMAP."
       expunge:      "Permanently delete processed mail"
       expunge_hint: "Off (default) marks processed mail as Seen. On expunges it from the server."
-      folder_hint:  "Single folder. Use the exact server path including any prefix and delimiter (e.g. INBOX, INBOX/Receipts, INBOX.Pantria — depends on your provider)."
+      folder_hint:  "Single folder. Use the exact server path including any prefix and delimiter (e.g. INBOX, INBOX/Receipts, INBOX.Homestead — depends on your provider)."
     placeholders:
       label:         "Gmail – personal"
       host:          "imap.gmail.com"
@@ -831,7 +831,7 @@ en:
     add:                 "Add recipe"
     import:
       title:             "Import from Chefkoch"
-      intro:             "Paste a Chefkoch URL (the page at chefkoch.de/rezepte/…) and Pantria will pull title, servings, prep/cook times, ingredients and cooking instructions. Missing products are added to your catalog automatically."
+      intro:             "Paste a Chefkoch URL (the page at chefkoch.de/rezepte/…) and Homestead will pull title, servings, prep/cook times, ingredients and cooking instructions. Missing products are added to your catalog automatically."
       url_label:         "Chefkoch URL"
       button:            "Import"
       success:           "Imported '%{name}' with %{ingredients} ingredient(s); %{products} new product(s) added to your catalog."
