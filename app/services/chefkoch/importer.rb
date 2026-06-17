@@ -75,6 +75,7 @@ module Chefkoch
 
     def fetch_recipe(id)
       uri  = URI.parse(format(API_URL_FMT, id: id))
+      SafeHttp.validate_uri!(uri)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl      = true
       http.open_timeout = OPEN_TIMEOUT

@@ -150,7 +150,8 @@ module Bring
     # ---- HTTP --------------------------------------------------------------
 
     def self.http_request(method, path, headers: {}, body: nil)
-      uri  = URI("#{BASE_URL}#{path}")
+      uri = URI("#{BASE_URL}#{path}")
+      SafeHttp.validate_uri!(uri)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl      = true
       http.open_timeout = OPEN_TIMEOUT
