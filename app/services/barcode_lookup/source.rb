@@ -10,7 +10,7 @@ module BarcodeLookup
   # {.fetch(barcode)} and {.search(name:, brand:, limit:)}, returning a
   # {BarcodeLookup::Result} or an array of them.
   class Source
-    USER_AGENT     = "Pantria/0.1 (+https://pantria.local)"
+    USER_AGENT     = "Homestead/0.1 (+https://homestead.local)"
     OPEN_TIMEOUT   = 8
     READ_TIMEOUT   = 10
     MAX_REDIRECTS  = 3

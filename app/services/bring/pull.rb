@@ -78,7 +78,7 @@ module Bring
         span.set_attribute("bring.pull.unchanged",        outcome.unchanged)
       end
       Telemetry.counter("pantria.bring.pull_total",
-                        description: "Bring -> Pantria pull operations").add(1)
+                        description: "Bring -> Homestead pull operations").add(1)
       Telemetry.counter("pantria.bring.items_synced_total",
                         description: "Grocery rows touched by a Bring pull (added/reactivated/purchased)")
                .add(outcome.total_changed)

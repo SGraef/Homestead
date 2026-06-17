@@ -10,14 +10,14 @@ default: &default
 
 development:
   <<: *default
-  database: <%= ENV.fetch("DATABASE_NAME") { "pantria_development" } %>
+  database: <%= ENV.fetch("DATABASE_NAME") { "homestead_development" } %>
 
 test:
   <<: *default
-  database: <%= ENV.fetch("DATABASE_NAME") { "pantria_test" } %>
+  database: <%= ENV.fetch("DATABASE_NAME") { "homestead_test" } %>
 
 production:
   <<: *default
-  database: <%= ENV.fetch("DATABASE_NAME") { "pantria_production" } %>
+  database: <%= ENV.fetch("DATABASE_NAME") { "homestead_production" } %>
   username: <%= ENV.fetch("DATABASE_USERNAME") %>
   password: <%= ENV.fetch("DATABASE_PASSWORD") %>

@@ -36,7 +36,7 @@ Rails.application.configure do
   config.action_view.annotate_rendered_view_with_filenames = true
   config.action_controller.raise_on_missing_callback_actions = true
 
-  config.hosts << "pantria.localhost"
+  config.hosts << "homestead.localhost"
   config.hosts << "web"
   # docker-compose.test.yml service name used by the Cypress runner.
   config.hosts << "app-e2e"

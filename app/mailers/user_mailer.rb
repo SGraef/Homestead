@@ -10,7 +10,7 @@
 #   - {#activation_success_email} sent after activation (user_activation)
 #   - {#reset_password_email}     sent on reset request (reset_password)
 class UserMailer < ApplicationMailer
-  default from: ENV.fetch("MAIL_FROM", "no-reply@pantria.local")
+  default from: ENV.fetch("MAIL_FROM", "no-reply@homestead.local")
 
   # @param user [User]
   def activation_needed_email(user)

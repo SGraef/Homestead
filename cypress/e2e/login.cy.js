@@ -1,7 +1,7 @@
 describe("Authentication", () => {
   it("rejects bad credentials", () => {
     cy.visit("/login")
-    cy.get('input[name="email"]').type("demo@pantria.local")
+    cy.get('input[name="email"]').type("demo@homestead.local")
     cy.get('input[name="password"]').type("wrong-password")
     cy.get('input[type="submit"]').click()
     cy.contains(/Invalid email or password/i)

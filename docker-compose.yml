@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: pantria_development
+      MYSQL_DATABASE: homestead_development
       MYSQL_USER: pantria
       MYSQL_PASSWORD: pantria
     volumes:
@@ -27,7 +27,7 @@ services:
       DATABASE_HOST: db
       DATABASE_USERNAME: pantria
       DATABASE_PASSWORD: pantria
-      DATABASE_NAME: pantria_development
+      DATABASE_NAME: homestead_development
     volumes:
       - .:/app
       - bundle_cache:/usr/local/bundle
@@ -52,7 +52,7 @@ services:
       DATABASE_HOST: db
       DATABASE_USERNAME: pantria
       DATABASE_PASSWORD: pantria
-      DATABASE_NAME: pantria_development
+      DATABASE_NAME: homestead_development
       # Mail in dev goes to tmp/mails — share the same volume so the worker
       # can drop activation / reset emails too.
     volumes:

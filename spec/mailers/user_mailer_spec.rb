@@ -17,7 +17,7 @@ RSpec.describe UserMailer do
     it "is addressed to the user with the right subject" do
       expect(mail.to).to eq([user.email])
       expect(mail.subject).to eq("Please activate your Homestead account")
-      expect(mail.from).to include("no-reply@pantria.local")
+      expect(mail.from).to include("no-reply@homestead.local")
     end
 
     it "embeds the activation URL" do

@@ -13,8 +13,8 @@
 // re-fetch on next load.
 
 const CACHE_VERSION = "v1-<%= Rails.application.config.assets.respond_to?(:digest_class) ? Time.zone.today : Time.zone.today %>";
-const STATIC_CACHE  = `pantria-static-${CACHE_VERSION}`;
-const RUNTIME_CACHE = `pantria-runtime-${CACHE_VERSION}`;
+const STATIC_CACHE  = `homestead-static-${CACHE_VERSION}`;
+const RUNTIME_CACHE = `homestead-runtime-${CACHE_VERSION}`;
 
 // Files that should always be available offline. We keep this tiny --
 // the app shell + offline page + icon. Anything else falls into the
