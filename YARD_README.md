@@ -1,4 +1,4 @@
-# Pantria — Household ERP
+# Homestead — Household ERP
 
 A Rails 8 application for managing food storage, multi-store grocery prices,
 and barcode-driven inventory updates. Authenticated with Sorcery, authorized

@@ -43,7 +43,7 @@ their next navigation. Comments are todo-scoped (`TodoComment`), and a comment
 author or an admin can delete one.
 
 Comments are also the input for the German date-detection loop: when a comment
-mentions a date, Pantria offers to turn it into a calendar entry. See
+mentions a date, Homestead offers to turn it into a calendar entry. See
 [Calendar → suggestions from comments](calendar.md#suggestions-from-comments).
 
 ## Notifications & push
@@ -72,10 +72,10 @@ environment variables.
 
 ## Code references
 
-- Models: [`app/models/todo.rb`](https://github.com/SGraef/Pantria/blob/main/app/models/todo.rb),
-  [`app/models/notification.rb`](https://github.com/SGraef/Pantria/blob/main/app/models/notification.rb),
-  [`app/models/push_subscription.rb`](https://github.com/SGraef/Pantria/blob/main/app/models/push_subscription.rb)
-- Controllers: [`app/controllers/todos_controller.rb`](https://github.com/SGraef/Pantria/blob/main/app/controllers/todos_controller.rb),
-  [`app/controllers/notifications_controller.rb`](https://github.com/SGraef/Pantria/blob/main/app/controllers/notifications_controller.rb)
-- Push delivery: [`app/jobs/deliver_push_job.rb`](https://github.com/SGraef/Pantria/blob/main/app/jobs/deliver_push_job.rb)
-- Subscribe controller: [`app/javascript/controllers/push_subscribe_controller.js`](https://github.com/SGraef/Pantria/blob/main/app/javascript/controllers/push_subscribe_controller.js)
+- Models: [`app/models/todo.rb`](https://github.com/SGraef/Homestead/blob/main/app/models/todo.rb),
+  [`app/models/notification.rb`](https://github.com/SGraef/Homestead/blob/main/app/models/notification.rb),
+  [`app/models/push_subscription.rb`](https://github.com/SGraef/Homestead/blob/main/app/models/push_subscription.rb)
+- Controllers: [`app/controllers/todos_controller.rb`](https://github.com/SGraef/Homestead/blob/main/app/controllers/todos_controller.rb),
+  [`app/controllers/notifications_controller.rb`](https://github.com/SGraef/Homestead/blob/main/app/controllers/notifications_controller.rb)
+- Push delivery: [`app/jobs/deliver_push_job.rb`](https://github.com/SGraef/Homestead/blob/main/app/jobs/deliver_push_job.rb)
+- Subscribe controller: [`app/javascript/controllers/push_subscribe_controller.js`](https://github.com/SGraef/Homestead/blob/main/app/javascript/controllers/push_subscribe_controller.js)

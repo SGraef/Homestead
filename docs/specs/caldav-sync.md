@@ -1,7 +1,7 @@
 # CalDAV Two-Way Calendar Sync — Engineering Spec & Delivery Plan
 
 > Status: Approved spec (integrated from a six-role debate-and-refine pass).
-> Owner: Delivery Lead. Target: Pantria (Rails 8 / Ruby 3.3.6, MySQL 8.4, Hotwire, Solid Queue).
+> Owner: Delivery Lead. Target: Homestead (Rails 8 / Ruby 3.3.6, MySQL 8.4, Hotwire, Solid Queue).
 > Scope: Provider-agnostic CalDAV (app-password) two-way sync. Google-via-OAuth is a later pluggable adapter.
 
 This document is the authoritative spec. Where the team held conflicting red lines, the Delivery Lead's resolution and justification are stated inline under **Decision**.
@@ -14,12 +14,12 @@ This document is the authoritative spec. Where the team held conflicting red lin
 
 A single household connects **one** CalDAV calendar (URL + username + app-password) and gets **genuinely bidirectional** sync for **single (non-recurring) timed and all-day events**, including deletes:
 
-- Create/edit in Pantria → appears in the external calendar within seconds (immediate push).
-- Create/edit on a phone/other device → appears in Pantria within ~5 minutes (recurring poll).
+- Create/edit in Homestead → appears in the external calendar within seconds (immediate push).
+- Create/edit on a phone/other device → appears in Homestead within ~5 minutes (recurring poll).
 - Delete on either side → removed on the other.
 - Same event edited on both sides between polls → **deterministic remote-wins**, the dropped local edit is surfaced via the notification bell (never silently lost).
 
-**Acceptance:** Connect iCloud / Nextcloud / Fastmail. Create "Zahnarzt 14:00" in Pantria → visible in Apple Calendar in seconds. Edit its time on the phone → reflected in Pantria within ~5 min. Delete it on either side → gone on the other. An all-day event for a `Europe/Berlin` household never slides to the previous day.
+**Acceptance:** Connect iCloud / Nextcloud / Fastmail. Create "Zahnarzt 14:00" in Homestead → visible in Apple Calendar in seconds. Edit its time on the phone → reflected in Homestead within ~5 min. Delete it on either side → gone on the other. An all-day event for a `Europe/Berlin` household never slides to the previous day.
 
 ### 1.2 Explicit non-goals (MVP)
 
@@ -27,7 +27,7 @@ A single household connects **one** CalDAV calendar (URL + username + app-passwo
 |---|---|---|
 | **RRULE / recurring authoring & two-way** | Re-serializing an RRULE we don't fully model corrupts a series (EXDATE, RECURRENCE-ID, infinite expansion). Pulled recurring events are stored **read-only**. | P2 (read-only render) → P3 (two-way) |
 | **sync-token (RFC 6578) as the pull engine** | A poll-cost optimization invisible at 5-min single-household cadence; shipping it primary risks silent total-sync-failure on servers that don't advertise `sync-collection`. | P2 |
-| **VTIMEZONE authoring** | Pantria stores UTC and has no floating-time concept; we push timed events as UTC `Z`-form, sidestepping the biggest iCalendar footgun. | Not planned |
+| **VTIMEZONE authoring** | Homestead stores UTC and has no floating-time concept; we push timed events as UTC `Z`-form, sidestepping the biggest iCalendar footgun. | Not planned |
 | **Field-level / disjoint-field merge** | Requires storing the full prior remote ICS per event (a schema cost the normalized-column model can't back). Degenerates to whole-body remote-wins anyway. | Only if `last_remote_ical` column is later added |
 | **Google Calendar (OAuth)** | Needs OAuth2, not app-passwords. The engine is built provider-pluggable so it slots in later untouched. | P3+ |
 | **Multiple calendars per instance** | Single-household ⇒ one connection, one collection. | Later |
@@ -102,7 +102,7 @@ Discovery is a settings-screen operation, not part of sync. Run on **"Test & dis
 
 > **Decision (unanimous): hand-roll `Net::HTTP` + `Nokogiri` for WebDAV; add ONLY the maintained `icalendar` gem for VEVENT; wrap it in our own `Caldav::VeventCodec`. Reject all Ruby caldav gems.**
 
-**Why hand-roll WebDAV.** It is ~6 request shapes (`PROPFIND`, `REPORT` ×2, `PUT`, `DELETE`, `GET`). Every other Pantria outbound integration is hand-rolled `Net::HTTP` (`app/services/bring`, `kaufda`, `chefkoch`). The Ruby caldav/agcaldav gems are thin, years-stale, CI-hostile (no fixtures, surprising network behavior), and would invert house style — a supply-chain / bus-factor risk for self-hosters. They save nothing on the layer where the hard parts live (server quirks, redirects). `Bring::Client#log_failure` already redacts `Bearer|JWT|Basic` headers via `/\A(Bearer|JWT|Basic) (.+)/i`, so the CalDAV `Authorization: Basic` app-password is scrubbed in logs for free.
+**Why hand-roll WebDAV.** It is ~6 request shapes (`PROPFIND`, `REPORT` ×2, `PUT`, `DELETE`, `GET`). Every other Homestead outbound integration is hand-rolled `Net::HTTP` (`app/services/bring`, `kaufda`, `chefkoch`). The Ruby caldav/agcaldav gems are thin, years-stale, CI-hostile (no fixtures, surprising network behavior), and would invert house style — a supply-chain / bus-factor risk for self-hosters. They save nothing on the layer where the hard parts live (server quirks, redirects). `Bring::Client#log_failure` already redacts `Bearer|JWT|Basic` headers via `/\A(Bearer|JWT|Basic) (.+)/i`, so the CalDAV `Authorization: Basic` app-password is scrubbed in logs for free.
 
 **Why add `icalendar` (the one gem that earns its keep).** iCalendar is genuinely hard by hand: 75-octet line folding, escaping (`,` `;` newlines), `DATE` vs `DATE-TIME`, `DTSTAMP`/`UID`/`SEQUENCE` semantics, `TZID`. Parsing untrusted server output by regex is a footgun. Pure-Ruby, maintained, no native extension.
 
@@ -236,7 +236,7 @@ after_create_commit / after_update_commit / after_destroy_commit:
 > **Decision — ETag optimistic concurrency (`If-Match` → 412 → re-pull, WHOLE-EVENT remote-wins). The minimal 412 handler ships in the SAME PR as the first PUT. Reject wall-clock last-write-wins. Field-merge is dropped entirely.**
 
 - **Reject wall-clock LWW.** Clock skew between a self-hosted box and iCloud makes "which clock" unanswerable; `DTSTAMP` is client-controlled. Non-deterministic, data-destroying, unauditable.
-- **Remote-wins is the deterministic tiebreak.** The external calendar is the shared/authoritative surface (phone notifications, other family devices); Pantria is the ERP overlay.
+- **Remote-wins is the deterministic tiebreak.** The external calendar is the shared/authoritative surface (phone notifications, other family devices); Homestead is the ERP overlay.
 - **The 412 handler is NOT deferrable.** The moment you `PUT` with `If-Match`, a same-event-both-sides edit **WILL** 412. An unhandled 412 storms `retry_on` against a stale `If-Match` and lands the connection in error; a bare `PUT` without `If-Match` blind-overwrites remote (lost-update). **There is no safe two-way-write state that excludes the 412 branch.**
 
 On 412:
@@ -347,7 +347,7 @@ Each phase is an independently CI-green PR against recorded fixtures (no live se
 The Delivery Lead has pre-resolved most open items (see **Decision** blocks). These genuinely need your call:
 
 1. **Which providers to validate first?** Acceptance currently names iCloud / Nextcloud / Fastmail. **The acceptance list must equal the fixture corpus list.** Which CalDAV server(s) does *your* household actually use? If iCloud stays in acceptance, capturing a scrubbed real iCloud discovery+sync fixture is a hard DoD gate for the discovery PR (its well-known redirect + non-obvious principal URLs are the riskiest surface). If not, naming Nextcloud/Radicale/Fastmail as P0 reduces discovery effort.
-2. **Conflict-resolution UX.** Confirm **silent remote-wins + one non-blocking bell notification** ("we kept the calendar's version") is acceptable — i.e. a Pantria edit *can* be replaced (the user redoes it), with no merge/keep-both UI in v1. A keep-mine/keep-theirs screen is materially larger and is proposed for P2+.
-3. **Is RRULE/recurring in v1?** Recommendation: **no** — pulled recurring events render **read-only** ("edit in your calendar app"); Pantria authors no recurrence in v1. Two-way recurring is P3 (its own DoD gate). Confirm you accept read-only recurring for launch.
+2. **Conflict-resolution UX.** Confirm **silent remote-wins + one non-blocking bell notification** ("we kept the calendar's version") is acceptable — i.e. a Homestead edit *can* be replaced (the user redoes it), with no merge/keep-both UI in v1. A keep-mine/keep-theirs screen is materially larger and is proposed for P2+.
+3. **Is RRULE/recurring in v1?** Recommendation: **no** — pulled recurring events render **read-only** ("edit in your calendar app"); Homestead authors no recurrence in v1. Two-way recurring is P3 (its own DoD gate). Confirm you accept read-only recurring for launch.
 4. **App-password onboarding.** Confirm the per-provider help (picker that pre-fills the URL + links to that provider's app-password page) is the v1 onboarding, and that the in-UI copy may state Google support is "coming later." The account-vs-app-password mistake is the #1 first-connect failure — a 401 will render actionable guidance, not a generic error.
-5. **Disconnect behavior (locked pending your nod).** Recommendation/lean: **keep synced events as local copies, strip remote anchors, flip `sync_origin = local`**, with confirm copy: *"Disconnect? Your synced events stay in Pantria but will no longer update from your calendar."* Confirm this single outcome (vs. an explicit keep-vs-clear two-option dialog, which is a larger UI cost) so the de/en confirm copy can be finalized in the MVP settings PR.
+5. **Disconnect behavior (locked pending your nod).** Recommendation/lean: **keep synced events as local copies, strip remote anchors, flip `sync_origin = local`**, with confirm copy: *"Disconnect? Your synced events stay in Homestead but will no longer update from your calendar."* Confirm this single outcome (vs. an explicit keep-vs-clear two-option dialog, which is a larger UI cost) so the de/en confirm copy can be finalized in the MVP settings PR.

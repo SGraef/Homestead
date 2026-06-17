@@ -1,6 +1,6 @@
 # Storage
 
-The pantry, fridge, freezer, cellar — anywhere food lives. Pantria tracks
+The pantry, fridge, freezer, cellar — anywhere food lives. Homestead tracks
 *what* you have, *how much*, *where* it's kept, and *when it expires*.
 
 ![Storage index](../screenshots/storage-index.svg)
@@ -69,6 +69,6 @@ The home dashboard surfaces two storage-derived alerts:
 
 ## Code references
 
-- Model: [`app/models/storage_item.rb`](https://github.com/SGraef/Pantria/blob/main/app/models/storage_item.rb)
-- Controller: [`app/controllers/storage_items_controller.rb`](https://github.com/SGraef/Pantria/blob/main/app/controllers/storage_items_controller.rb)
-- Scan kiosk Stimulus controller: [`app/javascript/controllers/storage_kiosk_controller.js`](https://github.com/SGraef/Pantria/blob/main/app/javascript/controllers/storage_kiosk_controller.js)
+- Model: [`app/models/storage_item.rb`](https://github.com/SGraef/Homestead/blob/main/app/models/storage_item.rb)
+- Controller: [`app/controllers/storage_items_controller.rb`](https://github.com/SGraef/Homestead/blob/main/app/controllers/storage_items_controller.rb)
+- Scan kiosk Stimulus controller: [`app/javascript/controllers/storage_kiosk_controller.js`](https://github.com/SGraef/Homestead/blob/main/app/javascript/controllers/storage_kiosk_controller.js)

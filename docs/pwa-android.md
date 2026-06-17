@@ -1,6 +1,6 @@
 # PWA & Android
 
-Pantria works as a real installable PWA on any modern browser, and ships
+Homestead works as a real installable PWA on any modern browser, and ships
 with an Android wrapper APK (a Trusted Web Activity) that drops the
 Chrome URL bar and looks indistinguishable from a native app.
 
@@ -57,7 +57,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 The TWA shows the Chrome URL bar until it verifies that the APK signing
 key matches a fingerprint listed in your domain's
-`/.well-known/assetlinks.json`. Pantria serves that file dynamically
+`/.well-known/assetlinks.json`. Homestead serves that file dynamically
 from `WellKnownController`:
 
 ```bash
@@ -66,7 +66,7 @@ keytool -list -v -keystore ~/.android/debug.keystore \
         -alias androiddebugkey -storepass android -keypass android \
     | grep 'SHA256:'
 
-# Set on Pantria's environment (.env / Unraid template / docker-compose):
+# Set on Homestead's environment (.env / Unraid template / docker-compose):
 #   ANDROID_TWA_PACKAGE=de.lunawolf.pantria
 #   ANDROID_TWA_FINGERPRINTS=AA:BB:CC:...
 ```
@@ -87,7 +87,7 @@ an App Bundle:
 ```
 
 Detailed walkthrough including camera permission semantics:
-[`android/README.md`](https://github.com/SGraef/Pantria/blob/main/android/README.md).
+[`android/README.md`](https://github.com/SGraef/Homestead/blob/main/android/README.md).
 
 ## What's *not* in there
 
@@ -99,7 +99,7 @@ Detailed walkthrough including camera permission semantics:
 
 ## Push notifications
 
-Pantria ships a full Web Push stack used by the
+Homestead ships a full Web Push stack used by the
 [Todos](features/todos.md#notifications-push) feature — assignment and
 followed-change notifications arrive as native notifications on an installed
 PWA, and tapping one deep-links to the todo.

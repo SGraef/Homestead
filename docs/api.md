@@ -115,6 +115,6 @@ back as `{ "error": "<message>" }` with an appropriate 4xx / 5xx code.
 
 ## Source
 
-- Controllers: [`app/controllers/api/v1/`](https://github.com/SGraef/Pantria/tree/main/app/controllers/api/v1)
-- Routes: [`config/routes.rb`](https://github.com/SGraef/Pantria/blob/main/config/routes.rb) (`namespace :api`)
+- Controllers: [`app/controllers/api/v1/`](https://github.com/SGraef/Homestead/tree/main/app/controllers/api/v1)
+- Routes: [`config/routes.rb`](https://github.com/SGraef/Homestead/blob/main/config/routes.rb) (`namespace :api`)
 - Auth: `ApiToken` model + `Api::V1::BaseController#authenticate_bearer!`

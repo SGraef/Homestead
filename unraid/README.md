@@ -1,6 +1,6 @@
-# Pantria on Unraid
+# Homestead on Unraid
 
-`pantria.xml` is a Community Applications template that runs Pantria as a
+`pantria.xml` is a Community Applications template that runs Homestead as a
 single Docker container on Unraid. Puma serves the web app on port 3000 and
 Solid Queue runs background jobs in-process inside the same Puma (gated by
 `SOLID_QUEUE_IN_PUMA=1`).
@@ -40,7 +40,7 @@ Solid Queue runs background jobs in-process inside the same Puma (gated by
 
 - **Active Storage uploads** live in `/app/storage` inside the container,
   mapped to `/mnt/user/appdata/pantria/storage` by default. Back it up.
-- **Logs** stream to stdout. Use `docker logs Pantria` or Unraid's log
+- **Logs** stream to stdout. Use `docker logs Homestead` or Unraid's log
   viewer.
 - **Two-container variant**: if you want to scale the web tier
   horizontally, set `SOLID_QUEUE_IN_PUMA=0` on the web container(s) and

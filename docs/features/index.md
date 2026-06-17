@@ -1,6 +1,6 @@
 # Features
 
-A guided tour of what Pantria can do. Each page links to the code so you can
+A guided tour of what Homestead can do. Each page links to the code so you can
 see exactly what's happening behind the screenshot.
 
 <div class="grid cards" markdown>
@@ -68,7 +68,7 @@ graph TB
     importer[Recipe importer]
   end
 
-  subgraph Storage["Pantria's catalog"]
+  subgraph Storage["Homestead's catalog"]
     products[(Products)]
     stores[(Stores)]
     prices[(Prices)]

@@ -1,10 +1,10 @@
 ---
-title: Pantria
+title: Homestead
 hide:
   - navigation
 ---
 
-# Pantria
+# Homestead
 
 <p style="text-align:center; max-width:36rem; margin: 1rem auto 2rem;">
   <em>Household ERP focused on food storage, multi-store grocery price tracking,
@@ -14,7 +14,7 @@ hide:
 </p>
 
 !!! warning "Heads-up: this app is vibe-coded"
-    Pantria was built largely through pair-programming with an LLM rather than
+    Homestead was built largely through pair-programming with an LLM rather than
     hand-rolled line by line. The test suite is reasonably thorough and the
     code follows Rails conventions, but you should treat it the way you'd
     treat any vendored library you didn't write:
@@ -123,5 +123,5 @@ flowchart LR
 
 ## License
 
-[MIT](https://github.com/SGraef/Pantria/blob/main/LICENSE). Use it, fork it,
+[MIT](https://github.com/SGraef/Homestead/blob/main/LICENSE). Use it, fork it,
 ship it. PRs welcome.

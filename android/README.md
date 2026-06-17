@@ -1,11 +1,11 @@
-# Pantria Android (TWA)
+# Homestead Android (TWA)
 
 A [Trusted Web Activity](https://developer.chrome.com/docs/android/trusted-web-activity)
-shell that opens the Pantria PWA full-screen, without browser chrome. No native
+shell that opens the Homestead PWA full-screen, without browser chrome. No native
 code, no separate JSON API — the Android app is the web app, signed and packaged.
 
 When the user installs the APK they get an icon in their launcher, push-style
-launch, deep-link handling (any `https://<host>/...` link opens in Pantria), and
+launch, deep-link handling (any `https://<host>/...` link opens in Homestead), and
 camera access via the existing barcode-scanner page. Updates to the web app
 appear immediately — the Android build only needs re-shipping when the package
 metadata itself changes (host, icon, version code for Play Store).
@@ -92,7 +92,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 Open the app: you should see the brand-colour splash for ~300ms, then the
-Pantria login screen with no URL bar and no browser chrome.
+Homestead login screen with no URL bar and no browser chrome.
 
 If you see a URL bar at the top, the asset-link verification failed — open
 `chrome://flags/#enable-quality-enforcing-twa` on the device, or check
@@ -144,4 +144,4 @@ Before publishing to Play Store:
   network is down" via the offline page. Real offline editing would need a
   client-side store + sync — out of scope.
 - No push notifications. Web Push works inside a TWA on Android (Chrome relays
-  them), but Pantria doesn't have a push backend yet.
+  them), but Homestead doesn't have a push backend yet.

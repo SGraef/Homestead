@@ -1,6 +1,6 @@
 All repo facts verified: `service_worker.js.erb` has only install/activate/fetch (no push/notificationclick), `GroceryItem.without_bring_sync` thread-local guard confirmed at lines 50-59, `STATUSES`/`ROLES` constant pattern confirmed, `households.timezone` defaults `"UTC"`, `token_digest` unique-index precedent confirmed, `meal_plan_path(date:)` nav confirmed, User#name nullable, cable production adapter is `redis` with no `redis`/`solid_cable` gem. Now writing the spec.
 
-# Pantria Feature Spec — Collaborative Todos, PWA Push, Comments & Keyword-Driven Calendar
+# Homestead Feature Spec — Collaborative Todos, PWA Push, Comments & Keyword-Driven Calendar
 
 **Status:** Approved engineering spec & phased delivery plan
 **Owner:** Delivery Lead
@@ -22,7 +22,7 @@ A household member can **create → assign → comment on → complete** a todo 
 3. **Todo state = a validated string constant** (`STATES = %w[open in_progress done]`), mirroring the confirmed repo precedent `GroceryItem::STATUSES` (`app/models/grocery_item.rb:13`) and `Membership::ROLES` (`app/models/membership.rb:7`). No workflow gem, no admin-editable state table.
 4. **Loop-prevention is structural, two-layered**: the confirmed `GroceryItem.without_bring_sync` thread-local guard pattern (`app/models/grocery_item.rb:50-59`) copied as `CalendarEvent.without_extraction` / `Todo.without_extraction` to suppress the after-commit echo *at source before `perform_later`*, **plus** a provenance enum gating scan-eligibility. Never heuristic "did a push fire" logic.
 5. **Live broadcast is NOT free infra and is NOT an MVP dependency.** Verified: `config/cable.yml` production uses `adapter: redis`, but **no `redis` and no `solid_cable` gem** is in the Gemfile and there is **zero broadcast usage** in the repo. MVP renders the bell on next navigation. Live push-down is a separate increment that first adds `solid_cable`.
-6. **Hand-rolled ERB calendar grid, never FullCalendar.** Pantria dark mode works only by overriding tokens under `:root[data-theme="dark"]`; a vendored lib ships hardcoded colors that won't flip (bright-white in dark mode) plus a 200KB+ bundle that is **not** in `PRECACHE_URLS` (verified `service_worker.js.erb:22` — `cacheFirst` is cache-on-first-use, not precache).
+6. **Hand-rolled ERB calendar grid, never FullCalendar.** Homestead dark mode works only by overriding tokens under `:root[data-theme="dark"]`; a vendored lib ships hardcoded colors that won't flip (bright-white in dark mode) plus a 200KB+ bundle that is **not** in `PRECACHE_URLS` (verified `service_worker.js.erb:22` — `cacheFirst` is cache-on-first-use, not precache).
 7. **PushSubscription dedup is a unique index on `SHA256(endpoint)`**, never the raw endpoint, mirroring the confirmed `api_tokens.token_digest` / `invitations.token_digest` precedent (`db/schema.rb:50,132`) — a raw long-endpoint unique index fails MySQL 8.4 utf8mb4's 3072-byte prefix limit.
 
 ### Non-goals (explicit)

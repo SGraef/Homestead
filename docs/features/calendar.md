@@ -32,7 +32,7 @@ All times are stored in UTC and rendered in the household's timezone
 ## Suggestions from comments
 
 When a [todo comment](todos.md#comments) mentions a German date — e.g.
-*"Termin am 5. Mai um 14 Uhr"* — Pantria runs a deterministic
+*"Termin am 5. Mai um 14 Uhr"* — Homestead runs a deterministic
 `GermanDateExtractor` after the comment is saved and surfaces a standalone chip
 beneath it: *"Termin erkannt … In Kalender übernehmen?"*.
 
@@ -51,8 +51,8 @@ re-scanned and never offers that action.
 
 ## Code references
 
-- Models: [`app/models/calendar_event.rb`](https://github.com/SGraef/Pantria/blob/main/app/models/calendar_event.rb),
-  [`app/models/suggestion_dismissal.rb`](https://github.com/SGraef/Pantria/blob/main/app/models/suggestion_dismissal.rb)
-- Controllers: [`app/controllers/calendars_controller.rb`](https://github.com/SGraef/Pantria/blob/main/app/controllers/calendars_controller.rb),
-  [`app/controllers/calendar_events_controller.rb`](https://github.com/SGraef/Pantria/blob/main/app/controllers/calendar_events_controller.rb)
-- Date extraction: [`app/services/german_date_extractor.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/german_date_extractor.rb)
+- Models: [`app/models/calendar_event.rb`](https://github.com/SGraef/Homestead/blob/main/app/models/calendar_event.rb),
+  [`app/models/suggestion_dismissal.rb`](https://github.com/SGraef/Homestead/blob/main/app/models/suggestion_dismissal.rb)
+- Controllers: [`app/controllers/calendars_controller.rb`](https://github.com/SGraef/Homestead/blob/main/app/controllers/calendars_controller.rb),
+  [`app/controllers/calendar_events_controller.rb`](https://github.com/SGraef/Homestead/blob/main/app/controllers/calendar_events_controller.rb)
+- Date extraction: [`app/services/german_date_extractor.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/german_date_extractor.rb)
