@@ -22,6 +22,8 @@ gem "pundit", "~> 2.4"
 # JSON serialization for the REST API
 gem "jsonapi-serializer", "~> 2.2"
 gem "rack-cors", "~> 2.0"
+# Rate limiting / throttling on auth + API endpoints (internet-exposed posture)
+gem "rack-attack", "~> 6.7"
 
 # Static type checking (Sorbet)
 gem "sorbet-static-and-runtime", "~> 0.5"
