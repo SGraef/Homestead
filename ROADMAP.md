@@ -1,54 +1,138 @@
-# Pantria Roadmap — Beta → 1.0
+# Homestead Roadmap — Beta → 1.0
 
-> **Status:** Approved working plan (Delivery Lead synthesis of PO / Architect / Dev / QA / UX / UI planning round).
-> **Horizon:** Next two quarters (Q1 = Foundation & Trust; Q2 = Core UX & Finish-the-Feature).
-> **Theme:** *Earn trust before adding surface area.*
+> **Renaming in progress:** this project is **Pantria → Homestead**. The product
+> outgrew "pantry + shopping"; the new name and positioning match what it has
+> become. The mechanical rename is scheduled as milestone **H0** below — until it
+> lands, the code, repo and images still say *Pantria*.
 
-> **Update — single-household collapse.** Pantria is now single-household-per-instance
-> (one deployment serves exactly one household; `Household.current`). This obsoletes the
-> two largest tenant-isolation items below: the **M1 cross-tenant request-spec fuzz matrix**
-> and the **M3 incremental `Current.household` model-scoping retrofit** are no longer needed —
-> there is no cross-tenant boundary to defend. The "cross-tenant data leak" critical risk in §6
-> is retired. Model-level relational integrity checks (Price↔store, RecipeIngredient↔product)
-> still apply and stay.
+> **Status:** Working plan, re-baselined against the shipped codebase (June 2026).
+> **Tagline:** *Run your home from one place.*
+> **Theme:** *One household, self-hosted — earn trust, then deepen the home.*
 
 ---
 
-## 1. Executive summary
+## 1. What Homestead is now
 
-Pantria is a feature-rich beta whose biggest gap is not features but **trust**: a self-hosted ERP holding a family's entire pantry, receipt, and price history must be safe to deploy, safe to upgrade, and provably isolated between households — and today none of those three is guaranteed (zero model-level `default_scope`, one policy spec, no tested upgrade path, plaintext Bring! OAuth tokens, decorative CI gates). Q1 therefore concentrates on a tight set of **non-negotiable trust foundations** — a cross-tenant test net, an upgrade/backup path proven against prod-shaped data, week-1 security wins, and real CI gates — while a **strictly schema-free, parallel UX track** (mobile bottom-nav, honest empty states, icon system) fixes the "feels like a website" regression that every self-hoster sees first. Q2 finishes the last 20% of already-advertised features (Marktguru offer images, OCR confidence + confirm-flow, integration hardening, invites) on top of the now-tested schema, and gates all genuinely-new work (live sync, AI meal-suggester) behind activation metrics. The unifying discipline: **nothing that widens the data model ships until the isolation net and the migration smoke test are green**, and **nothing that can corrupt pricing/grocery data ships without the signal that makes it safe** (per-line OCR confidence, defined Bring! conflict policy).
+**Homestead is a self-hosted operations hub for a single household.** One
+deployment serves exactly one home; everyone in the household shares one set of
+data. It started as a pantry/grocery tracker and has grown into the place a
+family runs the practical side of the house from:
+
+- **Inventory** — pantry / fridge / freezer / cellar / custom locations, expiry
+  warnings, "used N" decrement, scan-to-add kiosk.
+- **Shopping** — shared grocery list (freeform or product-linked), two-way
+  **Bring!** sync, mark-purchased-by-barcode.
+- **Receipts & prices** — JPEG/PNG/HEIC/PDF upload, Tesseract OCR + heuristic
+  parser → Stores/Products/Prices, inbound IMAP e-receipt polling, a multi-store
+  price history and an expenses view.
+- **Offers** — daily multi-retailer feeds (Marktguru/kaufDA/MeinProspekt/
+  Flaschenpost), per-household allow-list, categories, watchlist, blocklist.
+- **Recipes & meal plan** — Chefkoch import, ingredient "used" → storage
+  decrement, weekly suggester with soft DGE guidelines.
+- **Collaboration** *(new)* — shared **todos** (three states, assignment,
+  follow, comments), a first-class **notification** ledger with a top-nav bell,
+  **PWA Web Push**, an in-app **calendar** (month/agenda/day + todo-due
+  projection + German date detection), and **two-way Google Calendar sync**.
+- **Multi-user** — admin/member roles, closed registration after first run,
+  **tokened invite links** for additional members.
+- **Platform** — installable PWA + Android TWA, REST API for automation,
+  opt-in OpenTelemetry, MkDocs documentation site.
+
+### The architectural keystone: single household per instance
+
+Homestead serves **one household per deployment** (`Household.current`; the first
+sign-up creates it, registration then closes, members are added by invite). This
+is deliberate and load-bearing:
+
+- **No cross-tenant boundary to defend.** There is no "switch household", no
+  per-request tenant resolution, no `X-Household-Id`. The entire class of
+  cross-tenant data-leak risk — previously the project's #1 critical risk — is
+  **designed out**, not merely tested against.
+- **Authz simplifies to membership + role.** Every authenticated member sees all
+  household data; `admin` governs settings, member management and destructive
+  deletes. Pundit policies no longer carry a scoping burden.
+- **What still applies:** relational integrity *within* the household
+  (`Price ↔ store`, `RecipeIngredient ↔ product`, calendar-event provenance) and
+  a safe, non-destructive upgrade path. Those are not tenancy concerns and stay.
+
+Everything below is framed by this: we are deepening **one** home, not scaling a
+multi-tenant SaaS.
 
 ---
 
 ## 2. Guiding principles
 
-1. **Tenant isolation is the load-bearing invariant.** A cross-household leak of receipts, prices, or grocery lists is existential. Every feature that touches the data model is gated on the isolation test net. *(Unanimous.)*
-2. **Test net before refactor; behavioral baseline before behavioral change.** The additive cross-tenant request-spec matrix ships *first*; the `Current.household` model-scoping retrofit is layered incrementally behind it — never a big-bang `default_scope` on a 27-model LLM-coded base.
-3. **No destructive upgrades, ever.** A green migration on an empty DB proves nothing. The upgrade path is only "done" when proven against a prior-release seed **with resolvable Active Storage blobs** and data-integrity assertions. No migration-bearing feature ships ahead of it.
-4. **Gates must enforce, not observe.** RuboCop/Sorbet flip off `continue-on-error` via a ratchet; a coverage floor lands this half. Decorative gates on LLM-authored, security-sensitive code are unacceptable.
-5. **Finish before you start.** The last 20% of advertised-but-under-delivered features (offer images, OCR trust, sync correctness, invites) outranks net-new modules. The AI meal-suggester and all new modules are frozen until core-loop activation metrics justify them.
-6. **Schema-free UX runs in parallel, not behind.** Work touching zero models/migrations/tenancy (bottom-nav, empty states, contrast, icon sprite) ships alongside Q1 hardening — a hardened backend behind a nav that flex-wraps into three rows on a phone is still a failed first impression.
-7. **Never ship the signal-less version of a data-corrupting action.** "Accept all auto-matched" waits on per-line OCR confidence; live broadcasts wait on a defined Bring! conflict policy and a job-safe echo guard.
+1. **One household, fully trusted internally.** Single-household-per-instance is
+   the invariant. We do not add tenant-scoping machinery; we add value inside the
+   one household. Relational integrity and a safe upgrade path replace tenant
+   isolation as the load-bearing correctness concerns.
+2. **No destructive upgrades, ever.** A green migration on an empty DB proves
+   nothing. The upgrade path is "done" only when proven against a prior-release
+   seed **with resolvable Active Storage blobs** and integrity assertions. No
+   migration-bearing feature ships ahead of it. *(Now more urgent — the schema
+   has grown to todos, notifications, calendar and sync tables.)*
+3. **Gates enforce, not observe.** RuboCop is already blocking (M0). Sorbet
+   flips to blocking per the spike; a coverage floor lands. Decorative CI on
+   LLM-authored, security-sensitive code is unacceptable.
+4. **Internet-exposed is the assumed posture.** The household runs Homestead
+   behind public TLS, so brute-force, session/CSRF, SSRF and abuse are in the
+   threat model — not just data-at-rest. Security work is sized for that.
+5. **Proactive over passive.** The home should *tell you* what needs attention
+   (something expiring, low stock, a watched item on offer, a chore due) — the
+   notification + push stack now exists to make that real. A hub you have to
+   remember to open is a worse hub.
+6. **Finish before you start; schema-free UX runs in parallel.** The last 20% of
+   advertised features (offer images, OCR trust, feed health) outranks net-new
+   modules. Mobile-first UX work touches zero models and ships alongside hardening.
+7. **Never ship the signal-less version of a data-corrupting action.** "Accept
+   all auto-matched" waits on per-line OCR confidence; live broadcasts ride the
+   job-safe echo guard and the defined Bring! conflict policy.
 
 ---
 
-## 3. Roadmap by milestone
+## 3. Delivered since the last roadmap ✅
+
+Re-baseline — these were planned items (or net-new) and are now **shipped**:
+
+| Delivered | Notes |
+|---|---|
+| **Single-household collapse** (#9) | `Household.current`; closed registration; invite-based members. Retired the cross-tenant fuzz-matrix and `Current.household` retrofit entirely. |
+| **Collaborative Todos + Notifications + Web Push** (#11) | Three states, assignment, follow, comments; first-class `Notification` ledger + bell; full VAPID Web Push stack (`web-push`, `DeliverPushJob`, 410/404 prune). |
+| **In-app Calendar + German date extraction** (#11) | Server-rendered month/agenda/day, read-only todo-due projection, suggest-then-confirm comment→event and event→todo. |
+| **Two-way Google Calendar sync** (#12) | One connection per instance, admin-only OAuth, 5-min incremental poll + push-on-change, `sync_origin`/`remote_id`/`etag` echo guard. |
+| **Tokened household invites** | `Invitation` (digest at rest), `invitations`/`activations` flow. *(Was M2 — done.)* |
+| **M0 security & CI quick wins** *(PR open)* | Bring! tokens encrypted at rest; ImageMagick upload pipeline hardened (env/`-limit` + magic-byte allowlist; `policy.xml` is inert in our IM6 build); RuboCop **blocking** via `.rubocop_todo.yml`; SimpleCov print; `srb tc` baseline (~464). |
+| **OpenTelemetry instrumentation** (#5) | Opt-in SDK + exporters wired; per-job/per-source emission still to be fully connected (see H1). |
+| **`solid_cable`** in the stack | DB-backed Action Cable is present — the live-sync prerequisite is **met** (no Redis needed). |
+| **Docs site + feature docs** | MkDocs Material site; Todos/Calendar/Calendar-sync pages + OAuth guide *(PR open)*. |
+
+**Recorded product decisions (M0):** deployment posture = **internet-exposed
+behind TLS**; Bring! conflict policy = **union, Bring! wins ties** (absence =
+"not yet synced", never a silent delete).
+
+---
+
+## 4. Roadmap by milestone
 
 Effort key: **S** ≤ ~2 days · **M** ≤ ~1 week · **L** ≤ ~2–3 weeks · **XL** multi-sprint.
+Milestones renumbered for the Homestead era (H-series).
 
-### M0 — Week-1 Decisions & Quick Wins
-**Goal:** Unblock the rest of the quarter with three product decisions and the cheapest high-value security/quality fixes.
+### H0 — Rebrand: Pantria → Homestead
+**Goal:** Adopt the new name with minimal churn and zero data risk. Mostly
+independent of the other tracks; do the cheap user-facing parts now (pre-1.0,
+~0 users — cheapest it will ever be), defer the expensive internal churn.
 
 | Initiative | Owner | Pri | Effort |
 |---|---|---|---|
-| **Deployment-posture decision** (LAN homelab vs internet-exposed) — gates SSRF/egress-proxy & IMAP-TLS scope | PO | P0 | S |
-| **Bring! conflict-resolution policy** decision (last-write-wins / remote-wins / merge) — unblocks QA conflict tests & any live sync | PO | P0 | S |
-| **Success-metrics definition + `ROADMAP.md`** (time-to-first-storage-item, scans/week, receipts confirmed-vs-discarded, members-per-household, concurrent-edit rate) | PO | P1 | S |
-| **Encrypt `BringConnection.access_token`/`refresh_token`** + migration clearing plaintext rows (forces benign re-auth) | Architect/Dev | P0 | S |
-| **ImageMagick/poppler `policy.xml`** size/decompression/content-type limits on the HEIC/PDF→Tesseract upload pipeline | Architect/Dev | P0 | S |
-| **CI ratchet PR (part 1):** generate `.rubocop_todo.yml`, flip RuboCop to blocking-going-forward; add non-gating SimpleCov print+upload; run `srb tc` spike to capture exit status | Dev/QA | P0 | S |
+| **User-facing rename** — `app_name` i18n key (de+en), the few hardcoded "Pantria" strings (service-worker push default, sign-in title), manifest `name`/`short_name`, theme/wordmark SVGs, README + docs site title | UI + Dev | P0 | S |
+| **External identifiers** — repo `SGraef/Pantria` → `Homestead` (GitHub keeps redirects); Docker image `ghcr.io/sgraef/pantria` → `…/homestead`, **dual-publish the old tag for one release** so existing pulls don't break; docs domain | Dev/Infra | P0 | S |
+| **Android TWA** — package `de.lunawolf.pantria` → `…homestead`, re-register `assetlinks` fingerprints (new Play identity — fine pre-release) | PWA | P1 | S |
+| **Config defaults** — default DB names `pantria_*` → `homestead_*` (env-overridable, so existing prod DBs keep their name), compose/CI env, ENV-var prefixes | Dev | P1 | S |
+| **Internal Ruby module `Pantria`** — rename to `Homestead` **(deferred / optional)**: high churn (every `Pantria::` ref, app constant, eager-load paths) for cosmetic gain. Only if/when a quieter release window opens. | Architect | P3 | M |
 
-**Exit criteria:** Posture & conflict-policy decisions recorded in `ROADMAP.md`; Bring! tokens encrypted in DB; upload pipeline has documented decompression/size limits; RuboCop blocking on new offenses; `srb tc` exit status + RuboCop offense count measured (sizes the Sorbet flip).
+**Exit criteria:** every user-visible surface says Homestead; image + repo
+redirect cleanly with a one-release bridge tag; no data migration required;
+internal module rename explicitly logged as deferred tech-debt.
 
 #### M0 — Status & recorded decisions (✅ delivered)
 
@@ -64,178 +148,240 @@ Effort key: **S** ≤ ~2 days · **M** ≤ ~1 week · **L** ≤ ~2–3 weeks · 
 
 ---
 
-### M1 — Foundation & Trust (Q1 core)
-**Goal:** Make Pantria provably isolated, safely upgradable, and operable on whatever surface the posture decision selects. *Nothing here is user-visible — that is the point.* Runs concurrently with the M1-UX track below.
+### H1 — Trust & Operability (hardening core)
+**Goal:** Make Homestead safe to upgrade and safe to expose. *Nothing here is
+user-visible — that is the point.* Runs concurrently with the H1-UX track.
+**Removed from the old plan:** cross-tenant fuzz matrix and `Current.household`
+retrofit (obsoleted by single-household).
 
 | Initiative | Owner | Pri | Effort |
 |---|---|---|---|
-| **Cross-tenant request-spec fuzz matrix** — two households, asserting every API v1 + web index/show/update denies cross-tenant IDs; two-tiered (Pundit layer **and** model/DB layer); verifies background jobs (Bring pull, IMAP poll, offer sync) still resolve household explicitly. Co-owned. | QA + Dev/Architect | P0 | L |
-| **Upgrade & data-migration path** — versioned GHCR releases, automated pre-upgrade DB + Active Storage backup, `rails pantria:upgrade` with rollback, **N-1 migration smoke test against a prior-release seed with resolvable Active Storage blobs**; assertions cover data integrity (households intact, attachments resolvable, no orphaned `ReceiptLineItems`/`Prices`). **One** shared fixture across delivery + QA harness. | Architect/Dev + QA | P0 | L |
-| **Promote the 4 in-app FK-consistency checks** (`Price` store↔household, `RecipeIngredient`, `MealPlanEntry`, `StorageItem`) to **DB check constraints** | Architect | P1 | M |
-| **CI ratchet PR (part 2):** flip Sorbet to blocking per spike result; ratchet `typed: strict` onto **security/money/parser files first** (`BringConnection`, `ImapPoller`, `Price`, receipt parser); land fixed `minimum_coverage` floor (baseline − ~2%) ~2 weeks after print step | Dev/QA | P1 | M |
-| **SSRF host-allowlist across the 6 outbound fetchers** (marktguru/kaufda/mein_prospekt/flaschenpost/chefkoch/barcode_lookup) + block redirects to private IPs + **IMAP TLS verification policy** — *urgency posture-gated; in-process guard is posture-independent* | Architect/Dev | P1 | M |
-| **API v1 correctness:** remove silent `default_household` fallback, require explicit household scoping — **with** SW cache-key version bump + one-release deprecation grace period; bearer-token rate-limiting only if posture = internet-exposed; wire OTel into the silent recurring jobs (Bring 5-min sync, IMAP poll, daily offers) with job-failure surfacing | Architect + Frontend | P1 | M |
-| **i18n fallback parity guard** — `i18n-tasks` CI step failing on missing/unused keys (de.yml ~919 vs en.yml ~850) | QA | P2 | S |
+| **Upgrade & data-migration path** — versioned GHCR releases, automated pre-upgrade DB + Active Storage backup, `rails homestead:upgrade` with rollback, **N-1 migration smoke test against a prior-release seed with resolvable blobs**; integrity assertions (household intact, attachments resolvable, no orphaned receipt/price/calendar rows). **One** shared fixture, delivery + QA. | Architect/Dev + QA | P0 | L |
+| **SSRF host-allowlist across the 6 outbound fetchers** (marktguru/kaufda/mein_prospekt/flaschenpost/chefkoch/barcode_lookup) + block redirects to private IPs + Google Calendar/Push egress review + **IMAP TLS verification policy** — posture is internet-exposed, so this is **required**, not posture-gated | Architect/Dev | P0 | M |
+| **Bearer-token + auth rate-limiting** (`rack-attack` — none today) — login, password-reset, API tokens, invite-activation, push-subscribe endpoints; posture is internet-exposed | Architect | P0 | M |
+| **CI ratchet part 2** — flip Sorbet to blocking per the M0 spike (tapioca RBIs for the Rails DSLs are the real prerequisite, not a toggle); `typed: strict` on security/money/parser files first (`BringConnection`, `CalendarConnection`, `ImapPoller`, `Price`, receipt parser, push delivery); fixed `minimum_coverage` floor (baseline − ~2%) | Dev/QA | P1 | M |
+| **Promote in-app FK-consistency checks to DB constraints** (`Price`, `RecipeIngredient`, `MealPlanEntry`, `StorageItem`, `CalendarEvent` provenance) | Architect | P1 | M |
+| **Wire OTel into the silent jobs** — Bring 5-min pull, IMAP poll, daily offers, **calendar poll/push**, push delivery — with job-failure surfacing and per-source health | Architect | P1 | M |
+| **i18n parity guard** — `i18n-tasks` CI step failing on missing/unused keys (de vs en), now spanning the new todo/calendar/notification namespaces | QA | P2 | S |
+| **Web Push / Calendar secret hygiene** — VAPID + Google OAuth secrets documented for rotation; encrypted-attributes-at-rest policy extended to all token columns | Architect | P1 | S |
 
-**Exit criteria:** Isolation matrix green and **gating merges**; upgrade smoke test green against prod-shaped seed with blobs; RuboCop **and** Sorbet blocking with a coverage floor enforced; in-process SSRF allowlist + redirect-to-private-IP block live on all 6 fetchers; `default_household` fallback removed behind a deprecation grace period with SW cache-busting; English fallback parity enforced in CI.
+**Exit criteria:** upgrade smoke test green on a blob-bearing prior-release seed;
+SSRF allowlist + private-IP block live on all fetchers and the calendar egress;
+auth endpoints rate-limited; RuboCop **and** Sorbet blocking with a coverage
+floor; OTel surfaces every recurring job's health; de/en parity enforced.
 
 ---
 
-### M1-UX — Mobile-First Foundation (parallel to M1)
-**Goal:** Fix the biggest "feels like a website" regression. Touches zero models/migrations/tenancy, so it runs alongside M1 hardening.
+### H1-UX — Mobile-First Foundation (parallel to H1)
+**Goal:** Fix the "feels like a website" gap. Touches zero models/migrations, so
+it runs alongside hardening. **Updated:** the navigation IA must now also surface
+the new Todos and Calendar.
 
 | Initiative | Owner | Pri | Effort |
 |---|---|---|---|
-| **SVG icon sprite** (inline, `currentColor`-themeable) replacing emoji (🌓/🔍/📷) — *hard prerequisite for the bottom nav* | UI | P0 | M |
-| **Bottom tab bar + overflow drawer** — single merged initiative. UX owns IA (primary 5 = Storage, Grocery, Scan, Offers, More); UI owns geometry, `safe-area-inset`, German worst-case label widths, Stimulus active-state wiring | UX (IA) + UI (exec) | P0 | L |
-| **Branded empty/placeholder component primitives** — height-stable placeholder tile (reusing `illustration-basket.svg`), status badge (icon+text), empty-state block; **starts with offer cards** so they never render collapsed | UI | P0 | M |
-| **Dark-mode pill/chip contrast fix** — `.pill.warn/success/danger` keep light-palette text while only `--*-soft` backgrounds are overridden → dark-on-dark, fails AA | UI | P1 | S |
+| **SVG icon sprite** (inline, `currentColor`-themeable) replacing emoji — prerequisite for the bottom nav | UI | P0 | M |
+| **Bottom tab bar + overflow drawer** — UX owns IA (the primary set now must choose among Storage, Grocery, Scan, Todos, Calendar, Offers — "More" holds the rest); UI owns geometry, `safe-area-inset`, German worst-case labels, active-state wiring | UX + UI | P0 | L |
+| **Branded empty/placeholder primitives** — height-stable placeholder tile, status badge, empty-state block; **start with offer cards** (never render collapsed), extend to the new todo/calendar empty states | UI | P0 | M |
+| **Dark-mode pill/chip contrast fix** — `.pill.warn/success/danger` dark-on-dark fails AA; also covers the new todo-state pills | UI | P1 | S |
 
-**Exit criteria:** No emoji in primary nav/controls; installed PWA/TWA shows a native-feel bottom tab bar respecting notch safe-area; offer cards render a branded placeholder (never a collapsed block); status pills pass WCAG AA in dark mode. **Gate:** any CSS/component change ships its Cypress light+dark × mobile+desktop visual-regression baseline in the *same* PR.
+**Exit criteria:** no emoji in primary nav/controls; installed PWA/TWA shows a
+native-feel bottom tab bar respecting the notch; offer/todo/calendar surfaces
+render branded placeholders; status pills pass WCAG AA in dark mode. **Gate:**
+any CSS/component change ships its Cypress light+dark × mobile+desktop
+visual-regression baseline in the same PR.
 
 ---
 
-### M2 — Finish the Features (Q2 core)
-**Goal:** Close the last 20% of advertised-but-under-delivered features, now safely riding the tested schema and isolation net.
+### H2 — Finish the Features (core-loop polish)
+**Goal:** Close the last 20% of the food/shopping loop, now safely on the tested
+schema. **Removed:** invites (shipped).
 
 | Initiative | Owner | Pri | Effort |
 |---|---|---|---|
-| **Marktguru `image_url` derivation** (offers.rb:150 hardcoded `nil`) + designed placeholder contract agreed first; ships behind a golden fixture | Dev + UI | P1 | S |
-| **Per-line OCR confidence scoring** (backend) — *no `confidence` field exists today; hard prerequisite for the bulk confirm action* | Dev | P1 | M |
-| **Receipt-confirm UX:** mobile line-cards (reuse existing `.receipt-line__*` CSS), collapse-on-resolve, sticky confirmed-count — ships **first, no backend dep**; **"accept all auto-matched" held until confidence ships** | UX | P1 | L |
-| **External-integration hardening:** VCR-style contract fixtures per feed/import, per-source health/staleness signal (generalize `ImapPoller` `last_polled_at`/`last_error`), retry/backoff + graceful degradation so one dead feed doesn't fail `sync_all_offers_job`; OTel-wired alerting | Dev | P1 | L |
-| **Replace cross-process-unsafe Bring thread-local skip flag** (`grocery_item.rb:51-59` `Thread.current` doesn't survive Solid Queue workers) with explicit skip arg / DB-backed sync-origin column — *prerequisite for conflict tests and any live sync* | Dev/Architect | P1 | M |
-| **Bring! conflict/dedup/race test matrix** — against the M0 product-defined policy | QA | P1 | M |
-| **Receipt OCR golden-file harness** + parser-version stamping (idempotent re-parse); **synthesized** German-retailer corpus for breadth, real anonymized receipts as slow opt-in donation stream | QA | P1 | M |
-| **Tokened household invite links + pending `Membership`** — auth boundary: SHA-256 digest at rest (mirror `ApiToken`), `SecureRandom.urlsafe_base64` ≥128 bits, expiry + single-use + household binding, **security sign-off before UI ships** | UX + Architect | P1 | M |
-| **Honest empty/error/loading states** — live pending-receipt status (Turbo, not a refresh link), Bring!/IMAP health badge, low-confidence-line callout. UX owns which states + copy; UI owns components. | UX + UI | P1 | M |
+| **Marktguru `image_url` derivation** (`offers.rb` hardcoded `nil`) + designed placeholder contract; ships behind a golden fixture | Dev + UI | P1 | S |
+| **Per-line OCR confidence scoring** (backend) — no `confidence` field today; hard prerequisite for any bulk confirm | Dev | P1 | M |
+| **Receipt-confirm UX** — mobile line-cards, collapse-on-resolve, sticky confirmed-count; ships first (no backend dep); **"accept all auto-matched" held until confidence lands** | UX | P1 | L |
+| **Bring! sync correctness** — replace the cross-process-unsafe `Thread.current` skip flag with the **`sync_origin` DB-column pattern the calendar already uses**; then the **conflict/dedup/race test matrix** against the M0 policy (union, Bring! wins ties) | Dev/Architect + QA | P1 | M |
+| **Receipt OCR golden-file harness** + parser-version stamping (idempotent re-parse); synthesized German-retailer corpus, real anonymized receipts as opt-in donation | QA | P1 | M |
+| **Integration hardening** — VCR-style contract fixtures per feed/import; per-source health/staleness (generalize `ImapPoller.last_polled_at`/`last_error` across offer feeds + calendar sync); retry/backoff so one dead feed doesn't fail `sync_all_offers_job`; OTel-wired alerting | Dev | P1 | L |
+| **Honest empty/error/loading states** — live pending-receipt status (Turbo, not a refresh link), Bring!/IMAP/Calendar health badges, low-confidence-line callout | UX + UI | P1 | M |
 
-**Exit criteria:** Offer cards show real images (placeholder on failure); receipts carry per-line confidence and a glanceable mobile confirm flow with bulk-accept *only* on matched/high-confidence lines; offer/recipe feeds degrade gracefully with per-source health visible; Bring! sync has a job-safe echo guard and a tested conflict matrix; a second household member can be invited via a secure link.
+**Exit criteria:** offer cards show real images (placeholder on failure);
+receipts carry per-line confidence + a glanceable mobile confirm flow with
+bulk-accept only on matched/high-confidence lines; Bring! has a job-safe echo
+guard and a tested conflict matrix; every external feed degrades gracefully with
+visible per-source health.
 
 ---
 
-### M3 — Growth & Polish (metrics-gated)
-**Goal:** Invest in collaboration and onboarding **only where metrics justify it.**
+### H3 — Deepen the Home (household-OS expansion)
+**Goal:** Build on the collaboration stack (todos, push, calendar, `solid_cable`)
+to make Homestead proactive and genuinely the place the household runs from.
+**Metrics-aware:** the heavier bets are gated on OTel activation signals.
 
 | Initiative | Owner | Pri | Effort |
 |---|---|---|---|
-| **Guided first-run onboarding checklist** (create household → scan/import first item → invite member) tied to activation metrics | PO + UX | P2 | M |
-| **Live collaborative Turbo Stream sync** (grocery + storage) — **gated on:** (a) isolation suite + stream-authorization test, (b) defined Bring! conflict policy + job-safe skip guard, (c) OTel metrics confirming concurrent multi-member editing exists | UX + Dev | P2 | M |
-| **Incremental `Current.household` + explicit-scoping concern**, model-by-model behind the fuzz matrix (Rails 8 `Current`, **not** a gem; **not** big-bang `default_scope`); adds DB-level FK guards | Architect/Dev | P2 | XL |
-| **Versioned idempotent ingestion pipeline** (parser-version stamping consumed end-to-end, Offer `external_id`+`household_id`+`source` dedupe) | Architect | P2 | M |
-| **Incremental utility layer + shared partials** — pulled by touched views only, behind visual-regression baseline | UI | P2 | M |
-| **German-first density + responsive table audit** (wide tables → card pattern) | UI | P2 | M |
-| **Barcode/scanner failure-path tests** (garbled barcode, all lookup sources miss/timeout, duplicate `ProductBarcode`) | QA | P2 | S |
-| **PWA offline / TWA e2e** — sequenced after data-test selector pass + conflict-policy decision | QA | P2 | M |
-| **Accessibility hardening pass** (non-color status, labeled/aria controls) — follows icon sprite | UX/UI | P2 | M |
-| **Design-system docs page** in MkDocs | UI | P3 | S |
-| **AI meal-suggester** — **FROZEN** until core-loop activation metrics justify it | PO | P3 | — |
+| **Proactive reminders engine** *(flagship)* — extend the existing `Notification` ledger + `DeliverPushJob` to fire on real household signals: **expiry** (storage already has dates), **low-stock / restock** (depletion + price history + active offers), **offer-watchlist hits**, **calendar/todo due**. One opt-in, per-type, quiet-hours-aware. Reuses push + the bell; no new transport. | Architect + UX | P1 | L |
+| **Live Turbo Stream sync** (grocery, storage, todos, notification bell) — **infra now ready (`solid_cable`)**; gated only on (a) the job-safe Bring/calendar echo guard, (b) a per-household stream channel + auth test, (c) OTel confirming concurrent multi-member editing. *(Isolation gate removed — single household.)* | UX + Dev | P2 | M |
+| **Recurring chores** — recurrence (RRULE-lite) on todos + assignment **rotation** among members + read-only calendar projection + push on due. Natural extension of todos+calendar+push. | Dev + UX | P2 | M |
+| **Spend & budget analytics** — promote the expenses view into a real dashboard: spend by store/category/month, trends, basket cost over time (reuses receipts + the multi-store price history). Optional budget targets with push when exceeded. | Dev + UX | P2 | M |
+| **Document & warranty vault** — Active-Storage-backed home documents (warranties, manuals, insurance) with **expiry/renewal reminders** projected onto the calendar + push. | Dev + UX | P2 | M |
+| **Guided first-run onboarding** — create household → scan/import first item → invite a member → enable push; tied to activation metrics. | PO + UX | P2 | M |
+| **iCal export feed** — read-only `.ics` of the household calendar for non-Google clients (complements the two-way Google sync). | Dev | P3 | S |
+| **Home Assistant / webhook bridge** — outbound events (low stock, expiry, offer hit) + an inbound quick-add webhook; a self-hoster delight that turns Homestead into a home-automation signal source. | Dev | P3 | M |
+| **Pantry-aware "cook now"** — rank recipes by what current storage can actually make; nudge meal-plan choices toward expiring stock. | Dev | P3 | M |
+| **AI meal-suggester** — **still frozen** until core-loop activation metrics justify it. | PO | P3 | — |
 
-**Exit criteria:** Live sync (if metrics justify) provably household-scoped with an authorization test; onboarding measurably reduces empty-pantry drop-off; model-level scoping landed incrementally without breaking background jobs; offline PWA tested against defined conflict behavior.
-
----
-
-## 4. Cross-cutting workstreams
-
-- **Quality / CI gates.** RuboCop blocking via `.rubocop_todo.yml` (M0) → Sorbet blocking per spike, `typed: strict` on security/money/parser files first (M1) → fixed `minimum_coverage` floor (M1, ~2 weeks after baseline print). **Cypress visual-regression** (light/dark × mobile/desktop) is a hard prerequisite shipping in the *same* PR as any CSS/component change. i18n parity guard in CI. *No `refuse_coverage_drop`* (flaky on parallel shards).
-- **Security.** Week-1 unbundled wins (Bring token encryption, ImageMagick `policy.xml`). Posture-gated SSRF allowlist + IMAP-TLS — but the **in-process per-fetcher allowlist + private-IP redirect block is posture-independent and required**. Invite tokens treated as an auth boundary with security sign-off. App-wide encrypted-attributes-at-rest policy.
-- **Observability.** Wire the just-added opt-in OTel into the silent recurring jobs (Bring 5-min sync, IMAP poll, daily offers) with job-failure surfacing and per-source health. Emit the M0-defined activation metrics to steer M3 sequencing.
-- **Design system.** Icon sprite → bottom-nav → empty-state/badge primitives → incremental utility layer (pulled by touched views only) → docs page. Everything validated against worst-case **German** string lengths and dark-mode AA.
-- **Data-migration / upgrade path.** **One** shared prior-release seed fixture with resolvable Active Storage blobs, co-owned by delivery + QA. Versioned GHCR tags, automated backup/rollback, integrity assertions. Hard gate on all migration-bearing features.
+**Exit criteria:** the proactive reminders engine ships behind a clean opt-in and
+measurably surfaces expiries/offers before they're missed; live sync (if metrics
+justify) is household-channel-scoped with an auth test and rides the echo guard;
+at least one of {recurring chores, spend analytics, document vault} ships as the
+first "beyond food" pillar; onboarding reduces cold-start drop-off.
 
 ---
 
-## 5. Sequencing & dependencies
+## 5. New-feature thesis (why these, what they reuse)
+
+The collaboration work (#11/#12) changed what Homestead *can* be. The strongest
+new features are the ones that compound on infrastructure that already exists:
+
+- **Push + Notification ledger** → the **proactive reminders engine** (expiry,
+  low-stock, offer hits, due dates). Highest leverage: the home starts working
+  *for* you, and it reuses a stack that's already built and tested.
+- **Calendar** → the household's single timeline: meal plan, chores, expiries,
+  warranty renewals, bills — all projected into one place. iCal export and
+  recurring chores extend it cheaply.
+- **`solid_cable`** → **live sync** with no new infrastructure; the only blockers
+  are correctness (echo guard) and proof of demand (metrics).
+- **Receipts + multi-store prices** → **spend & budget analytics**; the data is
+  already captured, it just isn't surfaced as insight yet.
+- **Active Storage** → the **document/warranty vault**; reuses the same
+  attachment plumbing receipts already ride.
+- **OTel** → tells us *which* of these to build next, instead of guessing.
+
+Curated priority: **proactive reminders** first (reuses the most, delivers the
+most), then **live sync** + **recurring chores** (collaboration depth), then
+**spend analytics** + **document vault** (the first true "beyond food" pillars),
+with **webhooks / Home Assistant** and **cook-now** as self-hoster delight.
+
+---
+
+## 6. Cross-cutting workstreams
+
+- **Quality / CI gates.** RuboCop blocking (done, M0) → Sorbet blocking + `typed: strict` on security/money/parser files first (H1) → fixed coverage floor (H1). Cypress visual-regression (light/dark × mobile/desktop) is a hard prerequisite in the same PR as any CSS change. i18n parity guard in CI.
+- **Security.** Internet-exposed posture: in-process SSRF allowlist + private-IP redirect block on all fetchers **and** the calendar egress (required); `rack-attack` rate-limiting on auth/API/invite/push endpoints; encrypted-attributes-at-rest for every token column (Bring, Google OAuth); invite tokens remain an auth boundary.
+- **Observability.** Wire opt-in OTel into every recurring job (Bring, IMAP, offers, calendar poll/push, push delivery) with failure surfacing + per-source health; emit activation metrics to steer H3.
+- **Data-migration / upgrade path.** One shared prior-release seed with resolvable blobs, co-owned by delivery + QA; versioned tags, automated backup/rollback, integrity assertions. Hard gate on all migration-bearing features — and the schema is bigger now (todos, notifications, calendar, sync, invites).
+- **Design system.** Icon sprite → bottom nav (incl. Todos/Calendar) → empty-state/badge primitives → incremental utility layer → docs page. Validated against worst-case German strings and dark-mode AA.
+- **Rebrand (H0).** User-facing + external identifiers now; internal module rename deferred.
+
+---
+
+## 7. Sequencing & dependencies
 
 ```
-M0 posture decision ──────────────► SSRF/IMAP-TLS scope (M1)
-M0 Bring conflict policy ─────────► Bring conflict tests (M2) ──► live sync (M3)
-M0 srb-tc spike ──────────────────► Sorbet blocking flip (M1)
+Single-household (DONE) ──────────► tenancy work retired (no fuzz matrix, no Current.household)
+M0 hardening (DONE) ──────────────► Sorbet ratchet pt.2 (H1) needs the srb-tc baseline
+M0 Bring conflict policy (DONE) ──► Bring job-safe guard + conflict matrix (H2) ──► live sync (H3)
 
-Cross-tenant fuzz matrix (M1) ─┬─► incremental Current.household scoping (M3)
-                               └─► live Turbo Stream broadcasts (M3)   [+ stream-auth test]
+Upgrade smoke test green (H1) ────► ANY migration-bearing feature
+                                     (OCR confidence, chores, vault, analytics) (H2/H3)
 
-Upgrade smoke test green (M1) ────► ANY migration-bearing feature
-                                     (OCR confidence column, invites, ...) (M2)
+SSRF allowlist + rate-limit (H1) ─► safe to stay internet-exposed
 
-Icon sprite (M1-UX) ──────────────► bottom tab bar (M1-UX) ──► non-color a11y (M3)
-Marktguru image_url + placeholder ─► offer cards never collapse
-Per-line confidence (M2) ─────────► "accept all auto-matched" bulk action (M2)
-Job-safe Bring skip guard (M2) ───► live sync (M3)
+Icon sprite (H1-UX) ──────────────► bottom tab bar (H1-UX) ──► non-color a11y (H3)
+Per-line confidence (H2) ─────────► "accept all auto-matched" bulk action (H2)
+Bring sync_origin guard (H2) ─────► live sync (H3)
+solid_cable (DONE) ───────────────► live sync infra ready (H3)
+Notification ledger + push (DONE) ► proactive reminders engine (H3)
+Calendar (DONE) ──────────────────► recurring chores / vault reminders / iCal export (H3)
 Visual-regression baseline ───────► any CSS/component refactor (same PR)
 ```
 
 **Why these orderings:**
-- **Test net before model surgery.** Big-bang `default_scope` on an LLM-coded base cascades through joins, eager-loads, serializers, and background jobs and leaks via associations/`.unscoped`. The additive request-spec matrix delivers most of the protection *now* and characterizes behavior so the XL scoping retrofit can be proven safe model-by-model.
-- **Upgrade harness gates schema churn.** Invites add `Membership` state, OCR confidence adds columns — each adds a migration. Adding migrations before a tested upgrade path is exactly what bricks self-hoster data.
-- **Live sync is a tenancy boundary, not a UI feature.** `turbo_stream_from` bypasses Pundit; a guessable per-household channel leaks live edits. It also fires from background Bring pull jobs where the thread-local skip flag fails — amplifying the duplicate-buy bug. Gated on isolation + job-safe guard + conflict policy + metrics.
-- **Confidence gates bulk-accept.** "Accept all matched" without a confidence signal mass-confirms bad OCR into `Products`/`Prices`, corrupting the multi-store pricing differentiator.
-- **Icon sprite gates the bottom nav.** Emoji can't inherit `currentColor` and render inconsistently — emoji in a native-feel bottom nav defeats its purpose.
-
-### Conflict resolutions (Delivery Lead rulings)
-
-- **PO's "30% of Q1 for a user-facing win" vs Architect's "P0 infra consumes Q1."** *Both red lines honored.* The M1-UX track (icon sprite, bottom-nav, empty states, contrast) runs **in parallel** with M1 hardening precisely because it touches zero models/migrations/tenancy. The Architect's gate ("isolation/upgrade must precede schema-widening features") binds only the schema-touching work, not schema-free UX. Result: Q1 ships visible adoption value *and* the trust foundations, without UX competing for the infra risk budget.
-- **PO's "demote live sync, it's unmeasured" vs UX's original P0.** Demoted to **M3/P2**, triple-gated (isolation + conflict policy + metrics). UX conceded; Bring!'s 5-min pull may already cover the grocery case. The mobile bottom-nav stays the one protected user-facing P0.
-- **Architect's `default_scope` L vs Dev/QA's "XL, test-net-first."** Resolved in Dev/QA's favor: matrix first (M1/L), scoping retrofit XL behind it (M3). The Architect conceded this explicitly.
-- **Upgrade path M vs L.** Sized **L** — the prior-release seed with resolvable Active Storage blobs is the load-bearing deliverable; an empty-DB green proves nothing.
-- **Sorbet "block now" vs "spike first."** Spike first (M0). RuboCop blocks immediately; Sorbet blocks conditionally and ratchets onto security/money/parser files first so the gate covers the highest-risk untyped code, not decorative coverage.
-- **Two duplicate bottom-nav initiatives.** Merged: UX owns IA, UI owns visual/component execution + the prerequisite icon sprite. Duplicate empty-state work split the same way (UI = components, UX = which states + copy).
-- **Marktguru fix buried in P2 pipeline.** Pulled out to a standalone **M2/P1/S** behind a fixture test; the heavy ingestion-pipeline versioning stays P2.
+- **Upgrade harness gates schema churn.** Every H2/H3 feature that adds columns
+  (OCR confidence, recurrence, documents, budgets) is exactly what bricks
+  self-hoster data without a tested N-1 path — and there's more schema to protect
+  now than when this gate was first written.
+- **Live sync is a correctness feature, not a UI one.** `turbo_stream_from`
+  bypasses Pundit; a guessable channel leaks live edits even within one
+  household, and it fires from background Bring/calendar jobs where a bad echo
+  guard amplifies duplicates. Gated on the job-safe guard + a channel-auth test +
+  metrics. (The old cross-tenant isolation gate is gone.)
+- **Confidence gates bulk-accept.** "Accept all matched" without a confidence
+  signal mass-confirms bad OCR into Products/Prices, corrupting the multi-store
+  pricing differentiator.
+- **Reminders before more modules.** The push stack is built but barely used;
+  pointing it at expiries/offers/dues is the cheapest large win available and
+  proves the proactive thesis before investing in heavier H3 pillars.
 
 ---
 
-## 6. Key risks & mitigations
+## 8. Key risks & mitigations
 
 | Risk | Severity | Mitigation |
 |---|---|---|
-| **Cross-tenant data leak** — zero `default_scope`, 1 policy spec, `policy_scope` in 10/43 controllers | Critical | Additive fuzz matrix (M1) gating all data-model features; incremental `Current.household` + DB FK constraints (M3) behind the net |
-| **Destructive upgrade** wipes pantry/receipt/price history — no tested path, 33 migrations | Critical | Versioned releases + automated backup/rollback + N-1 smoke test on prod-shaped seed **with blobs** (M1); hard gate on migration-bearing features |
-| **Plaintext Bring OAuth tokens** — single DB dump compromises users' Bring accounts | High | Encrypt at rest + re-auth migration in week 1 (M0) |
-| **SSRF / image-decoder RCE** via 6 outbound fetchers + HEIC/PDF→ImageMagick/poppler | High | `policy.xml` limits (M0); in-process host-allowlist + private-IP redirect block, posture-independent (M1) |
-| **Silent quality rot** — `continue-on-error` RuboCop/Sorbet, no coverage floor, on LLM-authored code | High | Ratchet gates to blocking + coverage floor (M0–M1); `typed: strict` on highest-risk files first |
-| **Bring! sync data loss/duplication** — process-local skip flag fails across Solid Queue workers; undefined conflict policy | High | Define conflict policy (M0); replace skip flag with job-safe mechanism + conflict test matrix (M2); block live sync until both land |
-| **OCR mis-extraction corrupting pricing** — inline-string specs can't represent real variance | Medium | Golden-file harness + parser-version stamping + synthesized German corpus (M2); confidence gates bulk-accept |
-| **API request-shape change breaks installed PWAs/TWAs offline** | Medium | SW cache-version bump + one-release deprecation grace period; never flip mandatory scoping in the client-shipping release (M1) |
-| **CSS/UI silent regression** — RuboCop/Sorbet catch zero CSS | Medium | Cypress visual-regression baseline (light/dark × mobile/desktop) in the *same* PR as any refactor; incremental, view-pulled utility layer only |
-| **Over-hardening LAN-only homelabs / under-protecting exposed hosts** | Medium | Week-1 posture decision gates egress-proxy & IMAP-TLS-mandatory scope |
-| **English fallback leaks raw keys** as de-default features land | Low | `i18n-tasks` CI parity guard (M1) |
+| **Destructive upgrade** wipes pantry/receipt/price/calendar history — no tested path, ~48 migrations now | Critical | Versioned releases + automated backup/rollback + N-1 smoke test on a blob-bearing prior-release seed (H1); hard gate on migration-bearing features |
+| **SSRF / image-decoder RCE** via 6 outbound fetchers + HEIC/PDF pipeline + calendar egress | High | App-layer magic-byte allowlist + `-limit`/env caps shipped (M0); in-process host-allowlist + private-IP redirect block on all fetchers (H1) |
+| **Internet-exposed with no rate-limiting** — brute-force on login/reset/API/invite | High | `rack-attack` on all auth/API/invite/push endpoints (H1) |
+| **Silent quality rot** on LLM-authored code | High | RuboCop blocking (done); Sorbet blocking + `typed: strict` on highest-risk files + coverage floor (H1) |
+| **Bring! sync loss/duplication** — process-local skip flag fails across Solid Queue workers | High | Adopt the calendar's `sync_origin` DB-column guard for Bring + conflict matrix against the M0 policy (H2); block live sync until both land |
+| **Secret sprawl** — Bring, Google OAuth, VAPID keys; rotation invalidates subscriptions/connections | Medium | Encrypted-at-rest for all token columns; documented rotation runbooks (H1) |
+| **OCR mis-extraction corrupts pricing** | Medium | Golden-file harness + parser-version stamping + synthesized corpus (H2); confidence gates bulk-accept |
+| **API/SW change breaks installed PWAs/TWAs offline** | Medium | SW cache-version bump + one-release grace period; never flip breaking client behavior in the client-shipping release |
+| **CSS/UI silent regression** | Medium | Cypress visual-regression baseline (light/dark × mobile/desktop) in the same PR |
+| **Rebrand churn** — image/repo/package rename breaks existing deploys | Medium | Dual-publish the old image tag for one release; GitHub repo redirects; DB names env-overridable; defer internal module rename (H0) |
+| **Notification fatigue** from the proactive engine | Medium | Per-type opt-in, quiet hours, coalescing on the existing `dedup_key`; default conservative (H3) |
+| **English fallback leaks raw keys** as de-default features land | Low | `i18n-tasks` CI parity guard (H1) |
+
+> **Retired risk:** *Cross-tenant data leak* — eliminated by single-household-per-instance, not merely mitigated.
 
 ---
 
-## 7. Definition of Done & success metrics
+## 9. Definition of Done & success metrics
 
-**Per-PR Definition of Done (enforced in review, uniform across authors):**
-- Tests added/updated **+ cross-tenant isolation check** for any data-model change.
-- **i18n de/en parity** (no missing keys; English fallback complete).
-- **Migration-rehearsal green** against the prior-release seed *if the PR adds a migration*.
-- **Visual-regression baseline** shipped in the same PR for any CSS/component change.
-- Docs updated; RuboCop + (post-spike) Sorbet pass; coverage at or above floor.
+**Per-PR DoD (enforced in review):**
+- Tests added/updated; relational-integrity coverage for any data-model change.
+- i18n de/en parity (no missing keys; English fallback complete).
+- Migration-rehearsal green against the prior-release seed **if the PR adds a migration**.
+- Visual-regression baseline shipped in the same PR for any CSS/component change.
+- Docs updated; RuboCop + (post-spike) Sorbet pass; coverage at/above floor.
 
 **Milestone exit signals:**
-- **M0:** posture + conflict-policy + metrics decisions recorded; Bring tokens encrypted; RuboCop blocking; `srb tc` status known.
-- **M1:** isolation matrix gating merges; upgrade smoke test green on blob-bearing seed; both CI gates blocking with a coverage floor; SSRF allowlist live; `default_household` removed safely.
-- **M1-UX:** native-feel bottom nav shipped; no broken offer cards; pills pass AA in dark mode.
-- **M2:** real offer images; per-line confidence + safe confirm flow; graceful feed degradation with health surfacing; tested Bring conflict behavior; secure invite links.
-- **M3:** metrics-justified live sync (household-scoped, auth-tested); onboarding reduces cold-start drop-off; model-level scoping landed without breaking jobs.
+- **H0:** every user-visible surface says Homestead; image/repo bridge clean; no data migration.
+- **H1:** upgrade smoke test green on a blob-bearing seed; SSRF allowlist + rate-limiting live; both CI gates blocking with a coverage floor; OTel surfaces every job's health.
+- **H1-UX:** native-feel bottom nav (incl. Todos/Calendar); no broken empty states; pills pass AA in dark mode.
+- **H2:** real offer images; per-line confidence + safe confirm flow; Bring job-safe guard + tested conflict matrix; graceful feed degradation.
+- **H3:** proactive reminders shipped behind a clean opt-in; live sync (if justified) channel-scoped + auth-tested; ≥1 "beyond food" pillar shipped; onboarding reduces drop-off.
 
-**Product success metrics (defined M0, emitted via OTel):**
-- *Activation:* time-to-first-storage-item; % first-run sessions reaching ≥1 scanned/imported item; members-per-household; time-to-second-member.
-- *Daily loop:* scans/week; receipts confirmed-vs-discarded; % grocery items converting to storage; offer-watchlist hit rate.
-- *Reliability:* per-source feed health (success rate, staleness); recurring-job failure rate; concurrent-edit rate (gates live sync).
-- *1.0 readiness:* zero known cross-tenant leaks; upgrade smoke test green every release; CI gates blocking; README "audit before prod" caveat retired against a defined "production-ready" checklist.
-
----
-
-## 8. Open questions for stakeholders
-
-1. **Primary target user for the next two quarters** — technical self-hosters (audit-tolerant, want robustness) or non-technical families (need turnkey onboarding, zero-fear upgrades)? Tilts emphasis between M1 hardening depth and M3 onboarding investment.
-2. **Deployment posture** *(needed week 1)* — LAN homelab vs internet-exposed? Gates SSRF egress-proxy scope, IMAP-TLS-mandatory, and bearer-token rate-limiting.
-3. **Bring! conflict-resolution contract** *(needed week 1)* — last-write-wins, remote-wins, or merge? Blocks the conflict test matrix and live sync; note the current echo-loop guard likely fails in production already.
-4. **Definition of "1.0 / production-ready"** — does the README's "treat as a vendored library, audit before prod" caveat get retired as an explicit milestone, and against what checklist?
-5. **IMAP TLS** — make TLS mandatory (breaking plaintext-IMAP users) or keep `imap_ssl` configurable with a loud warning?
-6. **AI meal-suggester** — confirm it stays frozen until core-loop metrics justify it (Delivery Lead recommends yes).
-7. **OCR fixture corpus** — sign-off on synthesizing German receipt layouts (Lidl/Aldi/Rewe/Edeka/dm) for breadth, with real anonymized receipts as an opt-in donation stream — confirming we will *not* block the harness on a real-receipt corpus.
-8. **Supported upgrade window** — only N-1 → N sequential, or arbitrary version jumps? Determines whether migrations must stay replayable or can be collapsed per release.
+**Product success metrics (emitted via OTel):**
+- *Activation:* time-to-first-storage-item; % first-run sessions reaching ≥1 scanned/imported item; time-to-second-member; **push opt-in rate**.
+- *Daily loop:* scans/week; receipts confirmed-vs-discarded; % grocery→storage conversion; offer-watchlist hit rate; **todos created/completed; comments per todo; calendar events per week**.
+- *Proactive value:* reminders sent vs acted-on; expiries surfaced before lapse.
+- *Reliability:* per-source feed health; recurring-job failure rate; **concurrent-edit rate** (gates live sync).
+- *1.0 readiness:* upgrade smoke test green every release; CI gates blocking; the README "audit before prod" caveat retired against a defined "production-ready" checklist.
 
 ---
-*This document is the agreed working plan. Red lines from each role are encoded as the gates in §5 and the DoD in §7; deviations require Delivery Lead sign-off.*
+
+## 10. Open questions
+
+1. **Rebrand depth confirmation.** User-facing + external rename now, internal
+   Ruby module (`module Pantria`) deferred — confirm that split, or commit to the
+   full internal rename in H0.
+2. **First H3 pillar.** Beyond the proactive reminders engine, which "beyond
+   food" pillar leads — **recurring chores**, **spend/budget analytics**, or the
+   **document/warranty vault**? Metrics can decide, or product conviction can.
+3. **Live sync demand.** Is real-time multi-member editing actually wanted, or
+   does on-navigation rendering + the 5-min pulls already cover the household?
+   (Determines whether `solid_cable` gets switched on for Turbo Streams.)
+4. **IMAP TLS.** Make TLS mandatory (breaking plaintext-IMAP users) or keep
+   `imap_ssl` configurable with a loud warning?
+5. **Supported upgrade window.** N-1 → N only, or arbitrary version jumps?
+   Determines whether migrations must stay replayable.
+6. **"Production-ready" definition.** What checklist retires the README's "treat
+   as a vendored library, audit before prod" caveat as an explicit 1.0 gate?
+
+---
+*Re-baselined for the Homestead era against the shipped codebase. Single-household
+is the architectural keystone; tenant-isolation work is retired; the next bets
+deepen one home rather than scale many.*
