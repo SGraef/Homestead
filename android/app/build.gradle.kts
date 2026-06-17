@@ -3,16 +3,16 @@ plugins {
 }
 
 // Host the PWA is served from. Override in CI or for local builds with:
-//   ./gradlew assembleRelease -PpantriaHost=pantria.example.com
-val pantriaHost: String = (project.findProperty("pantriaHost") as String?) ?: "pantria.example.com"
-val pantriaUrl: String = "https://$pantriaHost"
+//   ./gradlew assembleRelease -PhomesteadHost=homestead.example.com
+val homesteadHost: String = (project.findProperty("homesteadHost") as String?) ?: "homestead.example.com"
+val homesteadUrl: String = "https://$homesteadHost"
 
 android {
-    namespace  = "de.lunawolf.pantria"
+    namespace  = "de.lunawolf.homestead"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "de.lunawolf.pantria"
+        applicationId = "de.lunawolf.homestead"
         minSdk        = 23   // androidbrowserhelper minimum
         targetSdk     = 35
         versionCode   = 1
@@ -21,8 +21,8 @@ android {
         // Surfaced into strings.xml via resValue so AndroidManifest can
         // reference them by @string/... -- the host shows in the splash
         // screen / install dialog, the URL is read by LauncherActivity.
-        resValue("string", "pantria_host", pantriaHost)
-        resValue("string", "pantria_url",  pantriaUrl)
+        resValue("string", "homestead_host", homesteadHost)
+        resValue("string", "homestead_url",  homesteadUrl)
     }
 
     compileOptions {

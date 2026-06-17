@@ -3,6 +3,6 @@
     <!-- Homestead brand colour. Matches the PWA's theme_color so the
          status bar and splash screen flow into the web content
          without a visible seam. -->
-    <color name="pantria_brand">#c97455</color>
-    <color name="pantria_bg">#fdfcfa</color>
+    <color name="homestead_brand">#c97455</color>
+    <color name="homestead_bg">#fdfcfa</color>
 </resources>
