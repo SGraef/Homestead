@@ -1,9 +1,14 @@
-# Pantria
+# Homestead
 
-A household ERP focused on food storage, multi-store grocery price tracking
-and barcode-driven inventory updates. German-first UI with English fallback,
-REST API for mobile / automation clients, and an OCR pipeline that turns
-supermarket receipts into structured products, stores and prices.
+> **Formerly Pantria.** The project has been renamed; the repo, Docker image
+> and internal code identifiers still say `pantria` for now (rename in progress).
+
+A self-hosted operations hub for a single household: food storage, multi-store
+grocery price tracking and barcode-driven inventory, plus shared todos, an
+in-app calendar (with two-way Google Calendar sync) and PWA push. German-first
+UI with English fallback, REST API for mobile / automation clients, and an OCR
+pipeline that turns supermarket receipts into structured products, stores and
+prices.
 
 📚 **Full documentation lives at [sgraef.github.io/Pantria](https://sgraef.github.io/Pantria/)**
 — quick start, feature deep-dives, REST API reference, PWA + Android TWA
@@ -11,7 +16,7 @@ build, observability (OpenTelemetry) setup, and deployment notes.
 
 > ⚠️ **Heads-up: this app is vibe coded.**
 >
-> Pantria was built largely through pair-programming with an LLM rather than
+> Homestead was built largely through pair-programming with an LLM rather than
 > hand-rolled line by line. The test suite is reasonably thorough and the
 > code follows Rails conventions, but you should treat it the way you'd
 > treat any vendored library you didn't write:
@@ -34,7 +39,7 @@ build, observability (OpenTelemetry) setup, and deployment notes.
 - **Single household per instance** — one deployment serves exactly one household; admins add members by email. All household data is shared with every member (no cross-tenant gatekeeping).
 - **Vorrat / Storage** — what's in the pantry, fridge, freezer or cellar; per-product search; expiry warnings on the dashboard.
 - **Tiefkühler / Freezer** — dedicated page (`/freezer`) for both bought-and-frozen items and homemade meals (g / portions / l). 3-month "stale in the freezer" warning on the dashboard, configurable via `FREEZER_STALE_DAYS`.
-- **Einkaufsliste / Grocery list** — needed → purchased → automatic storage entry. Rows surface a "best current offer" chip when a matching offer exists. Optional **two-way Bring! sync** (`/bring_connection`): Pantria → Bring on every write (push) plus a Bring → Pantria pull every 5 minutes via Solid Queue's recurring scheduler (manual "Sync now" available too). Loops are prevented by a thread-local skip flag so pull-time writes don't bounce back to Bring!.
+- **Einkaufsliste / Grocery list** — needed → purchased → automatic storage entry. Rows surface a "best current offer" chip when a matching offer exists. Optional **two-way Bring! sync** (`/bring_connection`): Homestead → Bring on every write (push) plus a Bring → Homestead pull every 5 minutes via Solid Queue's recurring scheduler (manual "Sync now" available too). Loops are prevented by a thread-local skip flag so pull-time writes don't bounce back to Bring!.
 - **Barcode scan (frontend)** — native `BarcodeDetector` API where available (Chrome / Edge / Android), with a ZXing-js fallback (vendored under `vendor/javascript/` so the installed PWA can serve it from the same origin and the service worker can cache it for offline use) for Safari iOS / Firefox / anything else. On a barcode miss the lookup falls back to Open Food Facts / Open Products Facts / Marktguru and prefills "Add product". Direct "add to storage" from the scan result lands you back on the scanner page ready for the next item. **Mobile note:** browsers only grant camera access on `https://` URLs (or `localhost`); to scan from a phone on the LAN, run dev with the bundled self-signed-HTTPS override (see "Self-signed HTTPS for mobile scanning" below).
 - **Installable PWA** — Web App Manifest, service worker (network-first for HTML with an offline fallback page, cache-first for static assets), maskable + apple-touch icons, three app-shortcuts (Scan / Grocery List / Storage) for Android's long-press menu. Install from any modern browser's "Add to Home Screen" / install prompt.
 - **Android app (TWA)** — a [Trusted Web Activity](https://developer.chrome.com/docs/android/trusted-web-activity) shell under [`android/`](android/) that opens the PWA full-screen, without browser chrome. No native code, no separate JSON API. Build + sign + install instructions in [`android/README.md`](android/README.md).
@@ -210,11 +215,11 @@ Walk-through, env-var reference and MySQL setup notes are in
 [`unraid/README.md`](unraid/README.md). Short version: provision a MySQL
 8.4 container, drop the template into `templates-user/`, fill in
 `APP_HOST` + DB creds + `RAILS_MASTER_KEY`, point a reverse proxy at the
-container (Pantria's `force_ssl = true` in production), done.
+container (Homestead's `force_ssl = true` in production), done.
 
 ## PWA + Android app
 
-Pantria runs as an installable PWA from any modern browser — "Add to Home
+Homestead runs as an installable PWA from any modern browser — "Add to Home
 Screen" on a phone, the install icon in the desktop Chrome address bar.
 Manifest at `/manifest.json`, service worker at `/service-worker.js`, offline
 fallback at `/offline`.
@@ -242,7 +247,7 @@ keytool -list -v -keystore ~/.android/debug.keystore \
         -alias androiddebugkey -storepass android -keypass android \
     | grep 'SHA256:'
 
-# In Pantria's environment (.env / Unraid template / docker-compose):
+# In Homestead's environment (.env / Unraid template / docker-compose):
 #   ANDROID_TWA_PACKAGE=de.lunawolf.pantria
 #   ANDROID_TWA_FINGERPRINTS=AA:BB:CC:...
 ```

@@ -1,5 +1,5 @@
-site_name: Pantria
-site_description: Household ERP — food storage, multi-store price tracking, barcode-driven inventory, German receipts in & out.
+site_name: Homestead
+site_description: Self-hosted household hub — inventory, shopping, receipts & prices, meals, and shared todos + calendar. (Formerly Pantria.)
 site_url: https://sgraef.github.io/Pantria/
 repo_url: https://github.com/SGraef/Pantria
 repo_name: SGraef/Pantria

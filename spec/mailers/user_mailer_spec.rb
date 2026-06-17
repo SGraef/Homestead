@@ -16,7 +16,7 @@ RSpec.describe UserMailer do
 
     it "is addressed to the user with the right subject" do
       expect(mail.to).to eq([user.email])
-      expect(mail.subject).to eq("Please activate your Pantria account")
+      expect(mail.subject).to eq("Please activate your Homestead account")
       expect(mail.from).to include("no-reply@pantria.local")
     end
 
@@ -29,7 +29,7 @@ RSpec.describe UserMailer do
     subject(:mail) { described_class.activation_success_email(user) }
 
     it "uses the success subject and links to login" do
-      expect(mail.subject).to eq("Your Pantria account is active")
+      expect(mail.subject).to eq("Your Homestead account is active")
       expect(mail.body.encoded).to include("/login")
     end
   end
@@ -40,7 +40,7 @@ RSpec.describe UserMailer do
     before { allow(user).to receive(:reset_password_token).and_return("reset-tok-9") }
 
     it "embeds the reset URL with the token" do
-      expect(mail.subject).to eq("Pantria password reset")
+      expect(mail.subject).to eq("Homestead password reset")
       expect(mail.body.encoded).to include("/password_resets/reset-tok-9/edit")
     end
   end

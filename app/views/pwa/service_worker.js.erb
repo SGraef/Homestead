@@ -1,4 +1,4 @@
-// Pantria service worker.
+// Homestead service worker.
 //
 // Strategy:
 //   - GET navigations (Accept: text/html)  -> network-first, fall back
@@ -126,7 +126,7 @@ self.addEventListener("push", (event) => {
     data = { body: event.data ? event.data.text() : "" };
   }
 
-  const title = data.title || "Pantria";
+  const title = data.title || "Homestead";
   const options = {
     body: data.body || "",
     tag: data.tag,

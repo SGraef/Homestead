@@ -1,6 +1,6 @@
 de:
-  app_name: "Pantria"
-  app_tagline: "Haushaltsinventar"
+  app_name: "Homestead"
+  app_tagline: "Dein Haushalt, an einem Ort"
 
   date:
     formats:
@@ -105,7 +105,7 @@ de:
     enable: "Push-Benachrichtigungen aktivieren"
     enabled: "Push-Benachrichtigungen sind auf diesem Gerät aktiv."
     denied: "Benachrichtigungen sind blockiert — Updates siehst du hier in der Glocke."
-    unsupported: "Dieser Browser unterstützt kein Push (die Glocke siehst du trotzdem). Auf dem iPhone füge Pantria zuerst zum Home-Bildschirm hinzu."
+    unsupported: "Dieser Browser unterstützt kein Push (die Glocke siehst du trotzdem). Auf dem iPhone füge Homestead zuerst zum Home-Bildschirm hinzu."
     error: "Push konnte nicht aktiviert werden. Bitte erneut versuchen."
 
   calendar:
@@ -154,7 +154,7 @@ de:
     no_calendar: "— kein —"
     calendar_selected: "Kalender ausgewählt."
     disconnect: "Trennen"
-    disconnect_confirm: "Google Kalender trennen? Synchronisierte Termine bleiben in Pantria, werden aber nicht mehr aktualisiert."
+    disconnect_confirm: "Google Kalender trennen? Synchronisierte Termine bleiben in Homestead, werden aber nicht mehr aktualisiert."
     disconnected_notice: "Google Kalender getrennt."
     sync_now: "Jetzt synchronisieren"
     sync_started: "Synchronisierung gestartet."
@@ -194,7 +194,7 @@ de:
     offline:
       title: "Offline"
       heading: "Du bist offline"
-      body: "Pantria kann den Server gerade nicht erreichen. Prüfe deine Verbindung und versuche es erneut."
+      body: "Homestead kann den Server gerade nicht erreichen. Prüfe deine Verbindung und versuche es erneut."
       retry: "Erneut versuchen"
 
   flash:
@@ -261,8 +261,8 @@ de:
     price_removed:     "Preis entfernt."
 
   auth:
-    sign_in_title:     "Bei Pantria anmelden"
-    create_account:    "Pantria-Konto erstellen"
+    sign_in_title:     "Bei Homestead anmelden"
+    create_account:    "Homestead-Konto erstellen"
     sign_in_button:    "Anmelden"
     create_button:     "Konto anlegen"
     no_account:        "Noch kein Konto?"
@@ -288,35 +288,35 @@ de:
 
   invitation:
     title:         "Haushalt beitreten"
-    intro:         "Du wurdest zu %{household} bei Pantria eingeladen (%{email}). Lege ein Passwort fest, um dein Konto fertig einzurichten."
+    intro:         "Du wurdest zu %{household} bei Homestead eingeladen (%{email}). Lege ein Passwort fest, um dein Konto fertig einzurichten."
     accept_button: "Konto erstellen & beitreten"
     invalid:       "Dieser Einladungslink ist ungültig oder abgelaufen. Bitte einen Admin um einen neuen."
     accepted:      "Willkommen! Dein Konto ist fertig."
 
   user_mailer:
     activation_needed_email:
-      subject:  "Bitte aktiviere dein Pantria-Konto"
+      subject:  "Bitte aktiviere dein Homestead-Konto"
       greeting: "Hallo %{name},"
-      intro:    "vielen Dank für deine Registrierung bei Pantria."
+      intro:    "vielen Dank für deine Registrierung bei Homestead."
       cta:      "Klicke auf den folgenden Link, um dein Konto zu aktivieren:"
       activate: "Konto aktivieren"
       ignore:   "Wenn du diese E-Mail nicht angefordert hast, kannst du sie ignorieren."
     activation_success_email:
-      subject:  "Dein Pantria-Konto ist aktiv"
+      subject:  "Dein Homestead-Konto ist aktiv"
       greeting: "Hallo %{name},"
       body:     "Dein Konto wurde erfolgreich aktiviert — du kannst dich jetzt anmelden."
       sign_in:  "Jetzt anmelden"
     reset_password_email:
-      subject:  "Pantria-Passwort zurücksetzen"
+      subject:  "Homestead-Passwort zurücksetzen"
       greeting: "Hallo %{name},"
       intro:    "wir haben eine Anfrage zum Zurücksetzen deines Passworts erhalten."
       cta:      "Klicke auf den folgenden Link, um ein neues Passwort zu setzen:"
       reset:    "Passwort zurücksetzen"
       ignore:   "Wenn du das nicht warst, kannst du diese E-Mail ignorieren."
     invitation_email:
-      subject:  "Du wurdest zu %{household} bei Pantria eingeladen"
+      subject:  "Du wurdest zu %{household} bei Homestead eingeladen"
       greeting: "Du bist zu %{household} eingeladen"
-      intro:    "ein Admin hat dich eingeladen, dem Haushalt %{household} bei Pantria beizutreten."
+      intro:    "ein Admin hat dich eingeladen, dem Haushalt %{household} bei Homestead beizutreten."
       cta:      "Klicke auf den folgenden Link, um dein Passwort zu setzen und beizutreten:"
       accept:   "Einladung annehmen"
       expiry:   "Diese Einladung läuft in %{days} Tagen ab."
@@ -336,7 +336,7 @@ de:
     open_items:
       one:   "%{count} offener Eintrag."
       other: "%{count} offene Einträge."
-    welcome:         "Willkommen bei Pantria! Füge deinen ersten Vorratsartikel hinzu oder scanne einen Barcode, um zu beginnen."
+    welcome:         "Willkommen bei Homestead! Füge deinen ersten Vorratsartikel hinzu oder scanne einen Barcode, um zu beginnen."
     spending_card:   "Ausgaben (Monat)"
     expense_breakdown: "Aufschlüsselung öffnen"
 
@@ -483,7 +483,7 @@ de:
   bring:
     title:               "Bring!-Verknüpfung"
     connect_title:       "Mit Bring! verbinden"
-    connect_intro:       "Pantria meldet sich einmal mit deinen Bring!-Zugangsdaten an und behält danach nur noch ein Token. Dein Passwort wird nicht gespeichert."
+    connect_intro:       "Homestead meldet sich einmal mit deinen Bring!-Zugangsdaten an und behält danach nur noch ein Token. Dein Passwort wird nicht gespeichert."
     password:            "Passwort"
     country:             "Land"
     connect:             "Verbinden"
@@ -784,7 +784,7 @@ de:
       ssl_hint:     "An für 993 (implizites TLS), aus für 143 (Klartext-IMAP)."
       expunge:      "Verarbeitete Mails endgültig löschen"
       expunge_hint: "Aus (Standard) markiert Mails als gelesen. An löscht sie vom Server."
-      folder_hint:  "Genau ein Ordner. Pfad exakt so eintragen, wie der Server ihn liefert (z. B. INBOX, INBOX/Belege, INBOX.Pantria — anbieterabhängig)."
+      folder_hint:  "Genau ein Ordner. Pfad exakt so eintragen, wie der Server ihn liefert (z. B. INBOX, INBOX/Belege, INBOX.Homestead — anbieterabhängig)."
     placeholders:
       label:         "Gmail – privat"
       host:          "imap.gmail.com"
@@ -825,7 +825,7 @@ de:
     add:                 "Rezept hinzufügen"
     import:
       title:             "Aus Chefkoch importieren"
-      intro:             "Chefkoch-URL einfügen (chefkoch.de/rezepte/…). Pantria übernimmt Titel, Portionen, Zubereitungs-/Kochzeiten, Zutaten und Anleitung. Fehlende Produkte werden automatisch im Katalog angelegt."
+      intro:             "Chefkoch-URL einfügen (chefkoch.de/rezepte/…). Homestead übernimmt Titel, Portionen, Zubereitungs-/Kochzeiten, Zutaten und Anleitung. Fehlende Produkte werden automatisch im Katalog angelegt."
       url_label:         "Chefkoch-URL"
       button:            "Importieren"
       success:           "'%{name}' importiert mit %{ingredients} Zutat(en); %{products} neue(s) Produkt(e) im Katalog angelegt."
