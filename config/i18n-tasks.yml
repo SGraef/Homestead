@@ -1,0 +1,33 @@
+# Config for i18n-tasks; the de/en parity guard in spec/i18n_parity_spec.rb
+# uses it. German is the project default, English the fallback.
+base_locale: de
+locales: [de, en]
+
+data:
+  read:
+    - config/locales/%{locale}.yml
+
+# Framework namespaces (errors / date / time / number / activerecord built-ins)
+# are shipped by Rails for `en` but spelled out explicitly in de.yml, so they
+# read as "missing in en" even though English resolves them via Rails defaults.
+# They aren't app strings, so they're excluded from the parity check — only
+# genuinely app-authored keys must be present in both locales.
+ignore_missing:
+  - 'errors.{messages,format,template}.*'
+  - 'date.*'
+  - 'time.*'
+  - 'datetime.*'
+  - 'number.*'
+  - 'helpers.*'
+  - 'support.*'
+  - 'activerecord.{models,attributes,errors}.*'
+
+# Keys built dynamically (status / role / slot enums interpolated into t()) read
+# as "unused" to the static scanner. The parity spec only checks *missing*
+# keys, but these keep `i18n-tasks unused` usable.
+ignore_unused:
+  - 'activerecord.*'
+  - 'errors.*'
+  - 'date.*'
+  - 'time.*'
+  - 'number.*'
