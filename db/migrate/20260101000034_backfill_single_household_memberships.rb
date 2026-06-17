@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # typed: ignore
 
-# Pantria moved from multi-household to single-household-per-instance. The
+# Homestead moved from multi-household to single-household-per-instance. The
 # canonical household is the oldest one (lowest id); everything else is resolved
 # via Household.current. This migration is NON-DESTRUCTIVE: it never drops a
 # table, column or row, and never deletes other households. It only ensures that
@@ -36,7 +36,7 @@ class BackfillSingleHouseholdMemberships < ActiveRecord::Migration[8.0]
     if others.positive?
       say "Found #{others} additional household(s). Keeping ##{canonical.id} " \
           "(#{canonical.name.inspect}) as the canonical household. The others' " \
-          "rows are left untouched -- run `rake pantria:single_household:merge` " \
+          "rows are left untouched -- run `rake homestead:single_household:merge` " \
           "to fold their data in, or ignore them."
     end
 

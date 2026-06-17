@@ -2,7 +2,7 @@
 # typed: false
 
 # Base controller for the entire app. Wires up Sorcery for current_user and
-# Pundit for authorization. Pantria is single-household-per-instance, so the
+# Pundit for authorization. Homestead is single-household-per-instance, so the
 # current household is simply {Household.current} -- there is no per-session or
 # per-user household selection.
 class ApplicationController < ActionController::Base

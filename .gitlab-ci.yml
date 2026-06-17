@@ -1,4 +1,4 @@
-# Pantria GitLab CI/CD pipeline.
+# Homestead GitLab CI/CD pipeline.
 #
 # Stages:
 #   • lint    — RuboCop + Sorbet type-check

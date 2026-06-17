@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <policymap>
   <!--
-    Hardened ImageMagick policy for Pantria (installed at
+    Hardened ImageMagick policy for Homestead (installed at
     /etc/ImageMagick-6/policy.xml via the Docker images). `convert` only
     preprocesses uploaded receipt IMAGES (JPEG/PNG/HEIC); PDFs are rasterized by
     poppler (pdftoppm), never ImageMagick — so the PDF/PostScript/Ghostscript

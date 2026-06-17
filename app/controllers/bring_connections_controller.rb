@@ -3,7 +3,7 @@
 
 # Connect / pick-list / disconnect flow for Bring!. Login happens server-side
 # (the user's password is exchanged for tokens immediately and never stored)
-# then a list-picker step lets them pick which Bring! list Pantria should
+# then a list-picker step lets them pick which Bring! list Homestead should
 # push to.
 class BringConnectionsController < ApplicationController
   before_action :ensure_household
@@ -81,7 +81,7 @@ class BringConnectionsController < ApplicationController
   end
 
   # POST /bring_connection/sync — pull the latest Bring! list state into
-  # Pantria right now, on top of the periodic scheduled pull.
+  # Homestead right now, on top of the periodic scheduled pull.
   def sync
     connection = current_household.bring_connection
     return redirect_to(new_bring_connection_path) unless connection&.connected?

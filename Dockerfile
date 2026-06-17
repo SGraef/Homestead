@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 # -----------------------------------------------------------------------------
-# Pantria — multi-stage Dockerfile producing a minimized production image.
+# Homestead — multi-stage Dockerfile producing a minimized production image.
 # Build stages:
 #   1. base    — slim Ruby with the OS deps Rails needs at runtime
 #   2. build   — installs gems with build toolchain, precompiles assets

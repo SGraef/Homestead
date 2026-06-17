@@ -1,4 +1,4 @@
-# Pantria's RuboCop config. Two goals:
+# Homestead's RuboCop config. Two goals:
 #
 # 1. Match the existing codebase's actual style rather than fighting it.
 #    The repo was written with double quotes, table-aligned hashes, and

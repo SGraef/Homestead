@@ -6,7 +6,7 @@
 # from SECRET_KEY_BASE.
 #
 # Why derive instead of using credentials.yml.enc:
-# * Pantria deployments don't ship a master.key today (the Unraid
+# * Homestead deployments don't ship a master.key today (the Unraid
 #   template uses RAILS_MASTER_KEY only if the operator chose to bake
 #   credentials.yml.enc into the image themselves).
 # * SECRET_KEY_BASE is already a required env var, so reusing it as a
