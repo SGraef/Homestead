@@ -17,7 +17,7 @@ WORKDIR /app
 RUN apt-get update -qq \
  && apt-get install --no-install-recommends -y \
       build-essential git curl ca-certificates pkg-config \
-      default-libmysqlclient-dev libyaml-dev tzdata \
+      default-libmysqlclient-dev default-mysql-client libyaml-dev tzdata \
       imagemagick poppler-utils \
       tesseract-ocr tesseract-ocr-eng tesseract-ocr-deu \
  && rm -rf /var/lib/apt/lists/*

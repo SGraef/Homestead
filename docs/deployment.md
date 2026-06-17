@@ -82,15 +82,35 @@ or strict relays (Mailgun, Postmark, Office 365) will reject your mail.
 
 ## Upgrades
 
+Pull the new image, then run the **safe upgrade** task, which takes a
+pre-upgrade backup *before* migrating so a failed migration is always
+recoverable:
+
 ```bash
 docker compose pull web
+docker compose run --rm web bundle exec rake homestead:upgrade
 docker compose up -d web
 ```
 
-Migrations run automatically on boot via `bin/docker-entrypoint`'s
-`rails db:prepare` step. There's no battle-tested rollback story —
-**snapshot the database and the Active Storage volume before pulling
-a new image**.
+`homestead:upgrade` writes a timestamped backup (database dump + Active
+Storage blobs) under `BACKUP_DIR` (default `/app/backups/<timestamp>/`),
+then runs pending migrations. If a migration fails it prints the exact
+restore commands and leaves your data untouched in the backup.
+
+Take a backup any time without upgrading:
+
+```bash
+docker compose run --rm -e BACKUP_DIR=/backups web bundle exec rake homestead:backup
+```
+
+Mount `BACKUP_DIR` to a volume *outside* `/app/storage` so backups persist
+and don't recursively copy themselves. To roll back: restore
+`backups/<ts>/database.sql` with `mysql`, copy `backups/<ts>/active_storage`
+back over the Active Storage root, and redeploy the previous image tag.
+
+> Migrations also run automatically on plain boot via
+> `bin/docker-entrypoint`'s `rails db:prepare`; prefer `homestead:upgrade`
+> for the backup-first path.
 
 ## Storage volumes
 

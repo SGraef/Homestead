@@ -25,7 +25,7 @@ WORKDIR /app
 
 RUN apt-get update -qq \
  && apt-get install --no-install-recommends -y \
-      curl ca-certificates default-libmysqlclient-dev libjemalloc2 tzdata \
+      curl ca-certificates default-libmysqlclient-dev default-mysql-client libjemalloc2 tzdata \
       imagemagick poppler-utils \
       tesseract-ocr tesseract-ocr-eng tesseract-ocr-deu \
  && rm -rf /var/lib/apt/lists/*

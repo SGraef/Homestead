@@ -46,3 +46,6 @@ node_modules/
 # Pages from CI. Local builds drop it here.
 /site/
 docker-compose.preview.yml
+
+# Local pre-upgrade backups (rake homestead:backup / homestead:upgrade)
+/backups/
