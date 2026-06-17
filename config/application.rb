@@ -7,10 +7,10 @@ require "rails/all"
 
 Bundler.require(*Rails.groups)
 
-module Pantria
+module Homestead
   # Top-level application namespace.
   #
-  # Pantria is a Household ERP focused on food storage, multi-store grocery
+  # Homestead is a Household ERP focused on food storage, multi-store grocery
   # tracking and barcode-driven inventory updates.
   class Application < Rails::Application
     config.load_defaults 8.0

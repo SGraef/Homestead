@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # typed: ignore
 
-# Recurring events pulled from a remote calendar are read-only in Pantria (v1):
+# Recurring events pulled from a remote calendar are read-only in Homestead (v1):
 # we display each expanded instance but never author/round-trip recurrence.
 class AddRecurringToCalendarEvents < ActiveRecord::Migration[8.0]
   def change

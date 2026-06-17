@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # typed: true
 
-# Base class for all Pundit policies. Pantria is single-household-per-instance,
+# Base class for all Pundit policies. Homestead is single-household-per-instance,
 # so every authenticated user is a member of the one household and has full
 # access to its data -- there is no cross-tenant gatekeeping. The only
 # distinction left is `household_admin?`, which governs settings, member

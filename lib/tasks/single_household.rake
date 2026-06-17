@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-namespace :pantria do
+namespace :homestead do
   namespace :single_household do
     desc "Fold every non-canonical household's data into Household.current " \
          "(the oldest household). OPTIONAL and opt-in. May produce duplicate " \

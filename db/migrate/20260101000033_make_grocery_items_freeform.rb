@@ -5,7 +5,7 @@
 # instead of forcing the user to materialise a full Product every
 # time they jot something down on the list. Existing rows keep their
 # product_id; new flows (the "type something into the list" form,
-# Bring -> Pantria pull) can omit it.
+# Bring -> Homestead pull) can omit it.
 class MakeGroceryItemsFreeform < ActiveRecord::Migration[8.0]
   def up
     add_column :grocery_items, :name, :string, limit: 200

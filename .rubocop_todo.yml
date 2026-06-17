@@ -1,4 +1,4 @@
-# Pantria RuboCop ratchet baseline (ROADMAP M0c, CI ratchet part 1).
+# Homestead RuboCop ratchet baseline (ROADMAP M0c, CI ratchet part 1).
 #
 # Regenerated with `rubocop --auto-gen-config` after the todos+calendar
 # features (#11, #12) merged into main, so it grandfathers the offenses that

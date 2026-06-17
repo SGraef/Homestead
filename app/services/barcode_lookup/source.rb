@@ -17,7 +17,7 @@ module BarcodeLookup
 
     class << self
       # @param url [String]
-      # @param user_agent [String] override the default Pantria UA -- some
+      # @param user_agent [String] override the default Homestead UA -- some
       #   private APIs (e.g. Marktguru) reject non-browser-looking clients.
       # @param headers [Hash] extra request headers (Origin, Referer, …) the
       #   subclass needs to look like a browser tab.

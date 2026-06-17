@@ -2,7 +2,7 @@
 # typed: false
 
 # A user authenticates with email + password (Sorcery) and is a member of the
-# single household this instance serves (via {Membership}). Because Pantria is
+# single household this instance serves (via {Membership}). Because Homestead is
 # single-household-per-instance, every member has full access to the household's
 # data; the membership role (admin/member) only governs settings, member
 # management and destructive deletes.

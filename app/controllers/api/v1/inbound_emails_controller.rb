@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # typed: false
 
-# REST API for triggering inbound-mailbox drains from outside Pantria
+# REST API for triggering inbound-mailbox drains from outside Homestead
 # (n8n, Home Assistant, cron on another box, …). Synchronous so the
 # caller gets per-source counts back in the response -- handy for an
 # n8n flow that wants to react to "X new receipts arrived".

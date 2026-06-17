@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# Pantria runs single-household-per-instance. If a database upgraded from the
-# old multi-household schema still contains more than one household, Pantria
+# Homestead runs single-household-per-instance. If a database upgraded from the
+# old multi-household schema still contains more than one household, Homestead
 # silently serves only the oldest one (Household.current). Surface that loudly
 # at boot so an operator notices the orphaned data and can decide whether to
-# merge it (see `rake pantria:single_household:merge`).
+# merge it (see `rake homestead:single_household:merge`).
 #
 # This must NEVER raise during boot: it has to survive `db:create`,
 # `db:migrate` and `assets:precompile`, where the database or the `households`
@@ -20,11 +20,11 @@ Rails.application.config.after_initialize do
     next if count <= 1
 
     canonical = Household.current
-    message = "[Pantria] This instance is single-household, but the database " \
+    message = "[Homestead] This instance is single-household, but the database " \
               "contains #{count} households. Serving only ##{canonical&.id} " \
               "(#{canonical&.name.inspect}). The other #{count - 1} household(s) " \
               "and their data are hidden but NOT deleted. Run " \
-              "`rake pantria:single_household:merge` to fold them into the " \
+              "`rake homestead:single_household:merge` to fold them into the " \
               "canonical household, or ignore this if intentional."
     Rails.logger.warn(message)
     warn(message)

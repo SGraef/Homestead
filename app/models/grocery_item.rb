@@ -44,7 +44,7 @@ class GroceryItem < ApplicationRecord
   after_destroy_commit :enqueue_bring_destroy
 
   # Wrap pull-time writes (Bring -> Homestead) in this so the after-commit
-  # callbacks don't echo the change right back to Bring (Pantria -> Bring),
+  # callbacks don't echo the change right back to Bring (Homestead -> Bring),
   # which would loop forever. Thread-local because ActiveJob workers are
   # threaded.
   def self.without_bring_sync

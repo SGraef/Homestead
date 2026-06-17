@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # typed: false
 
-# A Household owns all food storage, grocery and price data. Pantria runs
+# A Household owns all food storage, grocery and price data. Homestead runs
 # single-household-per-instance: one deployment serves exactly one household,
 # resolved via {Household.current}. The schema still carries `household_id`
 # everywhere (kept for non-destructive upgrades), but there is only ever one
