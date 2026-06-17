@@ -33,7 +33,7 @@ Solid Queue runs background jobs in-process inside the same Puma (gated by
    HTTP will redirect immediately.
 
 5. First boot runs `rails db:prepare` automatically. The database schema is
-   created and the demo seed user (`demo@pantria.local` / `password123`) is
+   created and the demo seed user (`demo@homestead.local` / `password123`) is
    inserted on an empty DB.
 
 ## Notes

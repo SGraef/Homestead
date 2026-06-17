@@ -43,7 +43,7 @@ class GroceryItem < ApplicationRecord
   before_destroy       :remember_for_bring
   after_destroy_commit :enqueue_bring_destroy
 
-  # Wrap pull-time writes (Bring -> Pantria) in this so the after-commit
+  # Wrap pull-time writes (Bring -> Homestead) in this so the after-commit
   # callbacks don't echo the change right back to Bring (Pantria -> Bring),
   # which would loop forever. Thread-local because ActiveJob workers are
   # threaded.

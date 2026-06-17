@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Pantria brand colour. Matches the PWA's theme_color so the
+    <!-- Homestead brand colour. Matches the PWA's theme_color so the
          status bar and splash screen flow into the web content
          without a visible seam. -->
     <color name="pantria_brand">#c97455</color>

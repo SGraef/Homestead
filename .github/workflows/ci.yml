@@ -51,7 +51,7 @@ jobs:
         image: mysql:8.4
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: pantria_test
+          MYSQL_DATABASE: homestead_test
           MYSQL_USER: pantria
           MYSQL_PASSWORD: pantria
         ports: ["3306:3306"]
@@ -67,7 +67,7 @@ jobs:
       DATABASE_PORT: "3306"
       DATABASE_USERNAME: pantria
       DATABASE_PASSWORD: pantria
-      DATABASE_NAME: pantria_test
+      DATABASE_NAME: homestead_test
       # Turn on SimpleCov (spec_helper gates it on COVERAGE=1) so the
       # coverage summary below has something to print. Non-gating for now.
       COVERAGE: "1"
@@ -161,8 +161,14 @@ jobs:
           context: .
           target: runtime
           push: true
+          # Primary image is now `homestead`. The old `pantria:main`/`:latest`
+          # tags are dual-published as a one-release bridge so existing
+          # deployments keep pulling until they switch the image name.
+          # Drop the pantria bridge tags after the next release.
           tags: |
-            ghcr.io/sgraef/pantria:${{ github.sha }}
+            ghcr.io/sgraef/homestead:${{ github.sha }}
+            ghcr.io/sgraef/homestead:main
+            ghcr.io/sgraef/homestead:latest
             ghcr.io/sgraef/pantria:main
             ghcr.io/sgraef/pantria:latest
           cache-from: type=gha

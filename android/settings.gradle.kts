@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Pantria"
+rootProject.name = "Homestead"
 include(":app")

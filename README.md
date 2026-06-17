@@ -78,7 +78,7 @@ jobs live in [`config/recurring.yml`](config/recurring.yml).
 
 Open <http://localhost:3000> and log in with the seeded demo user:
 
-- **E-Mail**: `demo@pantria.local`
+- **E-Mail**: `demo@homestead.local`
 - **Passwort**: `password123`
 
 Append `?locale=en` to any URL (or click the language switcher in the
@@ -169,7 +169,7 @@ stage runs as a non-root user, ships only the slim runtime apt deps
 
 ```bash
 # Build the prod image locally
-docker build --target runtime -t pantria:local .
+docker build --target runtime -t homestead:local .
 
 # Run it against an external MySQL
 docker run --rm -p 3000:3000 \
@@ -182,7 +182,7 @@ docker run --rm -p 3000:3000 \
   -e DATABASE_PASSWORD=secret \
   -e DATABASE_NAME=pantria_production \
   -e APP_HOST=pantria.example.com \
-  pantria:local
+  homestead:local
 ```
 
 For production you run **two** containers from the same image:
@@ -191,14 +191,14 @@ For production you run **two** containers from the same image:
 # Web (Puma)
 docker run -d --name pantria-web -p 3000:3000 \
   -e RAILS_ENV=production -e SECRET_KEY_BASE="…" -e DATABASE_HOST=… … \
-  pantria:local
+  homestead:local
 
 # Worker (Solid Queue) — same image, different command, db:prepare disabled
 # so it doesn't race with the web container on first boot.
 docker run -d --name pantria-worker \
   -e RAILS_ENV=production -e SECRET_KEY_BASE="…" -e DATABASE_HOST=… … \
   -e RAILS_RUN_DB_PREPARE=0 \
-  pantria:local bundle exec rake solid_queue:start
+  homestead:local bundle exec rake solid_queue:start
 ```
 
 The image is also produced and pushed by CI on every push to `main`:
@@ -262,7 +262,7 @@ documented in full in [`android/README.md`](android/README.md).
 ```bash
 # 1. Get a bearer token
 curl -sX POST http://localhost:3000/api/v1/sessions \
-  -d 'email=demo@pantria.local&password=password123'
+  -d 'email=demo@homestead.local&password=password123'
 # => { "token": "...", "user": { ... } }
 
 TOKEN="paste-here"
@@ -325,7 +325,7 @@ Copy `.env.example` to `.env` for local overrides. Notable variables:
 | `OCR_PDF_DPI`          | `200`                    | DPI used to rasterize PDFs     |
 | `FREEZER_STALE_DAYS`   | `90`                     | Stale-in-freezer warning threshold |
 | `ALLOWED_API_ORIGINS`  | `*`                      | CORS allowlist for `/api/*`    |
-| `MAIL_FROM`            | `no-reply@pantria.local` | `From:` header on outbound mail |
+| `MAIL_FROM`            | `no-reply@homestead.local` | `From:` header on outbound mail |
 | `BRING_API_KEY`        | (built-in)               | Override Bring! client API key |
 | `SMTP_ADDRESS`         | `localhost`              | Production SMTP host           |
 | `SMTP_PORT`            | `587`                    | Production SMTP port           |

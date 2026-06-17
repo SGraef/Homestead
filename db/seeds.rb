@@ -3,7 +3,7 @@
 
 return unless Rails.env.development?
 
-user = User.find_or_create_by!(email: "demo@pantria.local") do |u|
+user = User.find_or_create_by!(email: "demo@homestead.local") do |u|
   u.name = "Demo Benutzer"
   u.password = u.password_confirmation = "password123"
 end

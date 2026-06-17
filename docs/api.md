@@ -9,7 +9,7 @@ Get a token by exchanging email + password:
 
 ```bash
 curl -sX POST https://pantria.your-host/api/v1/sessions \
-     -d 'email=demo@pantria.local&password=password123'
+     -d 'email=demo@homestead.local&password=password123'
 # => { "token": "...", "user": { "id": 1, "name": "Demo", "email": "..." } }
 ```
 

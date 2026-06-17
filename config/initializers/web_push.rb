@@ -7,7 +7,7 @@
 # generate an ephemeral pair so local/dev/test work without configuration; push
 # is simply disabled in production if no keys are provided.
 Rails.application.config.x.vapid = {
-  subject:     ENV.fetch("VAPID_SUBJECT", "mailto:admin@pantria.local"),
+  subject:     ENV.fetch("VAPID_SUBJECT", "mailto:admin@homestead.local"),
   public_key:  ENV["VAPID_PUBLIC_KEY"].presence,
   private_key: ENV["VAPID_PRIVATE_KEY"].presence
 }

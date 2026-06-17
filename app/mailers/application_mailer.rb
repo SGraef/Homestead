@@ -2,6 +2,6 @@
 # typed: true
 
 class ApplicationMailer < ActionMailer::Base
-  default from: "no-reply@pantria.local"
+  default from: "no-reply@homestead.local"
   layout "mailer"
 end

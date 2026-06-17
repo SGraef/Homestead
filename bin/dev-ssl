@@ -27,7 +27,7 @@ if [ ! -f "$KEY" ] || [ ! -f "$CERT" ]; then
     alt="$alt,IP:$LAN_IP"
   fi
   if [ -n "$EXTRA_HOSTS" ]; then
-    # space-separated extra DNS names, e.g. EXTRA_HOSTS="pantria.local foo.bar"
+    # space-separated extra DNS names, e.g. EXTRA_HOSTS="homestead.local foo.bar"
     for h in $EXTRA_HOSTS; do
       alt="$alt,DNS:$h"
     done
