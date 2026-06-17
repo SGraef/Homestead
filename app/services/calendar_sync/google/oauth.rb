@@ -65,6 +65,7 @@ module CalendarSync
 
       def post_token(form)
         uri = URI(TOKEN_URI)
+        SafeHttp.validate_uri!(uri)
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
         request = Net::HTTP::Post.new(uri)

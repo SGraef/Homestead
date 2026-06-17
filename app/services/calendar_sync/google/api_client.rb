@@ -86,6 +86,7 @@ module CalendarSync
         ensure_fresh_token!
         authorize(request)
         uri = request.uri
+        SafeHttp.validate_uri!(uri)
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
         http.request(request)

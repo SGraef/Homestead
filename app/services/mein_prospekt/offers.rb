@@ -146,7 +146,8 @@ module MeinProspekt
       end
 
       def get_json(url)
-        uri  = URI.parse(url)
+        uri = URI.parse(url)
+        SafeHttp.validate_uri!(uri)
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl      = uri.scheme == "https"
         http.open_timeout = OPEN_TIMEOUT
