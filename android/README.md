@@ -29,16 +29,16 @@ metadata itself changes (host, icon, version code for Play Store).
    Now `./gradlew` works.
 
 2. **Point the build at your host**. The default in `app/build.gradle.kts` is
-   `pantria.example.com`; override it per-build:
+   `homestead.example.com`; override it per-build:
 
    ```bash
-   ./gradlew assembleRelease -PpantriaHost=pantria.your-domain.tld
+   ./gradlew assembleRelease -PhomesteadHost=homestead.your-domain.tld
    ```
 
    Or set it permanently in `gradle.properties`:
 
    ```properties
-   pantriaHost=pantria.your-domain.tld
+   homesteadHost=homestead.your-domain.tld
    ```
 
 3. **Compute the signing-cert SHA-256** so Chrome can verify the TWA owns the
@@ -58,14 +58,14 @@ metadata itself changes (host, icon, version code for Play Store).
    template / docker-compose):
 
    ```
-   ANDROID_TWA_PACKAGE=de.lunawolf.pantria
+   ANDROID_TWA_PACKAGE=de.lunawolf.homestead
    ANDROID_TWA_FINGERPRINTS=AA:BB:CC:...
    ```
 
    Restart the Rails app and verify:
 
    ```bash
-   curl -s https://pantria.your-domain.tld/.well-known/assetlinks.json
+   curl -s https://homestead.your-domain.tld/.well-known/assetlinks.json
    ```
 
    The JSON must contain your package name and fingerprint, exactly. Chrome
@@ -115,9 +115,9 @@ Before publishing to Play Store:
 1. Create a release keystore:
 
    ```bash
-   keytool -genkey -v -keystore ~/pantria-release.jks \
+   keytool -genkey -v -keystore ~/homestead-release.jks \
            -keyalg RSA -keysize 2048 -validity 25000 \
-           -alias pantria
+           -alias homestead
    ```
 
 2. Switch `app/build.gradle.kts`'s release `signingConfig` to a custom one

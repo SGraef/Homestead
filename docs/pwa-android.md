@@ -67,7 +67,7 @@ keytool -list -v -keystore ~/.android/debug.keystore \
     | grep 'SHA256:'
 
 # Set on Homestead's environment (.env / Unraid template / docker-compose):
-#   ANDROID_TWA_PACKAGE=de.lunawolf.pantria
+#   ANDROID_TWA_PACKAGE=de.lunawolf.homestead
 #   ANDROID_TWA_FINGERPRINTS=AA:BB:CC:...
 ```
 

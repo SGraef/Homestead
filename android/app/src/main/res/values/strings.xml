@@ -9,7 +9,7 @@
         SHA-256 fingerprint (see android/README.md). Without that, the
         TWA falls back to a Chrome Custom Tab and shows the URL bar.
 
-        The literal `\@string/pantria_host` reference is intentional --
+        The literal `\@string/homestead_host` reference is intentional --
         it gets resolved at install time so updating the host only
         requires changing one Gradle property.
     -->
@@ -18,7 +18,7 @@
             \"relation\": [\"delegate_permission/common.handle_all_urls\"],
             \"target\": {
                 \"namespace\": \"web\",
-                \"site\": \"@string/pantria_url\"
+                \"site\": \"@string/homestead_url\"
             }
         }]
     </string>

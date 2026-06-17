@@ -19,7 +19,7 @@ class WellKnownController < ApplicationController
       relation: ["delegate_permission/common.handle_all_urls"],
       target:   {
         namespace:                "android_app",
-        package_name:             ENV.fetch("ANDROID_TWA_PACKAGE", "de.lunawolf.pantria"),
+        package_name:             ENV.fetch("ANDROID_TWA_PACKAGE", "de.lunawolf.homestead"),
         sha256_cert_fingerprints: fingerprints
       }
     }]
