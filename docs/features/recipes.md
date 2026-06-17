@@ -9,13 +9,13 @@ cook the recipe and is the same row offer-matched on your grocery list.
 ## Import from Chefkoch
 
 Paste any `https://www.chefkoch.de/rezepte/<id>/...` URL into the
-"Import" form on `/recipes`. Pantria pulls the recipe via Chefkoch's
+"Import" form on `/recipes`. Homestead pulls the recipe via Chefkoch's
 public JSON API at `api.chefkoch.de/v2/recipes/<id>`, creates a Recipe
 row, and turns each ingredient into a `RecipeIngredient` row:
 
 - Ingredient names match against existing household Products
   (case-insensitive); missing products are created on the fly with the
-  Chefkoch-reported unit (g/kg/ml/l mapped to canonical Pantria units,
+  Chefkoch-reported unit (g/kg/ml/l mapped to canonical Homestead units,
   anything else falls back to `pcs`).
 - The Chefkoch unit ("EL", "TL", "Prise(n)") is preserved as the
   per-row unit override so the display still reads "4 EL Öl".
@@ -84,7 +84,7 @@ repeat.
 
 ## Code references
 
-- Recipe model: [`app/models/recipe.rb`](https://github.com/SGraef/Pantria/blob/main/app/models/recipe.rb)
-- Ingredient consume: [`app/models/recipe_ingredient.rb`](https://github.com/SGraef/Pantria/blob/main/app/models/recipe_ingredient.rb)
-- Chefkoch importer: [`app/services/chefkoch/importer.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/chefkoch/importer.rb)
-- Meal plan suggester: [`app/services/meal_plan_suggester.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/meal_plan_suggester.rb)
+- Recipe model: [`app/models/recipe.rb`](https://github.com/SGraef/Homestead/blob/main/app/models/recipe.rb)
+- Ingredient consume: [`app/models/recipe_ingredient.rb`](https://github.com/SGraef/Homestead/blob/main/app/models/recipe_ingredient.rb)
+- Chefkoch importer: [`app/services/chefkoch/importer.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/chefkoch/importer.rb)
+- Meal plan suggester: [`app/services/meal_plan_suggester.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/meal_plan_suggester.rb)

@@ -1,6 +1,6 @@
 # Deployment
 
-Pantria runs as a Docker image. Three paths, increasing in operational
+Homestead runs as a Docker image. Three paths, increasing in operational
 fanciness:
 
 1. **Unraid** with the bundled Community Apps template.
@@ -11,16 +11,16 @@ fanciness:
 ## Unraid
 
 A community-template XML lives at
-[`unraid/pantria.xml`](https://github.com/SGraef/Pantria/blob/main/unraid/pantria.xml).
+[`unraid/pantria.xml`](https://github.com/SGraef/Homestead/blob/main/unraid/pantria.xml).
 Walk-through, env-var reference and MySQL setup notes are in
-[`unraid/README.md`](https://github.com/SGraef/Pantria/blob/main/unraid/README.md).
+[`unraid/README.md`](https://github.com/SGraef/Homestead/blob/main/unraid/README.md).
 
 Short version:
 
 1. Provision a MySQL 8.4 container (Unraid CA has one).
-2. Drop the Pantria template into `templates-user/`.
+2. Drop the Homestead template into `templates-user/`.
 3. Fill in `APP_HOST` + DB creds + `RAILS_MASTER_KEY`.
-4. Point a reverse proxy at the container — Pantria forces `https` in
+4. Point a reverse proxy at the container — Homestead forces `https` in
    production, so terminate TLS at the proxy (SWAG, NPM, Caddy, …).
 
 The template defaults the Solid Queue worker to the same container as
@@ -74,7 +74,7 @@ volumes:
 ## SMTP
 
 Notable behaviour: with `SMTP_USERNAME` and `SMTP_PASSWORD` both unset
-Pantria connects to the relay *unauthenticated*. That's the right
+Homestead connects to the relay *unauthenticated*. That's the right
 behaviour for local postfix / Mailpit / internal smarthost relays
 that don't need login. Set both to enable SMTP-AUTH. `SMTP_DOMAIN`
 controls the HELO/EHLO greeting — set it to a domain you actually own

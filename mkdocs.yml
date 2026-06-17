@@ -1,8 +1,8 @@
 site_name: Homestead
 site_description: Self-hosted household hub — inventory, shopping, receipts & prices, meals, and shared todos + calendar. (Formerly Pantria.)
-site_url: https://sgraef.github.io/Pantria/
-repo_url: https://github.com/SGraef/Pantria
-repo_name: SGraef/Pantria
+site_url: https://sgraef.github.io/Homestead/
+repo_url: https://github.com/SGraef/Homestead
+repo_name: SGraef/Homestead
 copyright: "&copy; 2026 Sascha Schlobinski — MIT licensed"
 
 # Source content lives in /docs at the repo root.
@@ -19,7 +19,7 @@ theme:
   logo: assets/mark.svg
   favicon: assets/mark.svg
   palette:
-    # Light mode = the Pantria brand colour.
+    # Light mode = the Homestead brand colour.
     - scheme: default
       primary: deep orange
       accent: brown
@@ -57,8 +57,8 @@ extra:
   generator: false
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/SGraef/Pantria
-      name: Pantria on GitHub
+      link: https://github.com/SGraef/Homestead
+      name: Homestead on GitHub
 
 # ---- Markdown extensions -------------------------------------------------
 markdown_extensions:

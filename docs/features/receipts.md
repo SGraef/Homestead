@@ -1,6 +1,6 @@
 # Receipt OCR
 
-Upload a photo of a paper receipt — or a PDF e-receipt — and Pantria
+Upload a photo of a paper receipt — or a PDF e-receipt — and Homestead
 turns it into a Store, a set of Products, a set of Prices, and
 (optionally) StorageItems for everything you just bought.
 
@@ -40,7 +40,7 @@ core on a small box.
    gives clean text).
 2. **Tesseract** at PSM 6 (uniform block) by default. If the result is
    empty — typical for handheld photos where PSM 6 can't find a uniform
-   block — Pantria retries on PSM 4 (single column) and PSM 11 (sparse
+   block — Homestead retries on PSM 4 (single column) and PSM 11 (sparse
    text) before giving up.
 3. **Heuristic parser** turns the raw text into a structured
    `ReceiptScanner::Result`: detected store name, purchase date, total,
@@ -73,7 +73,7 @@ Per line you choose:
 
 ### Auto-matched lines
 
-Pantria pre-resolves every line against the household's product
+Homestead pre-resolves every line against the household's product
 catalog via `Product.match_by_term` (primary name OR registered
 synonym). Lines that hit a match render with `action=match` already
 selected, the matched product preselected, and a small "auto-matched
@@ -106,7 +106,7 @@ the auth shape and triggering options.
 
 ## Code references
 
-- Scanner: [`app/services/receipt_scanner.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/receipt_scanner.rb)
-- Tesseract adapter: [`app/services/receipt_scanner/adapters/tesseract.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/receipt_scanner/adapters/tesseract.rb)
-- Heuristic parser: [`app/services/receipt_scanner/parser.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/receipt_scanner/parser.rb)
-- Confirm action: [`app/services/receipt_confirmer.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/receipt_confirmer.rb)
+- Scanner: [`app/services/receipt_scanner.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/receipt_scanner.rb)
+- Tesseract adapter: [`app/services/receipt_scanner/adapters/tesseract.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/receipt_scanner/adapters/tesseract.rb)
+- Heuristic parser: [`app/services/receipt_scanner/parser.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/receipt_scanner/parser.rb)
+- Confirm action: [`app/services/receipt_confirmer.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/receipt_confirmer.rb)

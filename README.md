@@ -1,7 +1,9 @@
 # Homestead
 
-> **Formerly Pantria.** The project has been renamed; the repo, Docker image
-> and internal code identifiers still say `pantria` for now (rename in progress).
+> **Formerly Pantria.** The project has been renamed. The repo, Docker image
+> and user-facing surfaces are now Homestead; a few internal code identifiers
+> (the Ruby module, the `pantria:` rake namespace, the Android package) still
+> say `pantria` and are being migrated.
 
 A self-hosted operations hub for a single household: food storage, multi-store
 grocery price tracking and barcode-driven inventory, plus shared todos, an
@@ -10,7 +12,7 @@ UI with English fallback, REST API for mobile / automation clients, and an OCR
 pipeline that turns supermarket receipts into structured products, stores and
 prices.
 
-📚 **Full documentation lives at [sgraef.github.io/Pantria](https://sgraef.github.io/Pantria/)**
+📚 **Full documentation lives at [sgraef.github.io/Homestead](https://sgraef.github.io/Homestead/)**
 — quick start, feature deep-dives, REST API reference, PWA + Android TWA
 build, observability (OpenTelemetry) setup, and deployment notes.
 

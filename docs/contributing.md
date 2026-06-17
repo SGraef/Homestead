@@ -1,14 +1,14 @@
 # Contributing
 
-PRs and issues welcome. Pantria is "vibe-coded" — built largely through
+PRs and issues welcome. Homestead is "vibe-coded" — built largely through
 LLM pair-programming — so the contribution loop is friendly to anyone
 comfortable with that workflow.
 
 ## Local setup
 
 ```bash
-git clone git@github.com:SGraef/Pantria.git
-cd Pantria
+git clone git@github.com:SGraef/Homestead.git
+cd Homestead
 cp .env.example .env
 docker compose up --build
 ```

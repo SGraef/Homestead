@@ -1,6 +1,6 @@
 # Observability (OpenTelemetry)
 
-Pantria ships an OpenTelemetry instrumentation layer for **traces, metrics
+Homestead ships an OpenTelemetry instrumentation layer for **traces, metrics
 and logs**. It is **off by default**: until you set
 `OTEL_EXPORTER_OTLP_ENDPOINT`, the SDK is not loaded, no exporter threads
 are spawned, and the in-process `Telemetry` helpers fall back to zero-cost
@@ -8,7 +8,7 @@ no-op shims. CI runs and local dev incur no telemetry overhead.
 
 ## Quick start
 
-Point Pantria at any OTLP-compatible endpoint — a local
+Point Homestead at any OTLP-compatible endpoint — a local
 [Collector](https://opentelemetry.io/docs/collector/), Grafana Cloud,
 Honeycomb, Datadog (via the Collector), Tempo + Mimir + Loki, etc.
 
@@ -54,7 +54,7 @@ at:
   raw text length, line items detected, detected total.
 - `receipt_confirmer.call` — confirm action. Attributes: receipt id,
   household id, line counts per action (create / match / skip).
-- `bring.pull` — Bring → Pantria sync. Attributes: added /
+- `bring.pull` — Bring → Homestead sync. Attributes: added /
   reactivated / marked_purchased / unchanged counts.
 
 **Metrics** — Rack request duration histograms via auto-instrumentation,
@@ -67,7 +67,7 @@ plus app-defined:
 | `pantria.receipt_scanner.empty_ocr_total`       | counter   | —    | Receipts whose OCR returned no text at all                      |
 | `pantria.receipts.confirmed_total`              | counter   | —    | Receipts the user confirmed                                     |
 | `pantria.synonyms.created_total`                | counter   | —    | ProductSynonym rows promoted from a confirm                     |
-| `pantria.bring.pull_total`                      | counter   | —    | Bring → Pantria pulls (every 5min by default)                   |
+| `pantria.bring.pull_total`                      | counter   | —    | Bring → Homestead pulls (every 5min by default)                   |
 | `pantria.bring.items_synced_total`              | counter   | —    | Grocery rows touched by a pull (added + reactivated + purchased) |
 
 **Logs** — high-signal application events via `Telemetry.log_event(...)`.

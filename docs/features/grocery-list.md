@@ -14,10 +14,10 @@ The household's shared shopping list. Two flavours of row:
 `/bring_connection` walks you through linking a Bring! account. Once
 connected:
 
-- **Pantria → Bring**: every write on a grocery row (create, update,
+- **Homestead → Bring**: every write on a grocery row (create, update,
   destroy) enqueues a `SyncGroceryToBringJob` that pushes or removes
   the item from your Bring list.
-- **Bring → Pantria**: a recurring Solid Queue job pulls Bring's list
+- **Bring → Homestead**: a recurring Solid Queue job pulls Bring's list
   state every 5 minutes (or via the manual "Sync now" button).
   Bring items that match a household Product (by name OR by registered
   synonym, via `Product.match_by_term`) link to it; everything else
@@ -28,7 +28,7 @@ connected:
 ```mermaid
 sequenceDiagram
   participant U as User
-  participant P as Pantria
+  participant P as Homestead
   participant B as Bring!
   U->>P: "add milk to list"
   P->>B: PUT purchase=Milk
@@ -69,6 +69,6 @@ earliest `valid_until`.
 
 ## Code references
 
-- Model: [`app/models/grocery_item.rb`](https://github.com/SGraef/Pantria/blob/main/app/models/grocery_item.rb)
-- Bring pull: [`app/services/bring/pull.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/bring/pull.rb)
-- Bring push job: [`app/jobs/sync_grocery_to_bring_job.rb`](https://github.com/SGraef/Pantria/blob/main/app/jobs/sync_grocery_to_bring_job.rb)
+- Model: [`app/models/grocery_item.rb`](https://github.com/SGraef/Homestead/blob/main/app/models/grocery_item.rb)
+- Bring pull: [`app/services/bring/pull.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/bring/pull.rb)
+- Bring push job: [`app/jobs/sync_grocery_to_bring_job.rb`](https://github.com/SGraef/Homestead/blob/main/app/jobs/sync_grocery_to_bring_job.rb)

@@ -1,6 +1,6 @@
 # Getting started
 
-Pantria ships as a Docker image. The fastest path is the bundled
+Homestead ships as a Docker image. The fastest path is the bundled
 `docker-compose.yml`, which brings up MySQL + the Rails app + the Solid
 Queue worker. For Unraid users there's a one-click Community Applications
 template.
@@ -15,8 +15,8 @@ template.
 ## Local dev in 30 seconds
 
 ```bash
-git clone git@github.com:SGraef/Pantria.git
-cd Pantria
+git clone git@github.com:SGraef/Homestead.git
+cd Homestead
 cp .env.example .env       # tweak RAILS_MASTER_KEY etc.
 docker compose up --build  # first boot also runs db:prepare
 ```
@@ -25,7 +25,7 @@ Open <http://localhost:3000>, click **Sign up**, create the first user.
 That first user becomes admin of the household it creates.
 
 !!! tip "First-run sign-up"
-    Pantria runs one household per instance. The **first** sign-up on a fresh
+    Homestead runs one household per instance. The **first** sign-up on a fresh
     instance creates the household and makes you its admin. After that,
     self-registration is closed — add further members by email from
     `/household`.
@@ -35,16 +35,16 @@ That first user becomes admin of the household it creates.
 ### Unraid (recommended for self-hosters)
 
 A community-template XML lives at
-[`unraid/pantria.xml`](https://github.com/SGraef/Pantria/blob/main/unraid/pantria.xml).
+[`unraid/pantria.xml`](https://github.com/SGraef/Homestead/blob/main/unraid/pantria.xml).
 Walk-through, env-var reference and MySQL setup notes are in
-[`unraid/README.md`](https://github.com/SGraef/Pantria/blob/main/unraid/README.md).
+[`unraid/README.md`](https://github.com/SGraef/Homestead/blob/main/unraid/README.md).
 
 Short version:
 
 1. Provision a MySQL 8.4 container.
 2. Drop the template into `templates-user/`.
 3. Fill in `APP_HOST` + DB creds + `RAILS_MASTER_KEY`.
-4. Point a reverse proxy at the container — Pantria forces `https` in
+4. Point a reverse proxy at the container — Homestead forces `https` in
    production, so terminate TLS at the proxy.
 
 ### Plain docker-compose
@@ -93,7 +93,7 @@ Notable env vars beyond the basics:
 | `BRING_API_KEY`                      | Override the bundled Bring! API key                       |
 | `ANDROID_TWA_PACKAGE` / `_FINGERPRINTS` | Required for the TWA to drop the Chrome URL bar         |
 
-Full reference: see [`.env.example`](https://github.com/SGraef/Pantria/blob/main/.env.example)
+Full reference: see [`.env.example`](https://github.com/SGraef/Homestead/blob/main/.env.example)
 and `config/environments/production.rb`.
 
 ## Next steps

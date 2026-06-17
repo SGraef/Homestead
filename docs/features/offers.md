@@ -9,7 +9,7 @@ this week.
 
 ## Sources
 
-Pantria ships four adapters under `app/services/`:
+Homestead ships four adapters under `app/services/`:
 
 | Source           | Coverage              | Notes                                                              |
 | ---------------- | --------------------- | ------------------------------------------------------------------ |
@@ -63,7 +63,7 @@ indexes, same matching, same expiry chip).
 
 ## Code references
 
-- Syncer: [`app/services/offer_syncer.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/offer_syncer.rb)
-- Marktguru adapter: [`app/services/marktguru/offers.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/marktguru/offers.rb)
-- kaufDA adapter: [`app/services/kaufda/offers.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/kaufda/offers.rb)
-- Categorizer: [`app/services/offer_categorizer.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/offer_categorizer.rb)
+- Syncer: [`app/services/offer_syncer.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/offer_syncer.rb)
+- Marktguru adapter: [`app/services/marktguru/offers.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/marktguru/offers.rb)
+- kaufDA adapter: [`app/services/kaufda/offers.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/kaufda/offers.rb)
+- Categorizer: [`app/services/offer_categorizer.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/offer_categorizer.rb)

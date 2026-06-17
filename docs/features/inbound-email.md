@@ -1,7 +1,7 @@
 # Inbound email
 
 Many German supermarkets email you an e-receipt PDF when you check out
-with a customer card. Pantria can poll those mailboxes and turn the
+with a customer card. Homestead can poll those mailboxes and turn the
 attachments into pending Receipts automatically.
 
 ## Configuration
@@ -64,6 +64,6 @@ page once and stash it in your automation tool's secret store.
 
 ## Code references
 
-- Source model: [`app/models/inbound_email_source.rb`](https://github.com/SGraef/Pantria/blob/main/app/models/inbound_email_source.rb)
-- IMAP poller: [`app/services/inbound_receipts/imap_poller.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/inbound_receipts/imap_poller.rb)
-- API: [`app/controllers/api/v1/inbound_emails_controller.rb`](https://github.com/SGraef/Pantria/blob/main/app/controllers/api/v1/inbound_emails_controller.rb)
+- Source model: [`app/models/inbound_email_source.rb`](https://github.com/SGraef/Homestead/blob/main/app/models/inbound_email_source.rb)
+- IMAP poller: [`app/services/inbound_receipts/imap_poller.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/inbound_receipts/imap_poller.rb)
+- API: [`app/controllers/api/v1/inbound_emails_controller.rb`](https://github.com/SGraef/Homestead/blob/main/app/controllers/api/v1/inbound_emails_controller.rb)

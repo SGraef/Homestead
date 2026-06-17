@@ -1,6 +1,6 @@
 # Barcode scanning
 
-Pantria has multiple barcode entry points, all sharing the same
+Homestead has multiple barcode entry points, all sharing the same
 two-decoder strategy:
 
 1. **Native `BarcodeDetector` API** (Chrome / Edge / Android Chrome) —
@@ -32,7 +32,7 @@ When you scan a barcode on `/products/scan`, the resolver tries (in order):
 3. **Manual fallback** — "Create a product for this code" button opens
    the new-product form pre-filled with the code.
 
-The waterfall is implemented in [`app/services/barcode_lookup.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/barcode_lookup.rb)
+The waterfall is implemented in [`app/services/barcode_lookup.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/barcode_lookup.rb)
 with per-source adapter classes under `barcode_lookup/`.
 
 ## Attach an alternate EAN
@@ -66,7 +66,7 @@ PWAs.
 
 ## Code references
 
-- Frontend (Stimulus): [`app/javascript/controllers/barcode_scanner_controller.js`](https://github.com/SGraef/Pantria/blob/main/app/javascript/controllers/barcode_scanner_controller.js)
-- Kiosk variant: [`app/javascript/controllers/storage_kiosk_controller.js`](https://github.com/SGraef/Pantria/blob/main/app/javascript/controllers/storage_kiosk_controller.js)
-- Lookup service: [`app/services/barcode_lookup.rb`](https://github.com/SGraef/Pantria/blob/main/app/services/barcode_lookup.rb)
-- Vendored ZXing: [`vendor/javascript/@zxing--browser.js`](https://github.com/SGraef/Pantria/blob/main/vendor/javascript/@zxing--browser.js)
+- Frontend (Stimulus): [`app/javascript/controllers/barcode_scanner_controller.js`](https://github.com/SGraef/Homestead/blob/main/app/javascript/controllers/barcode_scanner_controller.js)
+- Kiosk variant: [`app/javascript/controllers/storage_kiosk_controller.js`](https://github.com/SGraef/Homestead/blob/main/app/javascript/controllers/storage_kiosk_controller.js)
+- Lookup service: [`app/services/barcode_lookup.rb`](https://github.com/SGraef/Homestead/blob/main/app/services/barcode_lookup.rb)
+- Vendored ZXing: [`vendor/javascript/@zxing--browser.js`](https://github.com/SGraef/Homestead/blob/main/vendor/javascript/@zxing--browser.js)
