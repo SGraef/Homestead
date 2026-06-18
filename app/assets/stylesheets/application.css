@@ -615,7 +615,22 @@ pre {
   .sidebar { display: none; }
   .topbar { position: sticky; }
   .topbar__brand-mobile { display: inline-flex; }
-  main { padding-bottom: calc(64px + env(safe-area-inset-bottom) + var(--sp-4)); }
+  /* Keep <main> exactly viewport-wide so the page never scrolls sideways and
+     the sticky top bar always fills the top (no gap on the right). The base
+     `margin: … auto` centres main on desktop, but auto inline margins on a
+     flex item suppress cross-axis stretch — so main would size to its widest
+     child (a table) and overflow the pane. Zero the inline margins to restore
+     stretch; overflow-x: clip contains any remaining wide child without
+     becoming a vertical scroll container. */
+  main {
+    min-width: 0; margin-inline: 0; overflow-x: clip;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom) + var(--sp-4));
+  }
+
+  /* Wide data tables then scroll within themselves instead of widening the
+     page, so their action columns stay reachable. The anonymous table box
+     preserves the row/cell layout. */
+  main table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
   .bottom-nav {
     display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
