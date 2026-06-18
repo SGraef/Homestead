@@ -37,12 +37,13 @@ class OfferSyncer
 
     created = updated = 0
 
-    process(Marktguru::Offers.pull_all(postal_code: @postal_code), source: "marktguru") do |c, u|
+    marktguru = safe_pull("marktguru") { Marktguru::Offers.pull_all(postal_code: @postal_code) }
+    process(marktguru, source: "marktguru") do |c, u|
       created += c
       updated += u
     end
 
-    process(Kaufda::Offers.pull_all(postal_code: @postal_code), source: "kaufda") do |c, u|
+    process(safe_pull("kaufda") { Kaufda::Offers.pull_all(postal_code: @postal_code) }, source: "kaufda") do |c, u|
       created += c
       updated += u
     end
@@ -52,7 +53,7 @@ class OfferSyncer
     # extended via MEINPROSPEKT_QUERIES (e.g. "ALDI Nord,Aldi Süd,Tegut")
     # for any retailer covered by meinprospekt but missed by Marktguru
     # and kaufDA's retailer-page adapter.
-    process(MeinProspekt::Offers.pull_all, source: "meinprospekt") do |c, u|
+    process(safe_pull("meinprospekt") { MeinProspekt::Offers.pull_all }, source: "meinprospekt") do |c, u|
       created += c
       updated += u
     end
@@ -64,7 +65,8 @@ class OfferSyncer
     # app/services/flaschenpost/offers.rb). Skip cleanly if unset.
     fp_warehouse = @household.flaschenpost_warehouse_id
     if fp_warehouse.present?
-      process(Flaschenpost::Offers.pull_all(warehouse_id: fp_warehouse), source: "flaschenpost") do |c, u|
+      flaschenpost = safe_pull("flaschenpost") { Flaschenpost::Offers.pull_all(warehouse_id: fp_warehouse) }
+      process(flaschenpost, source: "flaschenpost") do |c, u|
         created += c
         updated += u
       end
@@ -75,6 +77,21 @@ class OfferSyncer
   end
 
   private
+
+  # Per-feed isolation: one dead/misbehaving source must never abort the whole
+  # offer sync (the recurring SyncAllOffersJob). The adapters already swallow the
+  # common network/parse errors, but this is the backstop for anything they
+  # don't (a parsing bug, an SSRF-guard block on a redirect, a new error type) —
+  # log it, count it, and carry on with the next feed.
+  def safe_pull(source)
+    yield
+  rescue StandardError => e
+    Rails.logger.warn("[OfferSyncer] #{source} feed unavailable, skipping: #{e.class}: #{e.message}")
+    Telemetry.counter("pantria.offers.feed_failures_total",
+                      description: "Offer feed pulls that raised and were skipped")
+             .add(1, attributes: { "source" => source })
+    []
+  end
 
   # Iterate one source's offers through the blocklist + retailer filter,
   # then upsert. Yields [created, updated] per row so the caller can roll
