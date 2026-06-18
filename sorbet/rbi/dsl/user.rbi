@@ -408,6 +408,48 @@ class User
 
     sig { params(value: T::Enumerable[::Membership]).void }
     def memberships=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def notification_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def notification_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `User` class because it declared `has_many :notifications`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::Notification::PrivateCollectionProxy) }
+    def notifications; end
+
+    sig { params(value: T::Enumerable[::Notification]).void }
+    def notifications=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def push_subscription_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def push_subscription_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `User` class because it declared `has_many :push_subscriptions`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::PushSubscription::PrivateCollectionProxy) }
+    def push_subscriptions; end
+
+    sig { params(value: T::Enumerable[::PushSubscription]).void }
+    def push_subscriptions=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def todo_follow_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def todo_follow_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `User` class because it declared `has_many :todo_follows`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::TodoFollow::PrivateCollectionProxy) }
+    def todo_follows; end
+
+    sig { params(value: T::Enumerable[::TodoFollow]).void }
+    def todo_follows=(value); end
   end
 
   module GeneratedAssociationRelationMethods

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
-# typed: false
+# typed: ignore
 
+# i18n-tasks is a test-only gem with no Sorbet RBI; `typed: ignore` keeps srb tc clean.
 require "rails_helper"
 require "i18n/tasks"
 

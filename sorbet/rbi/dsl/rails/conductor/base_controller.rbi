@@ -23,6 +23,8 @@ class Rails::Conductor::BaseController
     include ::Importmap::ImportmapTagsHelper
     include ::ActionController::Base::HelperMethods
     include ::ApplicationHelper
+    include ::CalendarsHelper
+    include ::TodosHelper
   end
 
   class HelperProxy < ::ActionView::Base

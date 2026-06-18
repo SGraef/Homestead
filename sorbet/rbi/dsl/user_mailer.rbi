@@ -13,6 +13,9 @@ class UserMailer
     sig { params(user: T.untyped).returns(::ActionMailer::MessageDelivery) }
     def activation_success_email(user); end
 
+    sig { params(invitation: T.untyped, token: T.untyped).returns(::ActionMailer::MessageDelivery) }
+    def invitation_email(invitation, token); end
+
     sig { params(user: T.untyped).returns(::ActionMailer::MessageDelivery) }
     def reset_password_email(user); end
   end

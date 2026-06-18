@@ -829,6 +829,51 @@ class GroceryItem
     sig { void }
     def id_will_change!; end
 
+    sig { returns(T.nilable(::String)) }
+    def name; end
+
+    sig { params(value: T.nilable(::String)).returns(T.nilable(::String)) }
+    def name=(value); end
+
+    sig { returns(T::Boolean) }
+    def name?; end
+
+    sig { returns(T.nilable(::String)) }
+    def name_before_last_save; end
+
+    sig { returns(T.untyped) }
+    def name_before_type_cast; end
+
+    sig { returns(T::Boolean) }
+    def name_came_from_user?; end
+
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def name_change; end
+
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def name_change_to_be_saved; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def name_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable(::String)) }
+    def name_in_database; end
+
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def name_previous_change; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def name_previously_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable(::String)) }
+    def name_previously_was; end
+
+    sig { returns(T.nilable(::String)) }
+    def name_was; end
+
+    sig { void }
+    def name_will_change!; end
+
     sig { returns(T.nilable(::Integer)) }
     def paid_amount_cents; end
 
@@ -919,10 +964,10 @@ class GroceryItem
     sig { void }
     def paid_currency_will_change!; end
 
-    sig { returns(::Integer) }
+    sig { returns(T.nilable(::Integer)) }
     def product_id; end
 
-    sig { params(value: ::Integer).returns(::Integer) }
+    sig { params(value: T.nilable(::Integer)).returns(T.nilable(::Integer)) }
     def product_id=(value); end
 
     sig { returns(T::Boolean) }
@@ -937,10 +982,10 @@ class GroceryItem
     sig { returns(T::Boolean) }
     def product_id_came_from_user?; end
 
-    sig { returns(T.nilable([::Integer, ::Integer])) }
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
     def product_id_change; end
 
-    sig { returns(T.nilable([::Integer, ::Integer])) }
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
     def product_id_change_to_be_saved; end
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
@@ -949,7 +994,7 @@ class GroceryItem
     sig { returns(T.nilable(::Integer)) }
     def product_id_in_database; end
 
-    sig { returns(T.nilable([::Integer, ::Integer])) }
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
     def product_id_previous_change; end
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
@@ -1067,6 +1112,9 @@ class GroceryItem
     def restore_id_value!; end
 
     sig { void }
+    def restore_name!; end
+
+    sig { void }
     def restore_paid_amount_cents!; end
 
     sig { void }
@@ -1114,6 +1162,12 @@ class GroceryItem
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def saved_change_to_id_value?(from: T.unsafe(nil), to: T.unsafe(nil)); end
 
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def saved_change_to_name; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def saved_change_to_name?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
     sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
     def saved_change_to_paid_amount_cents; end
 
@@ -1126,7 +1180,7 @@ class GroceryItem
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def saved_change_to_paid_currency?(from: T.unsafe(nil), to: T.unsafe(nil)); end
 
-    sig { returns(T.nilable([::Integer, ::Integer])) }
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
     def saved_change_to_product_id; end
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
@@ -1308,6 +1362,9 @@ class GroceryItem
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def will_save_change_to_id_value?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def will_save_change_to_name?(from: T.unsafe(nil), to: T.unsafe(nil)); end
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def will_save_change_to_paid_amount_cents?(from: T.unsafe(nil), to: T.unsafe(nil)); end
