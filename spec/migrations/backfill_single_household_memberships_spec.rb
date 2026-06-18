@@ -1,6 +1,7 @@
 # frozen_string_literal: true
-# typed: false
+# typed: ignore
 
+# References a db/migrate class, which Sorbet ignores; `typed: ignore` keeps srb tc clean.
 require "rails_helper"
 require Rails.root.join("db/migrate/20260101000034_backfill_single_household_memberships")
 

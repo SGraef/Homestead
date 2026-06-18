@@ -23,6 +23,8 @@ class OffersController
     include ::Importmap::ImportmapTagsHelper
     include ::ActionController::Base::HelperMethods
     include ::ApplicationHelper
+    include ::CalendarsHelper
+    include ::TodosHelper
     include ::Pundit::Helper
     include ::ApplicationController::HelperMethods
 

@@ -420,11 +420,40 @@ class Household
     sig { params(args: T.untyped, blk: T.untyped).returns(::BringConnection) }
     def build_bring_connection(*args, &blk); end
 
+    sig { params(args: T.untyped, blk: T.untyped).returns(::CalendarConnection) }
+    def build_calendar_connection(*args, &blk); end
+
+    sig { returns(T.nilable(::CalendarConnection)) }
+    def calendar_connection; end
+
+    sig { params(value: T.nilable(::CalendarConnection)).void }
+    def calendar_connection=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def calendar_event_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def calendar_event_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :calendar_events`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::CalendarEvent::PrivateCollectionProxy) }
+    def calendar_events; end
+
+    sig { params(value: T::Enumerable[::CalendarEvent]).void }
+    def calendar_events=(value); end
+
     sig { params(args: T.untyped, blk: T.untyped).returns(::BringConnection) }
     def create_bring_connection(*args, &blk); end
 
     sig { params(args: T.untyped, blk: T.untyped).returns(::BringConnection) }
     def create_bring_connection!(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::CalendarConnection) }
+    def create_calendar_connection(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::CalendarConnection) }
+    def create_calendar_connection!(*args, &blk); end
 
     sig { returns(T::Array[T.untyped]) }
     def grocery_item_ids; end
@@ -453,6 +482,20 @@ class Household
 
     sig { params(value: T::Enumerable[::InboundEmailSource]).void }
     def inbound_email_sources=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def invitation_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def invitation_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :invitations`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::Invitation::PrivateCollectionProxy) }
+    def invitations; end
+
+    sig { params(value: T::Enumerable[::Invitation]).void }
+    def invitations=(value); end
 
     sig { returns(T::Array[T.untyped]) }
     def location_ids; end
@@ -495,6 +538,20 @@ class Household
 
     sig { params(value: T::Enumerable[::Membership]).void }
     def memberships=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def notification_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def notification_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :notifications`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::Notification::PrivateCollectionProxy) }
+    def notifications; end
+
+    sig { params(value: T::Enumerable[::Notification]).void }
+    def notifications=(value); end
 
     # This method is created by ActiveRecord on the `Household` class because it declared `has_many :offer_blocklist_entries`.
     # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
@@ -581,6 +638,20 @@ class Household
     def products=(value); end
 
     sig { returns(T::Array[T.untyped]) }
+    def push_subscription_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def push_subscription_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :push_subscriptions`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::PushSubscription::PrivateCollectionProxy) }
+    def push_subscriptions; end
+
+    sig { params(value: T::Enumerable[::PushSubscription]).void }
+    def push_subscriptions=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
     def receipt_ids; end
 
     sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
@@ -611,8 +682,14 @@ class Household
     sig { returns(T.nilable(::BringConnection)) }
     def reload_bring_connection; end
 
+    sig { returns(T.nilable(::CalendarConnection)) }
+    def reload_calendar_connection; end
+
     sig { void }
     def reset_bring_connection; end
+
+    sig { void }
+    def reset_calendar_connection; end
 
     sig { returns(T::Array[T.untyped]) }
     def storage_item_ids; end
@@ -641,6 +718,48 @@ class Household
 
     sig { params(value: T::Enumerable[::Store]).void }
     def stores=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def todo_comment_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def todo_comment_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :todo_comments`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::TodoComment::PrivateCollectionProxy) }
+    def todo_comments; end
+
+    sig { params(value: T::Enumerable[::TodoComment]).void }
+    def todo_comments=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def todo_follow_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def todo_follow_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :todo_follows`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::TodoFollow::PrivateCollectionProxy) }
+    def todo_follows; end
+
+    sig { params(value: T::Enumerable[::TodoFollow]).void }
+    def todo_follows=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def todo_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def todo_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :todos`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::Todo::PrivateCollectionProxy) }
+    def todos; end
+
+    sig { params(value: T::Enumerable[::Todo]).void }
+    def todos=(value); end
 
     sig { returns(T::Array[T.untyped]) }
     def user_ids; end

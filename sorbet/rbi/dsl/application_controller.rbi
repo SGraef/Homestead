@@ -23,6 +23,8 @@ class ApplicationController
     include ::Importmap::ImportmapTagsHelper
     include ::ActionController::Base::HelperMethods
     include ::ApplicationHelper
+    include ::CalendarsHelper
+    include ::TodosHelper
     include ::Pundit::Helper
 
     sig { returns(T.untyped) }

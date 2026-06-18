@@ -36,12 +36,12 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-      # Non-gating spike (ROADMAP M0c). `srb tc` reports ~464 errors today,
-      # almost all "method does not exist" against Rails DSLs (validates,
-      # belongs_to, scope) because no Rails RBIs are generated yet. Kept
-      # visible-but-non-blocking until tapioca RBIs land in a later milestone.
+      # BLOCKING (ROADMAP H1, CI ratchet pt2). The M0c "~464 errors" were
+      # missing Rails-DSL RBIs; with the tapioca gem + dsl RBIs (incl.
+      # rack-attack / web-push) `srb tc` is clean, so the gate now fails the
+      # build on any new type error. Regenerate RBIs (`tapioca gem` /
+      # `tapioca dsl`) when adding gems or models.
       - name: Sorbet type-check
-        continue-on-error: true
         run: bundle exec srb tc
 
   rspec:
