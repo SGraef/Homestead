@@ -1,6 +1,8 @@
 # frozen_string_literal: true
-# typed: false
+# typed: ignore
 
+# Defines throwaway job classes at runtime via stub_const, which Sorbet can't
+# resolve statically; ignore keeps the now-blocking `srb tc` clean.
 require "rails_helper"
 
 RSpec.describe ApplicationJob do
