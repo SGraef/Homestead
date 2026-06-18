@@ -31,6 +31,7 @@ module ReceiptScanner
     :quantity,
     :unit_price_cents,
     :total_cents,
+    :confidence,     # Integer 0-100, mean OCR confidence of the line (nil if unknown)
     keyword_init: true
   )
 
@@ -50,7 +51,8 @@ module ReceiptScanner
                         attributes: { "receipt_scanner.image_path" => image_path.to_s }) do |span|
         started = Time.current
         raw     = adapter.extract_text(image_path.to_s)
-        result  = Parser.parse(raw)
+        confs   = adapter.respond_to?(:line_confidences) ? adapter.line_confidences : {}
+        result  = Parser.parse(raw, line_confidences: confs)
 
         if span.respond_to?(:set_attribute)
           span.set_attribute("receipt_scanner.raw_text_length", raw.to_s.length)

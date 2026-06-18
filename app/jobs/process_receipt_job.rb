@@ -74,6 +74,7 @@ class ProcessReceiptJob < ApplicationJob
           parsed_quantity:         li.quantity,
           parsed_unit_price_cents: li.unit_price_cents,
           parsed_total_cents:      li.total_cents,
+          ocr_confidence:          li.confidence,
           status:                  "unmatched"
         )
       end
