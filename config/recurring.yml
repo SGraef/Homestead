@@ -32,6 +32,14 @@ default: &default
     queue: default
     description: "Pull external calendar changes into local events."
 
+  scan_expiry_reminders:
+    class: ScanExpiryRemindersJob
+    # Once a day in the morning: turns storage `expires_on` dates into bell +
+    # push notifications. Deduped per item/date, so a daily cadence never spams.
+    schedule: every day at 8am
+    queue: default
+    description: "Notify members about storage items expiring soon or just expired."
+
 development:
   <<: *default
 

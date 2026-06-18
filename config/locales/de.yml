@@ -100,6 +100,13 @@ de:
     calendar_conflict:
       title: "Termin: Version aus deinem Kalender behalten"
       body: "„%{title}“ wurde an beiden Stellen geändert — wir haben die Version aus deinem Kalender behalten."
+    storage_expiring:
+      title: "Läuft bald ab"
+      body: "%{name} — mindestens haltbar bis %{date}"
+      fallback_name: "Ein Artikel"
+    storage_expired:
+      title: "Gerade abgelaufen"
+      body: "%{name} ist am %{date} abgelaufen"
 
   push:
     enable: "Push-Benachrichtigungen aktivieren"
