@@ -115,6 +115,16 @@ RSpec.describe OfferSyncer do
     expect(WebMock).not_to have_requested(:get, /marktguru/)
   end
 
+  it "isolates a feed that raises so the others still run (per-feed resilience)" do
+    allow(Marktguru::Offers).to receive(:pull_all).and_raise(StandardError, "marktguru is down")
+    allow(Kaufda::Offers).to receive(:pull_all).and_return([])
+
+    expect(Rails.logger).to receive(:warn).with(/marktguru feed unavailable/i)
+
+    expect { described_class.new(household).call }.not_to raise_error
+    expect(Kaufda::Offers).to have_received(:pull_all) # the next feed still ran
+  end
+
   it "sweeps offers whose valid_until is in the past" do
     create(:offer, household: household, external_id: "old-1",
                    valid_until: Date.current - 1)
