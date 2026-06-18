@@ -71,15 +71,21 @@ module ReceiptScanner
     ].freeze
 
     # @param raw_text [String]
+    # @param line_confidences [Hash{String=>Integer}] OCR confidence keyed by
+    #   raw line text (from the adapter); optional/best-effort.
     # @return [ReceiptScanner::Result]
-    def self.parse(raw_text)
-      new(raw_text).parse
+    def self.parse(raw_text, line_confidences: {})
+      new(raw_text, line_confidences: line_confidences).parse
     end
 
-    def initialize(raw_text)
+    def initialize(raw_text, line_confidences: {})
       @lines = raw_text.to_s.lines
                        .map { |l| normalize_line(l) }
                        .reject(&:empty?)
+      # Re-key the adapter's confidences with the same normalization @lines uses
+      # so a parsed line matches its OCR line exactly (normalize_line collapses
+      # whitespace, so single-space TSV reconstruction lines up with text mode).
+      @confidence_by_line = line_confidences.to_h.transform_keys { |k| normalize_line(k) }
     end
 
     # Targeted fixes for OCR misreads in the price area. We are
@@ -168,7 +174,8 @@ module ReceiptScanner
           name:             name,
           quantity:         quantity,
           unit_price_cents: nil,
-          total_cents:      cents(m)
+          total_cents:      cents(m),
+          confidence:       @confidence_by_line[line]
         )
       end
       items

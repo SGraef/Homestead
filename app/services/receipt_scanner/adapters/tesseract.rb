@@ -70,10 +70,16 @@ module ReceiptScanner
       ].freeze
 
       def initialize(lang: DEFAULT_LANG, psm: DEFAULT_PSM, pdf_dpi: PDF_DPI)
-        @lang    = lang
-        @psm     = psm
-        @pdf_dpi = pdf_dpi
+        @lang             = lang
+        @psm              = psm
+        @pdf_dpi          = pdf_dpi
+        @line_confidences = {}
       end
+
+      # OCR confidence (0-100) keyed by reconstructed line text, populated as a
+      # side effect of the most recent {#extract_text}. Best-effort: empty when
+      # the TSV pass fails, and missing for lines OCR'd with a fallback PSM.
+      attr_reader :line_confidences
 
       # @param file_path [String]
       # @return [String] raw OCR text (concatenated across pages for PDFs)
@@ -139,11 +145,19 @@ module ReceiptScanner
           Dir.mktmpdir("pantria-ocr-pre") do |dir|
             prepared = File.join(dir, "prepared.png")
             preprocess_image!(image_path, prepared)
-            ocr_with_fallback_psms(prepared)
+            ocr_text_and_confidence(prepared)
           end
         else
-          ocr_with_fallback_psms(image_path)
+          ocr_text_and_confidence(image_path)
         end
+      end
+
+      # Run the (unchanged) text OCR, then a separate TSV pass on the same image
+      # to capture per-line confidence. Returns the text; stashes confidences.
+      def ocr_text_and_confidence(image_path)
+        text = ocr_with_fallback_psms(image_path)
+        @line_confidences = compute_line_confidences(image_path)
+        text
       end
 
       def ocr_with_fallback_psms(image_path)
@@ -209,7 +223,57 @@ module ReceiptScanner
           pages = Dir.glob("#{prefix}-*.png")
           raise OcrError, "PDF rasterized to zero pages" if pages.empty?
 
-          pages.map { |p| run_tesseract(p) }.join("\n\n")
+          confidences = {}
+          text = pages.map do |p|
+            page_text = run_tesseract(p)
+            confidences.merge!(compute_line_confidences(p))
+            page_text
+          end.join("\n\n")
+          @line_confidences = confidences
+          text
+        end
+      end
+
+      # Run Tesseract in TSV mode and average each text line's word confidences.
+      # Best-effort: returns {} if Tesseract isn't available or errors, so OCR
+      # confidence never blocks the text extraction it accompanies.
+      def compute_line_confidences(image_path)
+        out, _err, status = Open3.capture3(
+          ocr_env,
+          "tesseract", image_path, "stdout", "-l", @lang, "--psm", @psm.to_s, "tsv"
+        )
+        return {} unless status.success?
+
+        parse_tsv_confidences(out)
+      rescue Errno::ENOENT
+        {}
+      end
+
+      # Parse Tesseract TSV: group word-level rows (level 5) by their
+      # page/block/par/line key, join the words into the line text, and average
+      # the non-negative word confidences. @return [Hash{String=>Integer}]
+      def parse_tsv_confidences(tsv_output)
+        groups = {}
+        tsv_output.to_s.each_line.with_index do |row, index|
+          next if index.zero? # header row
+
+          cols = row.chomp.split("\t")
+          next if cols.length < 12 || cols[0].to_i != 5
+
+          word = cols[11].to_s
+          next if word.strip.empty?
+
+          group = (groups[cols[1, 4].join("-")] ||= { words: [], confs: [] })
+          group[:words] << word
+          conf = cols[10].to_f
+          group[:confs] << conf if conf >= 0
+        end
+
+        groups.each_with_object({}) do |(_key, group), acc|
+          line = group[:words].join(" ").strip
+          next if line.empty? || group[:confs].empty?
+
+          acc[line] = (group[:confs].sum / group[:confs].size).round
         end
       end
 

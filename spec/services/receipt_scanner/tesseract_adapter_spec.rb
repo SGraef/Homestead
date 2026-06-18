@@ -85,16 +85,51 @@ RSpec.describe ReceiptScanner::Adapters::Tesseract do
           File.binwrite(rest.last, "\x89PNG\r\n\x1a\npre")
           ["", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
         when "tesseract"
-          # `--psm` argument index varies; just grab the value after it.
-          psm = rest[rest.index("--psm") + 1]
-          psm_calls << psm
-          body = psm == "11" ? "PSM-11 recovered text" : ""
-          [body, "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+          # The separate TSV confidence pass is not a text-extraction PSM
+          # attempt -- don't count it.
+          if rest.include?("tsv")
+            ["", "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+          else
+            # `--psm` argument index varies; just grab the value after it.
+            psm = rest[rest.index("--psm") + 1]
+            psm_calls << psm
+            body = psm == "11" ? "PSM-11 recovered text" : ""
+            [body, "", instance_double(Process::Status, success?: true, exitstatus: 0)]
+          end
         end
       end
 
       expect(adapter.extract_text(img_path)).to eq("PSM-11 recovered text")
       expect(psm_calls).to eq(%w[6 4 11]) # default PSM 6 + both fallbacks
+    end
+
+    it "captures per-line OCR confidence from the TSV pass" do
+      img_path = File.join(tmp, "img.png")
+      File.binwrite(img_path, "\x89PNG\r\n\x1a\nfake")
+
+      tsv = <<~TSV
+        level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext
+        5\t1\t1\t1\t1\t1\t0\t0\t0\t0\t95\tMilch
+        5\t1\t1\t1\t1\t2\t0\t0\t0\t0\t85\t1,99
+        5\t1\t1\t2\t1\t1\t0\t0\t0\t0\t40\tBrot
+        5\t1\t1\t2\t1\t2\t0\t0\t0\t0\t60\t2,49
+      TSV
+
+      allow(Open3).to receive(:capture3) do |_env, cmd, *rest|
+        ok = instance_double(Process::Status, success?: true, exitstatus: 0)
+        case cmd
+        when "convert"
+          File.binwrite(rest.last, "\x89PNG\r\n\x1a\npre")
+          ["", "", ok]
+        when "tesseract"
+          rest.include?("tsv") ? [tsv, "", ok] : ["Milch 1,99\nBrot 2,49", "", ok]
+        end
+      end
+
+      adapter.extract_text(img_path)
+
+      # mean of each line's word confidences
+      expect(adapter.line_confidences).to eq("Milch 1,99" => 90, "Brot 2,49" => 50)
     end
 
     it "falls back to the original image when ImageMagick is missing" do

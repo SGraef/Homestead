@@ -43,6 +43,16 @@ RSpec.describe ReceiptScanner::Parser do
       expect(brot.quantity).to eq(2)
       expect(brot.total_cents).to eq(180)
     end
+
+    it "attaches per-line OCR confidence when given line_confidences" do
+      confs  = { "Vollmilch 1L 1,19 A" => 88, "Bio Eier 6er 2,99 A" => 42 }
+      result = described_class.parse(raw, line_confidences: confs)
+
+      expect(result.line_items.find { |li| li.name == "Vollmilch 1L" }.confidence).to eq(88)
+      expect(result.line_items.find { |li| li.name == "Bio Eier 6er" }.confidence).to eq(42)
+      # a line absent from the map keeps nil ("unknown")
+      expect(result.line_items.find { |li| li.name == "Brötchen" }.confidence).to be_nil
+    end
   end
 
   describe "filtering of total/tax/payment lines" do
