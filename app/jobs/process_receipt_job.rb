@@ -59,6 +59,7 @@ class ProcessReceiptJob < ApplicationJob
         subtotal_cents:      outcome.result.subtotal_cents,
         status:              "parsed",
         parsed_at:           Time.current,
+        parser_version:      outcome.result.parser_version,
         error_message:       nil
       )
 

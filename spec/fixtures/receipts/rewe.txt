@@ -1,0 +1,14 @@
+REWE
+Marktplatz 3
+54321 Beispielstadt
+
+2 x Joghurt            0,98
+Gouda jung 400g        3,49 A
+Apfelsaft 1L           1,19 B
+Kaffee gemahlen        4,99 A
+Pfand                  0,25
+Zwischensumme         10,90
+Gesamtbetrag EUR      10,90
+Bar                   20,00
+Rückgeld               9,10
+03.04.2026

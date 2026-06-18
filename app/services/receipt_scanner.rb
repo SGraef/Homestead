@@ -21,6 +21,7 @@ module ReceiptScanner
     :currency,       # ISO 4217 code, defaults to EUR
     :subtotal_cents, # Integer
     :line_items,     # Array<LineItem>
+    :parser_version, # Integer, ReceiptScanner::Parser::VERSION that produced this
     keyword_init: true
   )
 

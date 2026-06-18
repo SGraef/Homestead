@@ -1,0 +1,20 @@
+# Golden snapshot of ReceiptScanner::Parser output for aldi_sued.txt.
+# Note: "H-Milch 3,5%" is intentionally absent — the parser drops lines
+# containing "%" as tax-rate rows (a known limitation this snapshot locks).
+store_name: "ALDI SÜD"
+purchased_on: 2026-03-15
+subtotal_cents: 761
+parser_version: 1
+line_items:
+  - name: "Bananen 1kg"
+    quantity: 1.0
+    total_cents: 199
+  - name: "Bio Eier 10er"
+    quantity: 1.0
+    total_cents: 249
+  - name: "Spülmittel"
+    quantity: 1.0
+    total_cents: 89
+  - name: "Toastbrot"
+    quantity: 1.0
+    total_cents: 129

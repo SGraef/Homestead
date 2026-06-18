@@ -1,0 +1,15 @@
+ALDI SÜD
+Filiale 4711
+Hauptstraße 5
+12345 Musterstadt
+
+Bananen 1kg            1,99 A
+H-Milch 3,5%           0,95 A
+Bio Eier 10er          2,49 A
+Spülmittel             0,89 1
+Toastbrot              1,29 B
+MwSt A 7%              0,52
+MwSt B 19%             0,21
+SUMME EUR              7,61
+EC-Karte               7,61
+15.03.2026 14:22 Uhr

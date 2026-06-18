@@ -9,6 +9,11 @@ module ReceiptScanner
   # at the top, a date somewhere, lines that end in a `12,99` style amount,
   # a final total) and let the user correct the rest in the confirm UI.
   class Parser
+    # Bump whenever the parsing heuristics change in a way that could alter the
+    # extracted line items. Stamped onto receipts (receipts.parser_version) so a
+    # later task can find + re-process receipts parsed by an older version.
+    VERSION = 1
+
     PRICE_RE = /(?<sign>-)?(?<int>\d{1,4})[.,](?<dec>\d{2})/
 
     # Anchored at end of line with tolerant tail-matching:
@@ -105,7 +110,8 @@ module ReceiptScanner
         purchased_on:   detect_date,
         currency:       "EUR",
         subtotal_cents: detect_total,
-        line_items:     detect_line_items
+        line_items:     detect_line_items,
+        parser_version: VERSION
       )
     end
 

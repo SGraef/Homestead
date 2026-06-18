@@ -1,0 +1,21 @@
+# Golden snapshot of ReceiptScanner::Parser output for rewe.txt.
+store_name: "REWE"
+purchased_on: 2026-04-03
+subtotal_cents: 1090
+parser_version: 1
+line_items:
+  - name: "Joghurt"
+    quantity: 2.0
+    total_cents: 98
+  - name: "Gouda jung 400g"
+    quantity: 1.0
+    total_cents: 349
+  - name: "Apfelsaft 1L"
+    quantity: 1.0
+    total_cents: 119
+  - name: "Kaffee gemahlen"
+    quantity: 1.0
+    total_cents: 499
+  - name: "Pfand"
+    quantity: 1.0
+    total_cents: 25
