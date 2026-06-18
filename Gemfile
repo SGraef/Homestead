@@ -60,6 +60,8 @@ group :development, :test do
   gem "database_cleaner-active_record", "~> 2.2"
   gem "debug", "~> 1.9", platforms: %i[mri windows]
   gem "dotenv-rails", "~> 3.1"
+  # de/en translation parity guard (enforced by spec/i18n_parity_spec.rb)
+  gem "i18n-tasks", "~> 1.0", require: false
 end
 
 group :development do
