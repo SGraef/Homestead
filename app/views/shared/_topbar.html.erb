@@ -1,0 +1,18 @@
+<%# Slim top bar inside the content pane. On mobile it carries the brand (the
+    sidebar is hidden); on desktop the sidebar carries the brand and this stays
+    a clean utility strip. Right side: bell, theme toggle, account menu. %>
+<header class="topbar" data-controller="theme">
+  <a href="<%= root_path %>" class="brand topbar__brand-mobile">
+    <%= image_tag "mark.svg", alt: "" %><span><%= t("app_name") %></span>
+  </a>
+
+  <span class="nav-spacer"></span>
+
+  <div class="topbar__utils">
+    <%= turbo_stream_from current_user, :notifications %>
+    <%= render "notifications/bell", user: current_user %>
+    <button type="button" class="icon-btn" data-action="theme#toggle"
+            data-theme-target="button" aria-label="Toggle dark mode">🌓</button>
+    <%= render "shared/account_menu" %>
+  </div>
+</header>

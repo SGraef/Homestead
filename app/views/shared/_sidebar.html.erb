@@ -1,0 +1,22 @@
+<%# Desktop left rail. Hidden under 900px (replaced by the bottom tab bar). %>
+<aside class="sidebar">
+  <a href="<%= root_path %>" class="brand sidebar__brand">
+    <%= image_tag "mark.svg", alt: "" %><span><%= t("app_name") %></span>
+  </a>
+
+  <nav class="sidebar__nav" aria-label="<%= t("nav.menu") %>">
+    <%= render "shared/nav_groups",
+               group_class: "sidebar__group",
+               label_class: "sidebar__label",
+               link_class:  "sidebar__link" %>
+  </nav>
+
+  <div class="sidebar__footer">
+    <% system_nav.each do |item| %>
+      <%= link_to item[:path],
+                  class: class_names("sidebar__link", "is-active" => nav_link_active?(item[:path])) do %>
+        <%= icon item[:icon] %><span><%= item[:label] %></span>
+      <% end %>
+    <% end %>
+  </div>
+</aside>

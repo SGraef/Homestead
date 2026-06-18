@@ -190,6 +190,15 @@ en:
     logout: "Logout"
     login: "Login"
     sign_up: "Sign up"
+    more: "More"
+    menu: "Menu"
+    account: "Account"
+    groups:
+      kitchen: "Kitchen"
+      shopping: "Shopping"
+      cooking: "Cooking"
+      home: "Home"
+      system: "System"
 
   pwa:
     offline:
