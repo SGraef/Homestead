@@ -7,11 +7,12 @@ class ApplicationJob < ActiveJob::Base
   # from the job metrics without per-job configuration. First match wins — keep
   # "calendar" before "push" so CalendarPushJob is calendar, not push.
   SOURCE_PATTERNS = {
-    /bring/i        => "bring",
-    /offer/i        => "offers",
-    /calendar/i     => "calendar",
-    /push|deliver/i => "push",
-    /inbound|imap/i => "inbound_email"
+    /bring/i           => "bring",
+    /offer/i           => "offers",
+    /calendar/i        => "calendar",
+    /reminder|expiry/i => "reminders",
+    /push|deliver/i    => "push",
+    /inbound|imap/i    => "inbound_email"
   }.freeze
 
   # Emit a span + run/duration/failure metrics around every job, so the silent

@@ -94,6 +94,13 @@ en:
     calendar_conflict:
       title: "Calendar event kept your calendar's version"
       body: "“%{title}” was edited in both places — we kept the version from your calendar."
+    storage_expiring:
+      title: "Expiring soon"
+      body: "%{name} — best before %{date}"
+      fallback_name: "An item"
+    storage_expired:
+      title: "Just expired"
+      body: "%{name} expired on %{date}"
 
   push:
     enable: "Enable push notifications"
