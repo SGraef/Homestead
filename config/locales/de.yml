@@ -107,6 +107,9 @@ de:
     storage_expired:
       title: "Gerade abgelaufen"
       body: "%{name} ist am %{date} abgelaufen"
+    offer_match:
+      title: "Beobachteter Artikel im Angebot"
+      body: "%{title} — %{price} bei %{retailer}"
 
   notification_preference:
     title: "Benachrichtigungen"
@@ -123,6 +126,7 @@ de:
     kinds:
       storage_expiring: "Lebensmittel läuft bald ab"
       storage_expired: "Gerade abgelaufene Lebensmittel"
+      offer_match: "Beobachtete Artikel im Angebot"
 
   push:
     enable: "Push-Benachrichtigungen aktivieren"

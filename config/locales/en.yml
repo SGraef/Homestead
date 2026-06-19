@@ -101,6 +101,9 @@ en:
     storage_expired:
       title: "Just expired"
       body: "%{name} expired on %{date}"
+    offer_match:
+      title: "Watched item on offer"
+      body: "%{title} — %{price} at %{retailer}"
 
   notification_preference:
     title: "Notification settings"
@@ -117,6 +120,7 @@ en:
     kinds:
       storage_expiring: "Food expiring soon"
       storage_expired: "Food that just expired"
+      offer_match: "Watched items on offer"
 
   push:
     enable: "Enable push notifications"
