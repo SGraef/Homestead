@@ -30,8 +30,18 @@ class User < ApplicationRecord
             confirmation: true,
             if:           -> { new_record? || changes[:crypted_password] }
   validates :password_confirmation, presence: true, if: -> { new_record? }
+  validates :locale,
+            inclusion: { in: I18n.available_locales.map(&:to_s) },
+            allow_nil: true
 
   before_save { self.email = email&.downcase&.strip }
+
+  # @return [Symbol, nil] the user's saved UI language, if it is still a
+  #   configured locale (guards against a locale later removed from the app).
+  def preferred_locale
+    sym = locale&.to_sym
+    sym if sym && I18n.available_locales.include?(sym)
+  end
 
   # @return [Household, nil] the sole household this instance serves. Kept for
   #   backward compatibility; delegates to {Household.current} so it can never
