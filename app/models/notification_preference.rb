@@ -12,7 +12,7 @@ class NotificationPreference < ApplicationRecord
   validates :quiet_hours_start, :quiet_hours_end,
             numericality: { only_integer: true,
                             greater_than_or_equal_to: 0, less_than_or_equal_to: 23 },
-            allow_nil: true
+            allow_nil:    true
 
   # @param kind [String, Symbol] a {Notification} kind
   # @return [Boolean] true unless the user has opted out of this kind.
