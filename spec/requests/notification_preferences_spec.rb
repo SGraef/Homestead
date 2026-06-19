@@ -27,7 +27,8 @@ RSpec.describe "Notification preferences" do
 
     expect(response).to redirect_to(notification_preference_path)
     pref = user.reload.notification_preference
-    expect(pref.disabled_kinds).to eq(["storage_expired"])
+    expect(pref.allows?("storage_expiring")).to be(true)  # the checked kind stays on
+    expect(pref.allows?("storage_expired")).to be(false)  # unchecked -> opted out
     expect(pref.quiet_hours_start).to eq(22)
     expect(pref.quiet_hours_end).to eq(7)
   end
@@ -49,8 +50,10 @@ RSpec.describe "Notification preferences" do
     } }
 
     pref = user.reload.notification_preference
-    # Only storage_expired (a real reminder kind) ends up disabled; the bogus and
-    # interpersonal kinds never enter disabled_kinds.
-    expect(pref.disabled_kinds).to eq(["storage_expired"])
+    # The one real checked reminder kind stays on; the forged/interpersonal kinds
+    # never enter disabled_kinds (only real reminder kinds can).
+    expect(pref.allows?("storage_expiring")).to be(true)
+    expect(pref.disabled_kinds).to match_array(Notification::REMINDER_KINDS - %w[storage_expiring])
+    expect(pref.disabled_kinds).not_to include("assigned", "bogus")
   end
 end
