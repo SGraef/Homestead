@@ -196,6 +196,15 @@ de:
     logout: "Abmelden"
     login: "Anmelden"
     sign_up: "Registrieren"
+    more: "Mehr"
+    menu: "Menü"
+    account: "Konto"
+    groups:
+      kitchen: "Küche"
+      shopping: "Einkaufen"
+      cooking: "Kochen"
+      home: "Zuhause"
+      system: "System"
 
   pwa:
     offline:

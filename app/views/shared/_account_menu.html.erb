@@ -1,0 +1,26 @@
+<%# Account dropdown (native <details>). Avatar = first letter of the email.
+    Holds the email, the language switch and logout — the bits that don't
+    belong in the spatial nav. %>
+<details class="menu account">
+  <summary class="icon-btn account__trigger" aria-label="<%= t("nav.account") %>">
+    <span class="avatar"><%= current_user.email.to_s.first&.upcase %></span>
+  </summary>
+  <div class="menu__panel">
+    <p class="menu__email"><%= current_user.email %></p>
+    <div class="menu__locale locale">
+      <% I18n.available_locales.each do |loc| %>
+        <%= link_to t("locale.#{loc}"),
+                    url_for(request.params.merge(locale: loc)),
+                    class: ("active" if I18n.locale == loc) %>
+      <% end %>
+    </div>
+    <% system_nav.each do |item| %>
+      <%= link_to item[:path], class: "menu__item" do %>
+        <%= icon item[:icon], size: 16 %><span><%= item[:label] %></span>
+      <% end %>
+    <% end %>
+    <%= button_to logout_path, method: :delete, class: "menu__item menu__item--button" do %>
+      <%= icon :logout, size: 16 %><span><%= t("nav.logout") %></span>
+    <% end %>
+  </div>
+</details>

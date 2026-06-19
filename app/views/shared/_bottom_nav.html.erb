@@ -1,0 +1,13 @@
+<%# Mobile bottom tab bar (hidden ≥900px). Four most-used destinations plus a
+    "More" button that opens the full grouped nav sheet. %>
+<nav class="bottom-nav" aria-label="<%= t("nav.menu") %>">
+  <% bottom_nav_tabs.each do |tab| %>
+    <%= link_to tab[:path],
+                class: class_names("bottom-nav__tab", "is-active" => nav_link_active?(tab[:path])) do %>
+      <%= icon tab[:icon], size: 22 %><span><%= tab[:label] %></span>
+    <% end %>
+  <% end %>
+  <button type="button" class="bottom-nav__tab" data-action="nav#openSheet">
+    <%= icon :menu, size: 22 %><span><%= t("nav.more") %></span>
+  </button>
+</nav>

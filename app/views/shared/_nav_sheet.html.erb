@@ -1,0 +1,29 @@
+<%# Mobile "More" sheet: the full grouped nav + system links, slid up from the
+    bottom. Toggled by the nav controller; resets to closed on Turbo navigation
+    (the layout re-renders). %>
+<div class="nav-sheet" data-nav-target="sheet">
+  <div class="nav-sheet__backdrop" data-action="click->nav#closeSheet"></div>
+  <div class="nav-sheet__panel" role="dialog" aria-modal="true" aria-label="<%= t("nav.menu") %>">
+    <div class="nav-sheet__head">
+      <span class="nav-sheet__title"><%= t("nav.menu") %></span>
+      <button type="button" class="icon-btn" data-action="nav#closeSheet" aria-label="<%= t("common.close") %>">
+        <%= icon :x %>
+      </button>
+    </div>
+
+    <%= render "shared/nav_groups",
+               group_class: "nav-sheet__group",
+               label_class: "nav-sheet__label",
+               link_class:  "nav-sheet__link" %>
+
+    <div class="nav-sheet__group">
+      <p class="nav-sheet__label"><%= t("nav.groups.system") %></p>
+      <% system_nav.each do |item| %>
+        <%= link_to item[:path],
+                    class: class_names("nav-sheet__link", "is-active" => nav_link_active?(item[:path])) do %>
+          <%= icon item[:icon] %><span><%= item[:label] %></span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+<%# Renders the grouped primary nav. Shared by the desktop sidebar and the
+    mobile "More" sheet; callers pass the CSS class set for their surface.
+    Locals: group_class, label_class, link_class. %>
+<% primary_nav.each do |group| %>
+  <div class="<%= group_class %>">
+    <p class="<%= label_class %>"><%= t("nav.groups.#{group[:key]}") %></p>
+    <% group[:items].each do |item| %>
+      <%= link_to item[:path],
+                  class: class_names(link_class, "is-active" => nav_link_active?(item[:path])) do %>
+        <%= icon item[:icon] %><span><%= item[:label] %></span>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
