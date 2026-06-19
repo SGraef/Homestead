@@ -102,6 +102,22 @@ en:
       title: "Just expired"
       body: "%{name} expired on %{date}"
 
+  notification_preference:
+    title: "Notification settings"
+    intro: "Choose which reminders you receive and when to mute push. Everything still appears in the bell."
+    reminders_heading: "Reminders"
+    reminders_hint: "Proactive reminders Homestead can send you."
+    quiet_heading: "Quiet hours"
+    quiet_hint: "Pause push during these hours. Notifications still appear in the bell."
+    quiet_from: "From"
+    quiet_to: "To"
+    no_quiet: "Off"
+    save: "Save settings"
+    saved: "Notification settings saved."
+    kinds:
+      storage_expiring: "Food expiring soon"
+      storage_expired: "Food that just expired"
+
   push:
     enable: "Enable push notifications"
     enabled: "Push notifications are on for this device."

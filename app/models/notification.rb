@@ -10,6 +10,11 @@ class Notification < ApplicationRecord
     storage_expiring storage_expired
   ].freeze
 
+  # Proactive-reminder kinds a user can opt out of in notification settings.
+  # Interpersonal kinds (assignments, comments, calendar conflicts) are always
+  # delivered. Grows as the reminders engine gains signals (low-stock, offers…).
+  REMINDER_KINDS = %w[storage_expiring storage_expired].freeze
+
   belongs_to :household
   belongs_to :user # recipient
   belongs_to :actor, class_name: "User", optional: true

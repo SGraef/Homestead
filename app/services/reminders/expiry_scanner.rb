@@ -66,6 +66,8 @@ module Reminders
       date = I18n.l(item.expires_on)
 
       @recipients.count do |user|
+        next false unless user.notification_preference.allows?(kind)
+
         notification = Notification.deliver(
           dedup_key:  "#{kind}:#{item.id}:#{item.expires_on}:#{user.id}",
           household:  @household,

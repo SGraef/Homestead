@@ -108,6 +108,22 @@ de:
       title: "Gerade abgelaufen"
       body: "%{name} ist am %{date} abgelaufen"
 
+  notification_preference:
+    title: "Benachrichtigungen"
+    intro: "Wähle, welche Erinnerungen du erhältst und wann Push stummgeschaltet wird. Alles erscheint weiterhin in der Glocke."
+    reminders_heading: "Erinnerungen"
+    reminders_hint: "Proaktive Erinnerungen, die Homestead dir senden kann."
+    quiet_heading: "Ruhezeiten"
+    quiet_hint: "In diesen Stunden kein Push senden. In der Glocke erscheinen die Hinweise trotzdem."
+    quiet_from: "Von"
+    quiet_to: "Bis"
+    no_quiet: "Aus"
+    save: "Einstellungen speichern"
+    saved: "Benachrichtigungseinstellungen gespeichert."
+    kinds:
+      storage_expiring: "Lebensmittel läuft bald ab"
+      storage_expired: "Gerade abgelaufene Lebensmittel"
+
   push:
     enable: "Push-Benachrichtigungen aktivieren"
     enabled: "Push-Benachrichtigungen sind auf diesem Gerät aktiv."

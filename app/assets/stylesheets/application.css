@@ -694,3 +694,10 @@ pre {
     border-bottom: none;
   }
 }
+
+/* ---- Notification settings form ----------------------------- */
+.np-section { border: none; padding: 0; margin: 0 0 var(--sp-5); }
+.np-section legend { font-weight: 600; font-size: var(--fs-md); color: var(--fg-1); padding: 0; margin-bottom: var(--sp-1); }
+.np-check { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) 0; cursor: pointer; }
+.np-quiet { display: flex; gap: var(--sp-4); flex-wrap: wrap; }
+.np-quiet label { display: flex; flex-direction: column; gap: var(--sp-1); font-size: var(--fs-sm); color: var(--fg-2); }

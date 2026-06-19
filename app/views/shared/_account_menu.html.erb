@@ -14,6 +14,9 @@
                     class: ("active" if I18n.locale == loc) %>
       <% end %>
     </div>
+    <%= link_to notification_preference_path, class: "menu__item" do %>
+      <%= icon :bell, size: 16 %><span><%= t("notification_preference.title") %></span>
+    <% end %>
     <% system_nav.each do |item| %>
       <%= link_to item[:path], class: "menu__item" do %>
         <%= icon item[:icon], size: 16 %><span><%= item[:label] %></span>
