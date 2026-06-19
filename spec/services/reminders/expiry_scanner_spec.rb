@@ -79,4 +79,14 @@ RSpec.describe Reminders::ExpiryScanner do
     expect(described_class.run(household)).to eq(2)
     expect(described_class.run(nil)).to eq(0)
   end
+
+  it "skips a member who opted out of the reminder kind" do
+    member.notification_preference.update!(disabled_kinds: ["storage_expiring"])
+    item(name: "Sahne", expires_on: Date.current + 1)
+
+    described_class.run(household)
+
+    recipients = Notification.where(kind: "storage_expiring").pluck(:user_id)
+    expect(recipients).to eq([admin.id]) # member opted out, admin still notified
+  end
 end

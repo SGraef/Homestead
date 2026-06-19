@@ -20,6 +20,15 @@ class User < ApplicationRecord
   has_many :notifications, dependent: :destroy
   has_many :todo_follows, dependent: :destroy
   has_many :push_subscriptions, dependent: :destroy
+  has_one  :notification_preference, dependent: :destroy
+
+  # Always returns a preference: an unsaved default when the user has none yet,
+  # so callers can read allows?/quiet_at? (and the settings form can render)
+  # without nil checks. The build assigns the association target, so repeated
+  # calls return the same instance.
+  def notification_preference
+    super || build_notification_preference
+  end
 
   validates :email,
             presence:   true,

@@ -31,4 +31,13 @@ RSpec.describe DeliverPushJob do
     expect(WebPush).not_to receive(:payload_send)
     described_class.new.perform(notification.id)
   end
+
+  it "suppresses push during the recipient's quiet hours (bell still has it)" do
+    hour = Time.current.in_time_zone(household.timezone).hour
+    user.notification_preference.update!(quiet_hours_start: hour, quiet_hours_end: (hour + 1) % 24)
+
+    allow(WebPush).to receive(:payload_send)
+    described_class.new.perform(notification.id)
+    expect(WebPush).not_to have_received(:payload_send)
+  end
 end

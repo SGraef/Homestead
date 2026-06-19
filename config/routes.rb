@@ -102,6 +102,9 @@ Rails.application.routes.draw do
     collection { post :read_all }
   end
 
+  # Per-user notification settings (reminder opt-outs + quiet hours).
+  resource :notification_preference, only: %i[show update]
+
   # Web Push subscription endpoints (browser posts subscription.toJSON()).
   post   "/push_subscriptions", to: "push_subscriptions#create",  as: :push_subscriptions
   delete "/push_subscriptions", to: "push_subscriptions#destroy"

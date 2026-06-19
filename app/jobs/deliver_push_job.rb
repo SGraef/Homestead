@@ -11,6 +11,8 @@ class DeliverPushJob < ApplicationJob
 
   def perform(notification_id)
     notification = Notification.find(notification_id)
+    return if quiet_hours?(notification) # bell still has it; just don't ping now
+
     vapid = Rails.application.config.x.vapid
     return if vapid[:public_key].blank? || vapid[:private_key].blank?
 
@@ -25,6 +27,13 @@ class DeliverPushJob < ApplicationJob
   end
 
   private
+
+  # Suppress push during the recipient's quiet hours (evaluated in the
+  # household's timezone). The in-app bell already recorded the notification.
+  def quiet_hours?(notification)
+    zone = ActiveSupport::TimeZone[notification.household.timezone.to_s] || Time.zone
+    notification.user.notification_preference.quiet_at?(zone.now.hour)
+  end
 
   def deliver_to(sub, payload, vapid)
     WebPush.payload_send(

@@ -1,0 +1,40 @@
+<% content_for :title, t("notification_preference.title") %>
+<h1><%= t("notification_preference.title") %></h1>
+<p class="caption"><%= t("notification_preference.intro") %></p>
+
+<%= form_with model: @preference, url: notification_preference_path, method: :patch do |f| %>
+  <div class="card" style="max-width:520px">
+    <fieldset class="np-section">
+      <legend><%= t("notification_preference.reminders_heading") %></legend>
+      <p class="caption"><%= t("notification_preference.reminders_hint") %></p>
+      <% Notification::REMINDER_KINDS.each do |kind| %>
+        <label class="np-check">
+          <%= check_box_tag "notification_preference[enabled_kinds][]", kind,
+                            @preference.allows?(kind), id: "np_kind_#{kind}" %>
+          <span><%= t("notification_preference.kinds.#{kind}") %></span>
+        </label>
+      <% end %>
+    </fieldset>
+
+    <fieldset class="np-section">
+      <legend><%= t("notification_preference.quiet_heading") %></legend>
+      <p class="caption"><%= t("notification_preference.quiet_hint") %></p>
+      <div class="np-quiet">
+        <label>
+          <span><%= t("notification_preference.quiet_from") %></span>
+          <%= select_tag "notification_preference[quiet_hours_start]",
+                         options_for_select(hour_options, @preference.quiet_hours_start),
+                         include_blank: t("notification_preference.no_quiet") %>
+        </label>
+        <label>
+          <span><%= t("notification_preference.quiet_to") %></span>
+          <%= select_tag "notification_preference[quiet_hours_end]",
+                         options_for_select(hour_options, @preference.quiet_hours_end),
+                         include_blank: t("notification_preference.no_quiet") %>
+        </label>
+      </div>
+    </fieldset>
+
+    <%= f.submit t("notification_preference.save"), class: "btn" %>
+  </div>
+<% end %>
