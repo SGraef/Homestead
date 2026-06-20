@@ -12,6 +12,7 @@
   <p>
     <%= f.label :api_token, t("paperless.api_token") %><br>
     <%= f.password_field :api_token, autocomplete: "off",
+                         required: connection.api_token.blank?,
                          placeholder: connection.persisted? ? t("paperless.token_keep") : nil %>
   </p>
   <p class="caption"><%= t("paperless.api_token_help") %></p>

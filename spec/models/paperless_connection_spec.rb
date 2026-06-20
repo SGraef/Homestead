@@ -29,6 +29,10 @@ RSpec.describe PaperlessConnection do
       expect(build(:paperless_connection, base_url: "http://paperless.lan")).to be_valid
       expect(build(:paperless_connection, base_url: "https://paperless.lan")).to be_valid
     end
+
+    it "requires an api_token" do
+      expect(build(:paperless_connection, api_token: "")).not_to be_valid
+    end
   end
 
   describe "#connected?" do

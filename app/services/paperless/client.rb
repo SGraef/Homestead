@@ -27,6 +27,7 @@ module Paperless
   class Client
     OPEN_TIMEOUT = 5
     READ_TIMEOUT = 30
+    MAX_REDIRECTS = 5
     ALLOWED_SCHEMES = %w[http https].freeze
 
     # @param connection [PaperlessConnection]
@@ -34,13 +35,15 @@ module Paperless
       @connection = connection
     end
 
-    # Verify the base URL + token reach a paperless API. Returns the parsed API
-    # root on success; raises on any failure (that's how callers detect a bad
-    # connection).
-    # @return [Hash] the paperless API root document
+    # Verify the base URL + token reach a paperless API. We hit a concrete,
+    # auth-required JSON endpoint rather than the bare `/api/` root: some
+    # paperless versions 302 `/api/` to the HTML Swagger view (which 406s a
+    # JSON Accept), whereas `/api/ui_settings/` returns JSON on every version
+    # and also validates the token. Returns the parsed body; raises on failure.
+    # @return [Hash] the paperless ui_settings document
     # @raise [Paperless::AuthError, Paperless::Error]
     def ping
-      get_json("/api/")
+      get_json("/api/ui_settings/")
     end
 
     # Upload a file. paperless consumes it asynchronously.
@@ -100,7 +103,12 @@ module Paperless
     end
 
     def request(method, path, headers: {}, body: nil)
-      uri = build_uri(path)
+      perform(method, build_uri(path), headers, body, MAX_REDIRECTS)
+    rescue SocketError, Errno::ECONNREFUSED, Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError => e
+      raise Error, "paperless #{method.upcase} #{path} failed: #{e.class}: #{e.message}"
+    end
+
+    def perform(method, uri, headers, body, redirects_left)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == "https"
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE if http.use_ssl? && !@connection.verify_ssl
@@ -111,10 +119,35 @@ module Paperless
       req.body = body if body
       resp = http.request(req)
       return resp if resp.is_a?(Net::HTTPSuccess)
+      # Reverse proxies and http->https upgrades commonly 3xx the API root;
+      # follow them (GET only) so the connection still works. POSTs aren't
+      # replayed -- re-uploading a document on a redirect could duplicate it.
+      if method == :get && resp.is_a?(Net::HTTPRedirection)
+        return follow(method, uri, headers, body, resp, redirects_left)
+      end
 
-      raise_for(resp, method, path)
-    rescue SocketError, Errno::ECONNREFUSED, Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError => e
-      raise Error, "paperless #{method.upcase} #{path} failed: #{e.class}: #{e.message}"
+      raise_for(resp, method, uri.request_uri)
+    end
+
+    # Follow a redirect, but only to the SAME host -- the Authorization: Token
+    # header rides along, so we must not leak it to a host the redirect points
+    # at. A cross-host (or schemeless) redirect surfaces the Location so the
+    # user can correct the base URL.
+    def follow(method, uri, headers, body, resp, redirects_left)
+      location = resp["location"].to_s
+      target = (URI.join(uri.to_s, location) if location.present?)
+      raise Error, redirect_message(uri, location, resp) if redirects_left <= 0 || !same_host_http?(uri, target)
+
+      perform(method, target, headers, body, redirects_left - 1)
+    end
+
+    def same_host_http?(uri, target)
+      target.is_a?(URI::HTTP) && ALLOWED_SCHEMES.include?(target.scheme) && target.host&.casecmp?(uri.host)
+    end
+
+    def redirect_message(uri, location, resp)
+      "paperless redirected GET #{uri.request_uri} to #{location.presence || "(no Location header)"} " \
+        "(HTTP #{resp.code}) -- check the base URL: right scheme (http vs https), host and port?"
     end
 
     def raise_for(resp, method, path)

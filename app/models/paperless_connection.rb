@@ -18,6 +18,10 @@ class PaperlessConnection < ApplicationRecord
   encrypts :api_token
 
   validates :base_url, presence: true
+  # A connection with no token can't reach paperless. On edit the controller
+  # strips a blank token from the params (so "leave blank to keep" works), so
+  # this only bites a brand-new connection saved without one.
+  validates :api_token, presence: true
   validate  :base_url_must_be_http
 
   # @return [Boolean] true once we have somewhere to talk to and a credential.

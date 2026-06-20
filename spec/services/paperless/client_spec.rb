@@ -10,19 +10,34 @@ RSpec.describe Paperless::Client do
   let(:auth)       { { "Authorization" => "Token tok-1" } }
 
   describe "#ping" do
+    let(:ping_url) { "#{base}/api/ui_settings/" }
+
     it "succeeds on a 200" do
-      stub_request(:get, "#{base}/api/").with(headers: auth).to_return(status: 200, body: "{}")
+      stub_request(:get, ping_url).with(headers: auth).to_return(status: 200, body: "{}")
       expect { client.ping }.not_to raise_error
     end
 
     it "raises AuthError on 401" do
-      stub_request(:get, "#{base}/api/").to_return(status: 401, body: "no")
+      stub_request(:get, ping_url).to_return(status: 401, body: "no")
       expect { client.ping }.to raise_error(Paperless::AuthError)
     end
 
     it "raises Error on 500" do
-      stub_request(:get, "#{base}/api/").to_return(status: 500, body: "boom")
+      stub_request(:get, ping_url).to_return(status: 500, body: "boom")
       expect { client.ping }.to raise_error(Paperless::Error)
+    end
+
+    it "follows a same-host redirect (e.g. http->https / proxy)" do
+      stub_request(:get, ping_url)
+        .to_return(status: 302, headers: { "Location" => "https://paperless.example.test/api/ui_settings/" })
+      stub_request(:get, "https://paperless.example.test/api/ui_settings/").to_return(status: 200, body: "{}")
+      expect { client.ping }.not_to raise_error
+    end
+
+    it "refuses to follow a cross-host redirect and surfaces the target" do
+      stub_request(:get, ping_url)
+        .to_return(status: 302, headers: { "Location" => "https://evil.example.org/login" })
+      expect { client.ping }.to raise_error(Paperless::Error, /evil\.example\.org/)
     end
   end
 
@@ -79,7 +94,7 @@ RSpec.describe Paperless::Client do
 
   describe "transport errors" do
     it "wraps connection failures in Paperless::Error" do
-      stub_request(:get, "#{base}/api/").to_raise(Errno::ECONNREFUSED)
+      stub_request(:get, "#{base}/api/ui_settings/").to_raise(Errno::ECONNREFUSED)
       expect { client.ping }.to raise_error(Paperless::Error)
     end
   end

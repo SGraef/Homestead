@@ -37,6 +37,14 @@ RSpec.describe "Paperless connection settings" do
       expect(conn.api_token).to eq("tok-1")
     end
 
+    it "rejects a connection saved without an api token" do
+      post paperless_connection_path, params: {
+        paperless_connection: { base_url: "https://paperless.lan", api_token: "" }
+      }
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(household.reload.paperless_connection).to be_nil
+    end
+
     it "rejects an invalid base url" do
       post paperless_connection_path, params: {
         paperless_connection: { base_url: "nope", api_token: "tok-1" }
@@ -57,7 +65,7 @@ RSpec.describe "Paperless connection settings" do
 
     it "tests the connection" do
       household.create_paperless_connection!(base_url: "https://p.lan", api_token: "tok")
-      stub_request(:get, "https://p.lan/api/").to_return(status: 200, body: "{}")
+      stub_request(:get, "https://p.lan/api/ui_settings/").to_return(status: 200, body: "{}")
       post test_paperless_connection_path
       expect(response).to redirect_to(paperless_connection_path)
       expect(flash[:notice]).to be_present
@@ -65,7 +73,7 @@ RSpec.describe "Paperless connection settings" do
 
     it "surfaces a failed test" do
       household.create_paperless_connection!(base_url: "https://p.lan", api_token: "tok")
-      stub_request(:get, "https://p.lan/api/").to_return(status: 401, body: "no")
+      stub_request(:get, "https://p.lan/api/ui_settings/").to_return(status: 401, body: "no")
       post test_paperless_connection_path
       expect(flash[:alert]).to be_present
     end
