@@ -1,0 +1,46 @@
+<% content_for :title, t("document.title") %>
+<h1><%= t("document.title") %></h1>
+
+<p>
+  <%= link_to t("document.new_button"), new_document_path, class: "btn" %>
+  <% if policy(PaperlessConnection.new(household: current_household)).show? %>
+    <%= link_to t("document.paperless_settings"), paperless_connection_path, class: "btn btn-secondary" %>
+  <% end %>
+</p>
+
+<% if @connection&.connected? %>
+  <p class="caption"><%= t("document.paperless_on", url: @connection.normalized_base_url) %></p>
+<% else %>
+  <p class="caption"><%= t("document.paperless_off") %></p>
+<% end %>
+
+<% if @documents.any? %>
+  <table>
+    <thead>
+      <tr>
+        <th><%= t("document.table.added") %></th>
+        <th><%= t("document.table.title") %></th>
+        <th><%= t("document.table.status") %></th>
+        <th><%= t("document.table.category") %></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @documents.each do |doc| %>
+        <tr>
+          <td><%= l(doc.created_at.to_date) %></td>
+          <td><%= doc.title %></td>
+          <td>
+            <span class="pill <%= 'warn' if doc.status.in?(%w[pending failed]) %>">
+              <%= t("document.statuses.#{doc.status}", default: doc.status) %>
+            </span>
+          </td>
+          <td><%= doc.matched_category || doc.paperless_document_type || "—" %></td>
+          <td><%= link_to t("common.open"), doc %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p><%= t("document.empty") %></p>
+<% end %>

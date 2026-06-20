@@ -1,0 +1,32 @@
+<%# Locals: connection, url, method (:post for new, :patch for edit). %>
+<%= form_with model: connection, url:, method:, local: true do |f| %>
+  <% if connection.errors.any? %>
+    <div class="flash alert"><%= connection.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <p>
+    <%= f.label :base_url, t("paperless.base_url") %><br>
+    <%= f.url_field :base_url, placeholder: "https://paperless.home.lan", required: true %>
+  </p>
+
+  <p>
+    <%= f.label :api_token, t("paperless.api_token") %><br>
+    <%= f.password_field :api_token, autocomplete: "off",
+                         placeholder: connection.persisted? ? t("paperless.token_keep") : nil %>
+  </p>
+  <p class="caption"><%= t("paperless.api_token_help") %></p>
+
+  <p>
+    <%= f.label :default_tags, t("paperless.default_tags") %><br>
+    <%= f.text_field :default_tags, placeholder: "homestead" %>
+  </p>
+  <p class="caption"><%= t("paperless.default_tags_help") %></p>
+
+  <p>
+    <%= f.check_box :verify_ssl %>
+    <%= f.label :verify_ssl, t("paperless.verify_ssl") %>
+  </p>
+  <p class="caption"><%= t("paperless.verify_ssl_help") %></p>
+
+  <p><%= f.submit t("paperless.save_button"), class: "btn" %></p>
+<% end %>

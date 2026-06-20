@@ -83,6 +83,17 @@ Rails.application.routes.draw do
     end
   end
 
+  # Household document archive (receipts, bills, invoices...) with optional
+  # paperless-ngx mirroring + classification.
+  resources :documents, only: %i[index new create show destroy] do
+    member { post :sync }
+  end
+
+  # Optional paperless-ngx binding (admin-only). Singular: one per household.
+  resource :paperless_connection, only: %i[new create show update destroy] do
+    member { post :test }
+  end
+
   resources :todos do
     member do
       post   :transition # one-tap state change

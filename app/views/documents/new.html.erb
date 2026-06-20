@@ -1,0 +1,38 @@
+<% content_for :title, t("document.new_title") %>
+<h1><%= t("document.new_title") %></h1>
+
+<div class="card">
+  <%= form_with model: @document, url: documents_path, multipart: true, local: true do |f| %>
+    <% if @document.errors.any? %>
+      <div class="flash alert"><%= @document.errors.full_messages.to_sentence %></div>
+    <% end %>
+
+    <p>
+      <%= f.label :title, t("document.title_label") %><br>
+      <%= f.text_field :title, required: true %>
+    </p>
+
+    <p>
+      <%= f.label :kind, t("document.kind_label") %><br>
+      <%= f.select :kind,
+                   Document::KINDS.map { |k| [t("document.kinds.#{k}"), k] },
+                   selected: @document.kind %>
+    </p>
+    <p class="caption"><%= t("document.kind_help") %></p>
+
+    <p>
+      <%= f.label :note, t("document.note_label") %><br>
+      <%= f.text_area :note, rows: 2 %>
+    </p>
+
+    <p>
+      <%= f.label :file, t("document.file_label") %><br>
+      <%= f.file_field :file,
+                       accept: "image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf",
+                       required: true %>
+    </p>
+    <p class="caption"><%= t("document.file_help") %></p>
+
+    <p><%= f.submit t("document.upload_button"), class: "btn" %></p>
+  <% end %>
+</div>

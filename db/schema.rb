@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_01_000002) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_20_000004) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -108,6 +108,33 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_000002) do
     t.index ["household_id", "starts_at"], name: "index_calendar_events_on_household_id_and_starts_at"
     t.index ["household_id"], name: "index_calendar_events_on_household_id"
     t.index ["source_record_type", "source_record_id"], name: "index_calendar_events_on_source_record"
+  end
+
+  create_table "documents", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.bigint "user_id"
+    t.string "title", null: false
+    t.text "note"
+    t.string "status", default: "stored", null: false
+    t.integer "paperless_document_id"
+    t.string "paperless_task_uuid"
+    t.datetime "paperless_synced_at"
+    t.string "paperless_document_type"
+    t.string "paperless_correspondent"
+    t.text "paperless_tags"
+    t.string "matched_category"
+    t.string "error_message", limit: 1000
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "kind", default: "bill", null: false
+    t.date "due_on"
+    t.boolean "due_on_detected", default: false, null: false
+    t.text "raw_text", size: :medium
+    t.index ["household_id", "due_on"], name: "index_documents_on_household_id_and_due_on"
+    t.index ["household_id", "status"], name: "index_documents_on_household_id_and_status"
+    t.index ["household_id"], name: "index_documents_on_household_id"
+    t.index ["paperless_document_id"], name: "index_documents_on_paperless_document_id"
+    t.index ["user_id"], name: "index_documents_on_user_id"
   end
 
   create_table "grocery_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -317,6 +344,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_000002) do
     t.index ["household_id"], name: "index_offers_on_household_id"
     t.index ["product_id"], name: "index_offers_on_product_id"
     t.index ["store_id"], name: "index_offers_on_store_id"
+  end
+
+  create_table "paperless_connections", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "base_url", null: false
+    t.text "api_token"
+    t.boolean "verify_ssl", default: true, null: false
+    t.string "default_tags"
+    t.datetime "last_synced_at"
+    t.string "last_error", limit: 1000
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_paperless_connections_on_household_id", unique: true
   end
 
   create_table "prices", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -663,12 +703,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_000002) do
     t.date "due_on"
     t.string "source", default: "manual", null: false
     t.bigint "source_calendar_event_id"
+    t.bigint "source_document_id"
     t.index ["assignee_id"], name: "index_todos_on_assignee_id"
     t.index ["creator_id"], name: "index_todos_on_creator_id"
     t.index ["household_id", "due_on"], name: "index_todos_on_household_id_and_due_on"
     t.index ["household_id", "status"], name: "index_todos_on_household_id_and_status"
     t.index ["household_id"], name: "index_todos_on_household_id"
     t.index ["source_calendar_event_id"], name: "index_todos_on_source_calendar_event_id"
+    t.index ["source_document_id"], name: "index_todos_on_source_document_id"
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -701,6 +743,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_000002) do
   add_foreign_key "calendar_connections", "households"
   add_foreign_key "calendar_events", "calendar_connections"
   add_foreign_key "calendar_events", "households"
+  add_foreign_key "documents", "households"
+  add_foreign_key "documents", "users"
   add_foreign_key "grocery_items", "households"
   add_foreign_key "grocery_items", "products"
   add_foreign_key "grocery_items", "stores"
@@ -725,6 +769,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_000002) do
   add_foreign_key "offers", "households", on_delete: :cascade
   add_foreign_key "offers", "products", on_delete: :nullify
   add_foreign_key "offers", "stores", on_delete: :nullify
+  add_foreign_key "paperless_connections", "households"
   add_foreign_key "prices", "products"
   add_foreign_key "prices", "stores"
   add_foreign_key "product_barcodes", "products"
@@ -758,6 +803,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_000002) do
   add_foreign_key "todo_follows", "todos"
   add_foreign_key "todo_follows", "users"
   add_foreign_key "todos", "calendar_events", column: "source_calendar_event_id"
+  add_foreign_key "todos", "documents", column: "source_document_id"
   add_foreign_key "todos", "households"
   add_foreign_key "todos", "users", column: "assignee_id"
   add_foreign_key "todos", "users", column: "creator_id"

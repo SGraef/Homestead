@@ -27,8 +27,9 @@ module NavigationHelper
         { label: t("nav.meal_plan"), path: meal_plan_path, icon: :utensils }
       ] },
       { key: "home", items: [
-        { label: t("nav.todos"),    path: todos_path,    icon: :check },
-        { label: t("nav.calendar"), path: calendar_path, icon: :calendar }
+        { label: t("nav.todos"),     path: todos_path,     icon: :check },
+        { label: t("nav.calendar"),  path: calendar_path,  icon: :calendar },
+        { label: t("nav.documents"), path: documents_path, icon: :file }
       ] }
     ]
   end
