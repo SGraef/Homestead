@@ -13,7 +13,12 @@ class TodosController < ApplicationController
 
   def show
     authorize @todo
-    @comment = @todo.todo_comments.new
+    # Build the new-comment form object *detached* from the association.
+    # `@todo.todo_comments.new` would append this unsaved record (with a nil
+    # created_at) to @todo.todo_comments, which the comments list then renders
+    # -- blowing up on `l(nil)`. The form posts to todo_comments_path(@todo),
+    # so the comment doesn't need to be linked here.
+    @comment = TodoComment.new
   end
 
   def new
