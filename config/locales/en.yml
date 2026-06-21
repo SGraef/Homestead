@@ -50,8 +50,7 @@ en:
 
   document:
     title: "Documents"
-    new_title: "Add document"
-    new_button: "Add document"
+    new_title_for: "Add %{kind}"
     paperless_settings: "paperless settings"
     empty: "No documents stored yet."
     title_label: "Title"
@@ -59,7 +58,6 @@ en:
     file_label: "File (PDF or image)"
     file_help: "JPEG, PNG, WEBP, HEIC or PDF."
     kind_label: "Type"
-    kind_help: "Bills and other documents are scanned for a due date; receipts get no reminder."
     kinds:
       bill: "Bill"
       receipt: "Receipt"

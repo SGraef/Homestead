@@ -2,7 +2,10 @@
 <h1><%= t("document.title") %></h1>
 
 <p>
-  <%= link_to t("document.new_button"), new_document_path, class: "btn" %>
+  <%= link_to t("document.new_title_for", kind: t("document.kinds.bill")),
+              new_document_path(kind: "bill"), class: "btn" %>
+  <%= link_to t("document.new_title_for", kind: t("document.kinds.receipt")),
+              new_document_path(kind: "receipt"), class: "btn" %>
   <% if policy(PaperlessConnection.new(household: current_household)).show? %>
     <%= link_to t("document.paperless_settings"), paperless_connection_path, class: "btn btn-secondary" %>
   <% end %>

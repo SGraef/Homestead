@@ -56,8 +56,7 @@ de:
 
   document:
     title: "Dokumente"
-    new_title: "Dokument hinzufügen"
-    new_button: "Dokument hinzufügen"
+    new_title_for: "%{kind} hinzufügen"
     paperless_settings: "paperless-Einstellungen"
     empty: "Noch keine Dokumente gespeichert."
     title_label: "Titel"
@@ -65,7 +64,6 @@ de:
     file_label: "Datei (PDF oder Bild)"
     file_help: "JPEG, PNG, WEBP, HEIC oder PDF."
     kind_label: "Art"
-    kind_help: "Rechnungen und Sonstiges werden auf ein Fälligkeitsdatum geprüft; für Belege wird keine Erinnerung erstellt."
     kinds:
       bill: "Rechnung"
       receipt: "Beleg / Quittung"

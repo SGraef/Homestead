@@ -23,9 +23,21 @@ RSpec.describe "Documents" do
   end
 
   describe "GET /documents/new" do
-    it "renders the upload form" do
+    it "defaults to a bill when no kind is given" do
       get new_document_path
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include('value="bill"')
+    end
+
+    it "preselects the kind from the upload entry point" do
+      get new_document_path(kind: "receipt")
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('value="receipt"')
+    end
+
+    it "falls back to a bill for an unknown kind" do
+      get new_document_path(kind: "bogus")
+      expect(response.body).to include('value="bill"')
     end
   end
 

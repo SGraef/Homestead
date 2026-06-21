@@ -21,7 +21,9 @@ class DocumentsController < ApplicationController
   end
 
   def new
-    @document = current_household.documents.build
+    # The kind is chosen by which upload entry point was used (bill vs receipt),
+    # so there's no type selector on the form -- just a hidden field.
+    @document = current_household.documents.build(kind: document_kind_param)
     authorize @document
   end
 
@@ -71,6 +73,11 @@ class DocumentsController < ApplicationController
 
   def create_params
     params.require(:document).permit(:title, :note, :kind)
+  end
+
+  # Whitelist the kind coming from the upload entry point; default to a bill.
+  def document_kind_param
+    Document::KINDS.include?(params[:kind]) ? params[:kind] : "bill"
   end
 
   # Only reach out to paperless when it's actually configured -- otherwise the
