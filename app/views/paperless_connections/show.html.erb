@@ -1,0 +1,36 @@
+<% content_for :title, t("paperless.title") %>
+<h1><%= t("paperless.title") %></h1>
+
+<div class="card">
+  <dl>
+    <dt><%= t("paperless.status") %></dt>
+    <dd>
+      <span class="pill <%= @connection.connected? ? '' : 'warn' %>">
+        <%= @connection.connected? ? t("paperless.connected") : t("paperless.incomplete") %>
+      </span>
+    </dd>
+    <dt><%= t("paperless.base_url") %></dt>
+    <dd><%= @connection.normalized_base_url %></dd>
+    <% if @connection.last_synced_at %>
+      <dt><%= t("paperless.last_synced") %></dt>
+      <dd><%= l(@connection.last_synced_at, format: :short) %></dd>
+    <% end %>
+    <% if @connection.last_error.present? %>
+      <dt><%= t("paperless.last_error") %></dt>
+      <dd><%= @connection.last_error %></dd>
+    <% end %>
+  </dl>
+
+  <p>
+    <%= button_to t("paperless.test_button"), test_paperless_connection_path, class: "btn btn-secondary" %>
+  </p>
+</div>
+
+<div class="card">
+  <h2><%= t("paperless.edit_heading") %></h2>
+  <%= render "form", connection: @connection, url: paperless_connection_path, method: :patch %>
+</div>
+
+<hr>
+<%= button_to t("paperless.disconnect"), paperless_connection_path, method: :delete, class: "btn btn-danger",
+              data: { turbo_confirm: t("paperless.confirm_disconnect") } %>

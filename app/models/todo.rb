@@ -7,7 +7,7 @@
 # Membership::ROLES string-constant precedent.
 class Todo < ApplicationRecord
   STATES  = %w[open in_progress done].freeze
-  SOURCES = %w[manual calendar_extraction].freeze
+  SOURCES = %w[manual calendar_extraction document].freeze
 
   # Allowed state transitions. A target not listed for the current state (and a
   # no-op self-transition) is rejected by {#transition_to} — callers rely on
@@ -22,6 +22,7 @@ class Todo < ApplicationRecord
   belongs_to :creator,  class_name: "User", optional: true
   belongs_to :assignee, class_name: "User", optional: true
   belongs_to :source_calendar_event, class_name: "CalendarEvent", optional: true
+  belongs_to :source_document, class_name: "Document", optional: true
 
   has_many :todo_comments, -> { order(:created_at) }, dependent: :destroy
   has_many :todo_follows, dependent: :destroy

@@ -1,0 +1,7 @@
+<% content_for :title, t("paperless.title") %>
+<h1><%= t("paperless.title") %></h1>
+<p class="caption"><%= t("paperless.intro") %></p>
+
+<div class="card">
+  <%= render "form", connection: @connection, url: paperless_connection_path, method: :post %>
+</div>

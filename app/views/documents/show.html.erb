@@ -1,0 +1,86 @@
+<% content_for :title, @document.title %>
+<h1><%= @document.title %></h1>
+
+<p>
+  <%= link_to t("common.back"), documents_path, class: "btn btn-secondary" %>
+  <% if @document.file.attached? %>
+    <%= link_to t("document.view_file"), rails_blob_path(@document.file, disposition: "inline"),
+                target: "_blank", rel: "noopener", class: "btn btn-secondary" %>
+  <% end %>
+</p>
+
+<div class="card">
+  <dl>
+    <dt><%= t("document.kind_label") %></dt>
+    <dd><%= t("document.kinds.#{@document.kind}", default: @document.kind) %></dd>
+
+    <dt><%= t("document.table.status") %></dt>
+    <dd>
+      <span class="pill <%= 'warn' if @document.status.in?(%w[pending failed]) %>">
+        <%= t("document.statuses.#{@document.status}", default: @document.status) %>
+      </span>
+    </dd>
+
+    <% if @document.due_on %>
+      <dt><%= t("document.due_on") %></dt>
+      <dd>
+        <%= l(@document.due_on) %>
+        <span class="caption">
+          <%= @document.due_on_detected ? t("document.due_detected") : t("document.due_fallback") %>
+        </span>
+        <% if @reminder_todo %>
+          — <%= link_to t("document.reminder_todo"), @reminder_todo %>
+        <% end %>
+      </dd>
+    <% end %>
+
+    <% if @document.note.present? %>
+      <dt><%= t("document.note_label") %></dt>
+      <dd><%= @document.note %></dd>
+    <% end %>
+
+    <dt><%= t("document.table.added") %></dt>
+    <dd><%= l(@document.created_at, format: :short) %></dd>
+  </dl>
+</div>
+
+<%# ---- paperless block: only shown when relevant ------------------------- %>
+<% if @document.paperless_linked? %>
+  <div class="card">
+    <h2><%= t("document.paperless_heading") %></h2>
+    <dl>
+      <dt><%= t("document.paperless_type") %></dt>
+      <dd><%= @document.paperless_document_type.presence || "—" %></dd>
+
+      <dt><%= t("document.paperless_correspondent") %></dt>
+      <dd><%= @document.paperless_correspondent.presence || "—" %></dd>
+
+      <dt><%= t("document.paperless_tags") %></dt>
+      <dd>
+        <% if @document.paperless_tags_list.any? %>
+          <% @document.paperless_tags_list.each do |tag| %><span class="pill"><%= tag %></span> <% end %>
+        <% else %>—<% end %>
+      </dd>
+
+      <dt><%= t("document.matched_category") %></dt>
+      <dd><%= @document.matched_category.presence || t("document.no_match") %></dd>
+    </dl>
+
+    <% if @connection && (url = @connection.document_url(@document.paperless_document_id)) %>
+      <p><%= link_to t("document.open_in_paperless"), url, target: "_blank", rel: "noopener", class: "btn" %></p>
+    <% end %>
+  </div>
+<% elsif @document.status == "failed" %>
+  <div class="card">
+    <div class="flash alert"><%= t("document.paperless_failed", error: @document.error_message) %></div>
+    <% if @connection&.connected? %>
+      <%= button_to t("document.retry_sync"), sync_document_path(@document), class: "btn" %>
+    <% end %>
+  </div>
+<% elsif @connection&.connected? && @document.status == "pending" %>
+  <p class="caption"><%= t("document.paperless_pending") %></p>
+<% end %>
+
+<hr>
+<%= button_to t("common.delete"), @document, method: :delete, class: "btn btn-danger",
+              data: { turbo_confirm: t("document.confirm_delete") } %>
