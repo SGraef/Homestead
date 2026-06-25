@@ -198,6 +198,8 @@ en:
     enabled: "Push notifications are on for this device."
     denied: "Notifications are blocked — you'll still see updates in the bell here."
     unsupported: "This browser doesn't support push (you'll still see the bell). On iPhone, add Homestead to your home screen first."
+    insecure: "Push needs HTTPS. Open Homestead via its https:// address — not an http:// IP on your LAN."
+    not_configured: "Push isn't set up on the server (VAPID keys missing). Set VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY."
     error: "Couldn't enable push. Please try again."
 
   calendar:

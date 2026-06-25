@@ -4,7 +4,8 @@ import { Controller } from "@hotwired/stimulus"
 // load — a cold permission prompt can permanently deny the origin). Reads the
 // VAPID public key from a <meta> tag and POSTs the PushSubscription JSON to the
 // server. Localized status strings come in via data attributes so this stays
-// i18n-agnostic. Degrades visibly (denied / unsupported) — silence is a bug.
+// i18n-agnostic. Degrades visibly with a *specific* reason (insecure context,
+// server not configured, browser unsupported, denied) — silence is a bug.
 export default class extends Controller {
   static targets = ["button", "status"]
 
@@ -14,32 +15,51 @@ export default class extends Controller {
   }
 
   async refreshState() {
-    if (!this.supported()) { this.setStatus(this.data.get("unsupported")); this.hideButton(); return }
-    if (Notification.permission === "denied") { this.setStatus(this.data.get("denied")); this.hideButton(); return }
+    // Order matters: report the most specific, actionable blocker first.
+    if (!this.browserSupported()) { return this.block("unsupported") }
+    if (!window.isSecureContext)  { return this.block("insecure") }       // http:// over a LAN IP, etc.
+    if (!this.vapidKey)           { return this.block("not-configured") }  // server has no VAPID keys
+    if (Notification.permission === "denied") { return this.block("denied") }
     if (await this.existingSubscription()) { this.setStatus(this.data.get("enabled")); this.hideButton() }
+    // else: leave the button visible so the user can enable.
   }
 
-  supported() {
-    return "serviceWorker" in navigator && "PushManager" in window &&
-           "Notification" in window && Boolean(this.vapidKey)
+  // Just the browser API surface — not the environment (secure context / keys).
+  browserSupported() {
+    return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window
   }
 
   async enable() {
-    if (!this.supported()) return
+    if (!this.browserSupported() || !window.isSecureContext || !this.vapidKey) return
     const permission = await Notification.requestPermission()
     if (permission !== "granted") { this.setStatus(this.data.get("denied")); return }
 
     try {
       const reg = await navigator.serviceWorker.ready
-      const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(this.vapidKey)
-      })
+      const sub = await this.subscribe(reg)
       await this.post(sub)
       this.setStatus(this.data.get("enabled"))
       this.hideButton()
-    } catch (_) {
-      this.setStatus(this.data.get("error"))
+    } catch (err) {
+      // Surface the real reason instead of swallowing it (Android Chrome is the
+      // strictest about this) so the failure is debuggable.
+      console.warn("[push] subscribe failed:", err)
+      this.setStatus(`${this.data.get("error")} (${err?.name || err})`)
+    }
+  }
+
+  async subscribe(reg) {
+    const key = this.urlBase64ToUint8Array(this.vapidKey)
+    try {
+      return await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key })
+    } catch (err) {
+      // A subscription created with a *different* VAPID key (e.g. the server
+      // rotated/regenerated keys) makes Android throw InvalidStateError. Drop
+      // the stale one and retry once.
+      if (err?.name !== "InvalidStateError") throw err
+      const stale = await reg.pushManager.getSubscription()
+      if (stale) await stale.unsubscribe()
+      return await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key })
     }
   }
 
@@ -61,6 +81,7 @@ export default class extends Controller {
     })
   }
 
+  block(reasonKey) { this.setStatus(this.data.get(reasonKey)); this.hideButton() }
   setStatus(msg) { if (this.hasStatusTarget && msg) this.statusTarget.textContent = msg }
   hideButton() { if (this.hasButtonTarget) this.buttonTarget.hidden = true }
 

@@ -204,6 +204,8 @@ de:
     enabled: "Push-Benachrichtigungen sind auf diesem Gerät aktiv."
     denied: "Benachrichtigungen sind blockiert — Updates siehst du hier in der Glocke."
     unsupported: "Dieser Browser unterstützt kein Push (die Glocke siehst du trotzdem). Auf dem iPhone füge Homestead zuerst zum Home-Bildschirm hinzu."
+    insecure: "Push benötigt HTTPS. Öffne Homestead über seine https://-Adresse — nicht über eine http://-IP im WLAN."
+    not_configured: "Push ist auf dem Server nicht eingerichtet (VAPID-Schlüssel fehlen). Bitte VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY setzen."
     error: "Push konnte nicht aktiviert werden. Bitte erneut versuchen."
 
   calendar:
