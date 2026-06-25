@@ -824,6 +824,9 @@ en:
     offer_match:
       label:          "%{price} @ %{retailer}"
       tooltip:        "On offer at %{retailer} until %{until} — click for details."
+    watched:
+      badge: "watched"
+      add:   "Add to list"
     table:
       product:  "Product"
       quantity: "Qty"
