@@ -76,5 +76,36 @@
         </td>
       </tr>
     <% end %>
+
+    <%# Watchlist items shown inline in the same list, tinted with the accent
+        colour to mark them as "watched" rather than split into a group. %>
+    <% @watched.each do |w| %>
+      <% offer = @watched_offers[w.id] %>
+      <tr style="background:var(--accent-soft)">
+        <td>
+          <%= w.pattern %>
+          <% if offer %>
+            <%= link_to offers_path(anchor: "offer-#{offer.id}"), class: "chip success",
+                        title: (offer.valid_until ? t("grocery.offer_match.tooltip", retailer: offer.retailer_name, until: l(offer.valid_until)) : offer.retailer_name) do %>
+              <%= t("grocery.offer_match.label",
+                    price: number_to_currency(offer.price_cents / 100.0, unit: offer.currency),
+                    retailer: offer.retailer_name) %>
+            <% end %>
+          <% end %>
+        </td>
+        <td></td>
+        <td>
+          <span class="pill" style="background:var(--accent-soft-hover);color:var(--accent-soft-text)">
+            <%= t("grocery.watched.badge") %>
+          </span>
+        </td>
+        <td></td>
+        <td>
+          <%= button_to t("grocery.watched.add"), grocery_items_path,
+                        params: { grocery_item: { name: w.pattern, quantity: 1 } },
+                        class: "btn btn-sm", form: { style: "display:inline" } %>
+        </td>
+      </tr>
+    <% end %>
   </tbody>
 </table>

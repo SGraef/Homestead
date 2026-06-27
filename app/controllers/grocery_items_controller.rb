@@ -14,6 +14,11 @@ class GroceryItemsController < ApplicationController
     @items = scope.order(status: :asc, created_at: :desc)
     @purchased_count = current_household.grocery_items.where(status: "purchased").count
     @best_offer_by_product = best_offers_for(@items)
+
+    # Watchlist items surfaced on the list as "watched" entries, each with its
+    # cheapest current matching offer (if any) so a sale is visible right here.
+    @watched = current_household.offer_watchlist_entries.ordered
+    @watched_offers = best_offers_for_patterns(@watched)
   end
 
   def show
@@ -126,6 +131,19 @@ class GroceryItemsController < ApplicationController
                      .order(:price_cents, :valid_until)
                      .each_with_object({}) do |o, acc|
       acc[o.product_id] ||= o
+    end
+  end
+
+  # Cheapest current offer whose title matches each watchlist pattern (substring,
+  # the same rule /offers uses). Keyed by watchlist-entry id; entries with no
+  # current match are simply absent.
+  def best_offers_for_patterns(entries)
+    return {} if entries.empty?
+
+    offers = current_household.offers.current.order(:price_cents, :valid_until).to_a
+    entries.each_with_object({}) do |entry, acc|
+      offer = offers.find { |o| OfferWatchlistEntry.match?([entry.normalized], o.title) }
+      acc[entry.id] = offer if offer
     end
   end
 end
