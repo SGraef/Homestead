@@ -382,8 +382,14 @@ class Todo
     sig { params(args: T.untyped, blk: T.untyped).returns(::Household) }
     def build_household(*args, &blk); end
 
+    sig { params(args: T.untyped, blk: T.untyped).returns(::Project) }
+    def build_project(*args, &blk); end
+
     sig { params(args: T.untyped, blk: T.untyped).returns(::CalendarEvent) }
     def build_source_calendar_event(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::Document) }
+    def build_source_document(*args, &blk); end
 
     sig { params(args: T.untyped, blk: T.untyped).returns(::User) }
     def create_assignee(*args, &blk); end
@@ -403,11 +409,23 @@ class Todo
     sig { params(args: T.untyped, blk: T.untyped).returns(::Household) }
     def create_household!(*args, &blk); end
 
+    sig { params(args: T.untyped, blk: T.untyped).returns(::Project) }
+    def create_project(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::Project) }
+    def create_project!(*args, &blk); end
+
     sig { params(args: T.untyped, blk: T.untyped).returns(::CalendarEvent) }
     def create_source_calendar_event(*args, &blk); end
 
     sig { params(args: T.untyped, blk: T.untyped).returns(::CalendarEvent) }
     def create_source_calendar_event!(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::Document) }
+    def create_source_document(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::Document) }
+    def create_source_document!(*args, &blk); end
 
     sig { returns(T.nilable(::User)) }
     def creator; end
@@ -447,6 +465,18 @@ class Todo
     sig { returns(T::Boolean) }
     def household_previously_changed?; end
 
+    sig { returns(T.nilable(::Project)) }
+    def project; end
+
+    sig { params(value: T.nilable(::Project)).void }
+    def project=(value); end
+
+    sig { returns(T::Boolean) }
+    def project_changed?; end
+
+    sig { returns(T::Boolean) }
+    def project_previously_changed?; end
+
     sig { returns(T.nilable(::User)) }
     def reload_assignee; end
 
@@ -456,8 +486,14 @@ class Todo
     sig { returns(T.nilable(::Household)) }
     def reload_household; end
 
+    sig { returns(T.nilable(::Project)) }
+    def reload_project; end
+
     sig { returns(T.nilable(::CalendarEvent)) }
     def reload_source_calendar_event; end
+
+    sig { returns(T.nilable(::Document)) }
+    def reload_source_document; end
 
     sig { void }
     def reset_assignee; end
@@ -469,7 +505,13 @@ class Todo
     def reset_household; end
 
     sig { void }
+    def reset_project; end
+
+    sig { void }
     def reset_source_calendar_event; end
+
+    sig { void }
+    def reset_source_document; end
 
     sig { returns(T.nilable(::CalendarEvent)) }
     def source_calendar_event; end
@@ -482,6 +524,18 @@ class Todo
 
     sig { returns(T::Boolean) }
     def source_calendar_event_previously_changed?; end
+
+    sig { returns(T.nilable(::Document)) }
+    def source_document; end
+
+    sig { params(value: T.nilable(::Document)).void }
+    def source_document=(value); end
+
+    sig { returns(T::Boolean) }
+    def source_document_changed?; end
+
+    sig { returns(T::Boolean) }
+    def source_document_previously_changed?; end
 
     sig { returns(T::Array[T.untyped]) }
     def todo_comment_ids; end
@@ -1079,6 +1133,51 @@ class Todo
     sig { void }
     def id_will_change!; end
 
+    sig { returns(T.nilable(::Integer)) }
+    def project_id; end
+
+    sig { params(value: T.nilable(::Integer)).returns(T.nilable(::Integer)) }
+    def project_id=(value); end
+
+    sig { returns(T::Boolean) }
+    def project_id?; end
+
+    sig { returns(T.nilable(::Integer)) }
+    def project_id_before_last_save; end
+
+    sig { returns(T.untyped) }
+    def project_id_before_type_cast; end
+
+    sig { returns(T::Boolean) }
+    def project_id_came_from_user?; end
+
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
+    def project_id_change; end
+
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
+    def project_id_change_to_be_saved; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def project_id_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable(::Integer)) }
+    def project_id_in_database; end
+
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
+    def project_id_previous_change; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def project_id_previously_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable(::Integer)) }
+    def project_id_previously_was; end
+
+    sig { returns(T.nilable(::Integer)) }
+    def project_id_was; end
+
+    sig { void }
+    def project_id_will_change!; end
+
     sig { void }
     def restore_assignee_id!; end
 
@@ -1107,10 +1206,16 @@ class Todo
     def restore_id_value!; end
 
     sig { void }
+    def restore_project_id!; end
+
+    sig { void }
     def restore_source!; end
 
     sig { void }
     def restore_source_calendar_event_id!; end
+
+    sig { void }
+    def restore_source_document_id!; end
 
     sig { void }
     def restore_status!; end
@@ -1175,6 +1280,12 @@ class Todo
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def saved_change_to_id_value?(from: T.unsafe(nil), to: T.unsafe(nil)); end
 
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
+    def saved_change_to_project_id; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def saved_change_to_project_id?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
     sig { returns(T.nilable([::String, ::String])) }
     def saved_change_to_source; end
 
@@ -1186,6 +1297,12 @@ class Todo
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def saved_change_to_source_calendar_event_id?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
+    def saved_change_to_source_document_id; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def saved_change_to_source_document_id?(from: T.unsafe(nil), to: T.unsafe(nil)); end
 
     sig { returns(T.nilable([::String, ::String])) }
     def saved_change_to_status; end
@@ -1276,6 +1393,51 @@ class Todo
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def source_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable(::Integer)) }
+    def source_document_id; end
+
+    sig { params(value: T.nilable(::Integer)).returns(T.nilable(::Integer)) }
+    def source_document_id=(value); end
+
+    sig { returns(T::Boolean) }
+    def source_document_id?; end
+
+    sig { returns(T.nilable(::Integer)) }
+    def source_document_id_before_last_save; end
+
+    sig { returns(T.untyped) }
+    def source_document_id_before_type_cast; end
+
+    sig { returns(T::Boolean) }
+    def source_document_id_came_from_user?; end
+
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
+    def source_document_id_change; end
+
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
+    def source_document_id_change_to_be_saved; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def source_document_id_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable(::Integer)) }
+    def source_document_id_in_database; end
+
+    sig { returns(T.nilable([T.nilable(::Integer), T.nilable(::Integer)])) }
+    def source_document_id_previous_change; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def source_document_id_previously_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable(::Integer)) }
+    def source_document_id_previously_was; end
+
+    sig { returns(T.nilable(::Integer)) }
+    def source_document_id_was; end
+
+    sig { void }
+    def source_document_id_will_change!; end
 
     sig { returns(T.nilable(::String)) }
     def source_in_database; end
@@ -1458,10 +1620,16 @@ class Todo
     def will_save_change_to_id_value?(from: T.unsafe(nil), to: T.unsafe(nil)); end
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def will_save_change_to_project_id?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def will_save_change_to_source?(from: T.unsafe(nil), to: T.unsafe(nil)); end
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def will_save_change_to_source_calendar_event_id?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def will_save_change_to_source_document_id?(from: T.unsafe(nil), to: T.unsafe(nil)); end
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def will_save_change_to_status?(from: T.unsafe(nil), to: T.unsafe(nil)); end

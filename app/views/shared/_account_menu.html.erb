@@ -17,6 +17,11 @@
     <%= link_to notification_preference_path, class: "menu__item" do %>
       <%= icon :bell, size: 16 %><span><%= t("notification_preference.title") %></span>
     <% end %>
+    <% if current_household&.ldap_connection&.connected? %>
+      <%= link_to ldap_link_path, class: "menu__item" do %>
+        <%= icon :key, size: 16 %><span><%= t("ldap.link.nav") %></span>
+      <% end %>
+    <% end %>
     <% system_nav.each do |item| %>
       <%= link_to item[:path], class: "menu__item" do %>
         <%= icon item[:icon], size: 16 %><span><%= item[:label] %></span>

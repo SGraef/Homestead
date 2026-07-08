@@ -1,0 +1,7 @@
+<% content_for :title, t("ldap.title") %>
+<h1><%= t("ldap.title") %></h1>
+<p class="caption"><%= t("ldap.intro") %></p>
+
+<div class="card">
+  <%= render "form", connection: @connection, url: ldap_connection_path, method: :post %>
+</div>

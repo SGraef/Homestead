@@ -47,6 +47,7 @@ class Household < ApplicationRecord
   has_one  :paperless_connection, dependent: :destroy
   has_many :documents, dependent: :destroy
   has_one  :garden_connection, dependent: :destroy
+  has_one  :ldap_connection, dependent: :destroy
   has_one  :garden_map_setting, dependent: :destroy
   has_many :plants, dependent: :destroy
   has_many :garden_beds, dependent: :destroy

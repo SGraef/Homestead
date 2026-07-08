@@ -94,6 +94,13 @@ Rails.application.routes.draw do
     member { post :test }
   end
 
+  # Optional LDAP directory binding (admin-only). Singular: one per household.
+  resource :ldap_connection, only: %i[new create show update destroy] do
+    member { post :test }
+  end
+  # Self-service: link/unlink the signed-in user's account to an LDAP entry.
+  resource :ldap_link, only: %i[show create destroy]
+
   # Garden planning: plant catalog (Perenual-backed) + planner.
   resources :plants, only: %i[index show destroy] do
     collection { get :search }

@@ -1,0 +1,34 @@
+<% content_for :title, t("ldap.link.title") %>
+<h1><%= t("ldap.link.title") %></h1>
+
+<% if @connection&.connected? %>
+  <% if current_user.ldap_user? %>
+    <div class="card">
+      <p>
+        <span class="pill"><%= t("ldap.link.linked_as", uid: current_user.ldap_uid) %></span>
+      </p>
+      <p class="caption"><%= t("ldap.link.linked_hint") %></p>
+      <%= button_to t("ldap.link.unlink_button"), ldap_link_path, method: :delete, class: "btn btn-danger",
+                    data: { turbo_confirm: t("ldap.link.confirm_unlink") } %>
+      <p class="caption"><%= t("ldap.link.unlink_hint") %></p>
+    </div>
+  <% else %>
+    <p class="caption"><%= t("ldap.link.intro") %></p>
+    <div class="card">
+      <%= form_with url: ldap_link_path, method: :post, local: true do |f| %>
+        <p>
+          <%= f.label :ldap_username, t("ldap.link.username") %><br>
+          <%= f.text_field :ldap_username, required: true, autofocus: true, autocomplete: "off" %>
+        </p>
+        <p>
+          <%= f.label :ldap_password, t("ldap.link.password") %><br>
+          <%= f.password_field :ldap_password, required: true, autocomplete: "off" %>
+        </p>
+        <p class="caption"><%= t("ldap.link.password_hint") %></p>
+        <p><%= f.submit t("ldap.link.link_button"), class: "btn" %></p>
+      <% end %>
+    </div>
+  <% end %>
+<% else %>
+  <p class="caption"><%= t("ldap.link.not_configured") %></p>
+<% end %>

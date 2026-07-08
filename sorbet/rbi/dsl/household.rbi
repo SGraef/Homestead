@@ -423,6 +423,18 @@ class Household
     sig { params(args: T.untyped, blk: T.untyped).returns(::CalendarConnection) }
     def build_calendar_connection(*args, &blk); end
 
+    sig { params(args: T.untyped, blk: T.untyped).returns(::GardenConnection) }
+    def build_garden_connection(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::GardenMapSetting) }
+    def build_garden_map_setting(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::LdapConnection) }
+    def build_ldap_connection(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::PaperlessConnection) }
+    def build_paperless_connection(*args, &blk); end
+
     sig { returns(T.nilable(::CalendarConnection)) }
     def calendar_connection; end
 
@@ -454,6 +466,70 @@ class Household
 
     sig { params(args: T.untyped, blk: T.untyped).returns(::CalendarConnection) }
     def create_calendar_connection!(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::GardenConnection) }
+    def create_garden_connection(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::GardenConnection) }
+    def create_garden_connection!(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::GardenMapSetting) }
+    def create_garden_map_setting(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::GardenMapSetting) }
+    def create_garden_map_setting!(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::LdapConnection) }
+    def create_ldap_connection(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::LdapConnection) }
+    def create_ldap_connection!(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::PaperlessConnection) }
+    def create_paperless_connection(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::PaperlessConnection) }
+    def create_paperless_connection!(*args, &blk); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def document_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def document_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :documents`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::Document::PrivateCollectionProxy) }
+    def documents; end
+
+    sig { params(value: T::Enumerable[::Document]).void }
+    def documents=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def garden_bed_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def garden_bed_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :garden_beds`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::GardenBed::PrivateCollectionProxy) }
+    def garden_beds; end
+
+    sig { params(value: T::Enumerable[::GardenBed]).void }
+    def garden_beds=(value); end
+
+    sig { returns(T.nilable(::GardenConnection)) }
+    def garden_connection; end
+
+    sig { params(value: T.nilable(::GardenConnection)).void }
+    def garden_connection=(value); end
+
+    sig { returns(T.nilable(::GardenMapSetting)) }
+    def garden_map_setting; end
+
+    sig { params(value: T.nilable(::GardenMapSetting)).void }
+    def garden_map_setting=(value); end
 
     sig { returns(T::Array[T.untyped]) }
     def grocery_item_ids; end
@@ -496,6 +572,26 @@ class Household
 
     sig { params(value: T::Enumerable[::Invitation]).void }
     def invitations=(value); end
+
+    sig { returns(T.nilable(::LdapConnection)) }
+    def ldap_connection; end
+
+    sig { params(value: T.nilable(::LdapConnection)).void }
+    def ldap_connection=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def loan_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def loan_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :loans`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::Loan::PrivateCollectionProxy) }
+    def loans; end
+
+    sig { params(value: T::Enumerable[::Loan]).void }
+    def loans=(value); end
 
     sig { returns(T::Array[T.untyped]) }
     def location_ids; end
@@ -623,6 +719,40 @@ class Household
     sig { params(value: T::Enumerable[::Offer]).void }
     def offers=(value); end
 
+    sig { returns(T.nilable(::PaperlessConnection)) }
+    def paperless_connection; end
+
+    sig { params(value: T.nilable(::PaperlessConnection)).void }
+    def paperless_connection=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def plant_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def plant_ids=(ids); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def planting_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def planting_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :plantings`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::Planting::PrivateCollectionProxy) }
+    def plantings; end
+
+    sig { params(value: T::Enumerable[::Planting]).void }
+    def plantings=(value); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :plants`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::Plant::PrivateCollectionProxy) }
+    def plants; end
+
+    sig { params(value: T::Enumerable[::Plant]).void }
+    def plants=(value); end
+
     sig { returns(T::Array[T.untyped]) }
     def product_ids; end
 
@@ -636,6 +766,48 @@ class Household
 
     sig { params(value: T::Enumerable[::Product]).void }
     def products=(value); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :project_categories`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::ProjectCategory::PrivateCollectionProxy) }
+    def project_categories; end
+
+    sig { params(value: T::Enumerable[::ProjectCategory]).void }
+    def project_categories=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def project_category_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def project_category_ids=(ids); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def project_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def project_ids=(ids); end
+
+    sig { returns(T::Array[T.untyped]) }
+    def project_status_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def project_status_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :project_statuses`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::ProjectStatus::PrivateCollectionProxy) }
+    def project_statuses; end
+
+    sig { params(value: T::Enumerable[::ProjectStatus]).void }
+    def project_statuses=(value); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :projects`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::Project::PrivateCollectionProxy) }
+    def projects; end
+
+    sig { params(value: T::Enumerable[::Project]).void }
+    def projects=(value); end
 
     sig { returns(T::Array[T.untyped]) }
     def push_subscription_ids; end
@@ -685,11 +857,35 @@ class Household
     sig { returns(T.nilable(::CalendarConnection)) }
     def reload_calendar_connection; end
 
+    sig { returns(T.nilable(::GardenConnection)) }
+    def reload_garden_connection; end
+
+    sig { returns(T.nilable(::GardenMapSetting)) }
+    def reload_garden_map_setting; end
+
+    sig { returns(T.nilable(::LdapConnection)) }
+    def reload_ldap_connection; end
+
+    sig { returns(T.nilable(::PaperlessConnection)) }
+    def reload_paperless_connection; end
+
     sig { void }
     def reset_bring_connection; end
 
     sig { void }
     def reset_calendar_connection; end
+
+    sig { void }
+    def reset_garden_connection; end
+
+    sig { void }
+    def reset_garden_map_setting; end
+
+    sig { void }
+    def reset_ldap_connection; end
+
+    sig { void }
+    def reset_paperless_connection; end
 
     sig { returns(T::Array[T.untyped]) }
     def storage_item_ids; end

@@ -1,0 +1,36 @@
+<% content_for :title, t("ldap.title") %>
+<h1><%= t("ldap.title") %></h1>
+
+<div class="card">
+  <dl>
+    <dt><%= t("ldap.status") %></dt>
+    <dd>
+      <span class="pill <%= @connection.connected? ? '' : 'warn' %>">
+        <%= @connection.connected? ? t("ldap.connected") : t("ldap.incomplete") %>
+      </span>
+    </dd>
+    <dt><%= t("ldap.host") %></dt>
+    <dd><%= @connection.host %>:<%= @connection.effective_port %></dd>
+    <dt><%= t("ldap.encryption") %></dt>
+    <dd><%= t("ldap.encryptions.#{@connection.encryption}") %></dd>
+    <dt><%= t("ldap.base_dn") %></dt>
+    <dd><%= @connection.base_dn %></dd>
+    <% if @connection.last_error.present? %>
+      <dt><%= t("ldap.last_error") %></dt>
+      <dd><%= @connection.last_error %></dd>
+    <% end %>
+  </dl>
+
+  <p>
+    <%= button_to t("ldap.test_button"), test_ldap_connection_path, class: "btn btn-secondary" %>
+  </p>
+</div>
+
+<div class="card">
+  <h2><%= t("ldap.edit_heading") %></h2>
+  <%= render "form", connection: @connection, url: ldap_connection_path, method: :patch %>
+</div>
+
+<hr>
+<%= button_to t("ldap.disconnect"), ldap_connection_path, method: :delete, class: "btn btn-danger",
+              data: { turbo_confirm: t("ldap.confirm_disconnect") } %>

@@ -1,0 +1,60 @@
+<%# Locals: connection, url, method (:post for new, :patch for edit). %>
+<%= form_with model: connection, url:, method:, local: true do |f| %>
+  <% if connection.errors.any? %>
+    <div class="flash alert"><%= connection.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <p>
+    <%= f.label :host, t("ldap.host") %><br>
+    <%= f.text_field :host, placeholder: "ldap.home.lan", required: true %>
+  </p>
+
+  <p>
+    <%= f.label :encryption, t("ldap.encryption") %><br>
+    <%= f.select :encryption,
+                 LdapConnection::ENCRYPTIONS.map { |e| [t("ldap.encryptions.#{e}"), e] } %>
+  </p>
+
+  <p>
+    <%= f.label :port, t("ldap.port") %><br>
+    <%= f.number_field :port, min: 1, max: 65_535, placeholder: "389 / 636" %>
+  </p>
+  <p class="caption"><%= t("ldap.port_help") %></p>
+
+  <p>
+    <%= f.check_box :verify_tls %>
+    <%= f.label :verify_tls, t("ldap.verify_tls") %>
+  </p>
+  <p class="caption"><%= t("ldap.verify_tls_help") %></p>
+
+  <p>
+    <%= f.label :base_dn, t("ldap.base_dn") %><br>
+    <%= f.text_field :base_dn, placeholder: "dc=home,dc=lan", required: true %>
+  </p>
+
+  <p>
+    <%= f.label :bind_dn, t("ldap.bind_dn") %><br>
+    <%= f.text_field :bind_dn, placeholder: "cn=readonly,dc=home,dc=lan" %>
+  </p>
+  <p class="caption"><%= t("ldap.bind_dn_help") %></p>
+
+  <p>
+    <%= f.label :bind_password, t("ldap.bind_password") %><br>
+    <%= f.password_field :bind_password, autocomplete: "off",
+                         placeholder: connection.persisted? ? t("ldap.password_keep") : nil %>
+  </p>
+
+  <p>
+    <%= f.label :uid_attribute, t("ldap.uid_attribute") %><br>
+    <%= f.text_field :uid_attribute, required: true %>
+  </p>
+  <p class="caption"><%= t("ldap.uid_attribute_help") %></p>
+
+  <p>
+    <%= f.label :user_filter, t("ldap.user_filter") %><br>
+    <%= f.text_field :user_filter, placeholder: "(objectClass=inetOrgPerson)" %>
+  </p>
+  <p class="caption"><%= t("ldap.user_filter_help") %></p>
+
+  <p><%= f.submit t("ldap.save_button"), class: "btn" %></p>
+<% end %>

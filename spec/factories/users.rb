@@ -16,5 +16,11 @@ FactoryBot.define do
     trait :pending do
       after(:create) { |u| u.update_columns(activation_state: "pending") }
     end
+
+    # An account linked to the household's LDAP directory: authenticates via
+    # LDAP bind, local password dormant. See User#ldap_user?.
+    trait :ldap do
+      sequence(:ldap_uid) { |n| "ldapuser#{n}" }
+    end
   end
 end

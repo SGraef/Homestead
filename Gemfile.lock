@@ -223,6 +223,9 @@ GEM
     net-imap (0.6.4.1)
       date
       net-protocol
+    net-ldap (0.20.0)
+      base64
+      ostruct
     net-pop (0.1.2)
       net-protocol
     net-protocol (0.2.2)
@@ -463,6 +466,7 @@ GEM
       opentelemetry-semantic_conventions
     opentelemetry-semantic_conventions (1.39.0)
       opentelemetry-api (~> 1.0)
+    ostruct (0.6.3)
     parallel (2.1.0)
     parser (3.3.11.1)
       ast (~> 2.4.1)
@@ -726,6 +730,7 @@ DEPENDENCIES
   importmap-rails (~> 2.0)
   jsonapi-serializer (~> 2.2)
   mysql2 (~> 0.5)
+  net-ldap (~> 0.19)
   opentelemetry-exporter-otlp (~> 0.30)
   opentelemetry-exporter-otlp-logs (~> 0.3)
   opentelemetry-exporter-otlp-metrics (~> 0.6)

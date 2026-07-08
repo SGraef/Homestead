@@ -34,6 +34,10 @@ class User < ApplicationRecord
             presence:   true,
             uniqueness: { case_sensitive: false },
             format:     { with: URI::MailTo::EMAIL_REGEXP }
+  # Set when the account is linked to a directory entry (LdapLinksController).
+  # A linked user authenticates via LDAP bind; the local password lies dormant
+  # until the link is removed.
+  validates :ldap_uid, uniqueness: true, allow_nil: true, length: { maximum: 255 }
   validates :password,
             length:       { minimum: 8 },
             confirmation: true,
@@ -63,5 +67,11 @@ class User < ApplicationRecord
   # @return [Boolean]
   def admin_of?(household)
     memberships.exists?(household_id: household.id, role: "admin")
+  end
+
+  # @return [Boolean] true when this account authenticates against the
+  #   household's LDAP directory instead of the local password.
+  def ldap_user?
+    ldap_uid.present?
   end
 end

@@ -17,6 +17,10 @@
   <% end %>
   <%= link_to t("inbound_email.nav_link"), inbound_email_sources_path,
               class: "btn btn-sm secondary" %>
+  <% if is_admin %>
+    <%= link_to t("ldap.settings_link"), ldap_connection_path,
+                class: "btn btn-sm secondary" %>
+  <% end %>
 </p>
 
 <h2><%= t("household.members") %></h2>

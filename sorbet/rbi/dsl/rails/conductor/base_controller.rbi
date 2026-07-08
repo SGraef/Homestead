@@ -24,6 +24,11 @@ class Rails::Conductor::BaseController
     include ::ActionController::Base::HelperMethods
     include ::ApplicationHelper
     include ::CalendarsHelper
+    include ::GardenHelper
+    include ::IconHelper
+    include ::NavigationHelper
+    include ::NotificationPreferencesHelper
+    include ::ProjectsHelper
     include ::TodosHelper
   end
 

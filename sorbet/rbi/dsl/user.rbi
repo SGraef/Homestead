@@ -381,6 +381,15 @@ class User
     sig { params(value: T::Enumerable[::ApiToken]).void }
     def api_tokens=(value); end
 
+    sig { params(args: T.untyped, blk: T.untyped).returns(::NotificationPreference) }
+    def build_notification_preference(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::NotificationPreference) }
+    def create_notification_preference(*args, &blk); end
+
+    sig { params(args: T.untyped, blk: T.untyped).returns(::NotificationPreference) }
+    def create_notification_preference!(*args, &blk); end
+
     sig { returns(T::Array[T.untyped]) }
     def household_ids; end
 
@@ -415,6 +424,12 @@ class User
     sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
     def notification_ids=(ids); end
 
+    sig { returns(T.nilable(::NotificationPreference)) }
+    def notification_preference; end
+
+    sig { params(value: T.nilable(::NotificationPreference)).void }
+    def notification_preference=(value); end
+
     # This method is created by ActiveRecord on the `User` class because it declared `has_many :notifications`.
     # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
     sig { returns(::Notification::PrivateCollectionProxy) }
@@ -436,6 +451,12 @@ class User
 
     sig { params(value: T::Enumerable[::PushSubscription]).void }
     def push_subscriptions=(value); end
+
+    sig { returns(T.nilable(::NotificationPreference)) }
+    def reload_notification_preference; end
+
+    sig { void }
+    def reset_notification_preference; end
 
     sig { returns(T::Array[T.untyped]) }
     def todo_follow_ids; end
@@ -1008,6 +1029,96 @@ class User
     def id_will_change!; end
 
     sig { returns(T.nilable(::String)) }
+    def ldap_uid; end
+
+    sig { params(value: T.nilable(::String)).returns(T.nilable(::String)) }
+    def ldap_uid=(value); end
+
+    sig { returns(T::Boolean) }
+    def ldap_uid?; end
+
+    sig { returns(T.nilable(::String)) }
+    def ldap_uid_before_last_save; end
+
+    sig { returns(T.untyped) }
+    def ldap_uid_before_type_cast; end
+
+    sig { returns(T::Boolean) }
+    def ldap_uid_came_from_user?; end
+
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def ldap_uid_change; end
+
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def ldap_uid_change_to_be_saved; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def ldap_uid_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable(::String)) }
+    def ldap_uid_in_database; end
+
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def ldap_uid_previous_change; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def ldap_uid_previously_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable(::String)) }
+    def ldap_uid_previously_was; end
+
+    sig { returns(T.nilable(::String)) }
+    def ldap_uid_was; end
+
+    sig { void }
+    def ldap_uid_will_change!; end
+
+    sig { returns(T.nilable(::String)) }
+    def locale; end
+
+    sig { params(value: T.nilable(::String)).returns(T.nilable(::String)) }
+    def locale=(value); end
+
+    sig { returns(T::Boolean) }
+    def locale?; end
+
+    sig { returns(T.nilable(::String)) }
+    def locale_before_last_save; end
+
+    sig { returns(T.untyped) }
+    def locale_before_type_cast; end
+
+    sig { returns(T::Boolean) }
+    def locale_came_from_user?; end
+
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def locale_change; end
+
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def locale_change_to_be_saved; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def locale_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable(::String)) }
+    def locale_in_database; end
+
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def locale_previous_change; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def locale_previously_changed?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable(::String)) }
+    def locale_previously_was; end
+
+    sig { returns(T.nilable(::String)) }
+    def locale_was; end
+
+    sig { void }
+    def locale_will_change!; end
+
+    sig { returns(T.nilable(::String)) }
     def name; end
 
     sig { params(value: T.nilable(::String)).returns(T.nilable(::String)) }
@@ -1305,6 +1416,12 @@ class User
     def restore_id_value!; end
 
     sig { void }
+    def restore_ldap_uid!; end
+
+    sig { void }
+    def restore_locale!; end
+
+    sig { void }
     def restore_name!; end
 
     sig { void }
@@ -1428,6 +1545,18 @@ class User
     def saved_change_to_id_value?(from: T.unsafe(nil), to: T.unsafe(nil)); end
 
     sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def saved_change_to_ldap_uid; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def saved_change_to_ldap_uid?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
+    def saved_change_to_locale; end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def saved_change_to_locale?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { returns(T.nilable([T.nilable(::String), T.nilable(::String)])) }
     def saved_change_to_name; end
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
@@ -1546,6 +1675,12 @@ class User
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def will_save_change_to_id_value?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def will_save_change_to_ldap_uid?(from: T.unsafe(nil), to: T.unsafe(nil)); end
+
+    sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
+    def will_save_change_to_locale?(from: T.unsafe(nil), to: T.unsafe(nil)); end
 
     sig { params(from: T.untyped, to: T.untyped).returns(T::Boolean) }
     def will_save_change_to_name?(from: T.unsafe(nil), to: T.unsafe(nil)); end

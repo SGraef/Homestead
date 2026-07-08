@@ -18,6 +18,9 @@ gem "propshaft", "~> 1.0"
 # Authentication & authorization
 gem "sorcery", "~> 0.17"
 gem "pundit", "~> 2.4"
+# Optional LDAP login: users linked to a directory entry authenticate via
+# LDAP bind instead of the local bcrypt password. See LdapConnection.
+gem "net-ldap", "~> 0.19"
 
 # JSON serialization for the REST API
 gem "jsonapi-serializer", "~> 2.2"

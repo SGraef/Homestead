@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_08_000002) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -49,6 +49,78 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.datetime "updated_at", null: false
     t.index ["token_digest"], name: "index_api_tokens_on_token_digest", unique: true
     t.index ["user_id"], name: "index_api_tokens_on_user_id"
+  end
+
+  create_table "bank_accounts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "bank_connection_id", null: false
+    t.bigint "household_id", null: false
+    t.string "iban"
+    t.string "bic"
+    t.string "account_number"
+    t.string "subaccount"
+    t.string "blz"
+    t.string "name"
+    t.bigint "balance_cents"
+    t.string "balance_currency", limit: 3, default: "EUR"
+    t.date "balance_on"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bank_connection_id", "iban"], name: "index_bank_accounts_on_bank_connection_id_and_iban", unique: true
+    t.index ["bank_connection_id"], name: "index_bank_accounts_on_bank_connection_id"
+    t.index ["household_id"], name: "index_bank_accounts_on_household_id"
+  end
+
+  create_table "bank_category_rules", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "counterparty_key", null: false
+    t.string "category", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id", "counterparty_key"], name: "index_bank_category_rules_on_household_id_and_counterparty_key", unique: true
+    t.index ["household_id"], name: "index_bank_category_rules_on_household_id"
+  end
+
+  create_table "bank_connections", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "name", null: false
+    t.string "blz", null: false
+    t.string "fints_url", null: false
+    t.string "login", null: false
+    t.text "pin"
+    t.datetime "last_synced_at"
+    t.string "last_error", limit: 1000
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "product_id"
+    t.boolean "tan_pending", default: false, null: false
+    t.text "tan_challenge"
+    t.text "tan_state", size: :medium
+    t.string "tan_medium"
+    t.index ["household_id"], name: "index_bank_connections_on_household_id"
+  end
+
+  create_table "bank_transactions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "bank_account_id", null: false
+    t.bigint "household_id", null: false
+    t.date "booked_on", null: false
+    t.bigint "amount_cents", null: false
+    t.string "currency", limit: 3, default: "EUR"
+    t.text "purpose"
+    t.string "counterparty_name"
+    t.string "counterparty_iban"
+    t.string "category"
+    t.bigint "receipt_id"
+    t.string "fingerprint", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "counterparty_key"
+    t.string "category_source"
+    t.index ["bank_account_id", "fingerprint"], name: "index_bank_transactions_on_bank_account_id_and_fingerprint", unique: true
+    t.index ["bank_account_id"], name: "index_bank_transactions_on_bank_account_id"
+    t.index ["household_id", "booked_on"], name: "index_bank_transactions_on_household_id_and_booked_on"
+    t.index ["household_id", "counterparty_key"], name: "index_bank_transactions_on_household_id_and_counterparty_key"
+    t.index ["household_id"], name: "index_bank_transactions_on_household_id"
+    t.index ["receipt_id"], name: "index_bank_transactions_on_receipt_id"
   end
 
   create_table "bring_connections", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -110,7 +182,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["source_record_type", "source_record_id"], name: "index_calendar_events_on_source_record"
   end
 
-  create_table "documents", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "documents", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "user_id"
     t.string "title", null: false
@@ -137,7 +209,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["user_id"], name: "index_documents_on_user_id"
   end
 
-  create_table "garden_beds", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "garden_beds", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.string "name", null: false
     t.string "location"
@@ -154,7 +226,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["household_id"], name: "index_garden_beds_on_household_id"
   end
 
-  create_table "garden_connections", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "garden_connections", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.text "api_key"
     t.string "hardiness_zone"
@@ -166,7 +238,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["household_id"], name: "index_garden_connections_on_household_id", unique: true
   end
 
-  create_table "garden_map_settings", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "garden_map_settings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.string "mode", default: "map", null: false
     t.string "bundesland", default: "ni"
@@ -248,7 +320,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["token_digest"], name: "index_invitations_on_token_digest", unique: true
   end
 
-  create_table "loans", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "ldap_connections", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "host", null: false
+    t.integer "port"
+    t.string "encryption", default: "start_tls", null: false
+    t.string "base_dn", null: false
+    t.string "bind_dn"
+    t.text "bind_password"
+    t.string "uid_attribute", default: "uid", null: false
+    t.string "user_filter"
+    t.boolean "verify_tls", default: true, null: false
+    t.string "last_error", limit: 1000
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_ldap_connections_on_household_id", unique: true
+  end
+
+  create_table "loans", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.string "item", null: false
     t.string "counterparty", null: false
@@ -412,7 +501,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["store_id"], name: "index_offers_on_store_id"
   end
 
-  create_table "paperless_connections", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "paperless_connections", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.string "base_url", null: false
     t.text "api_token"
@@ -425,7 +514,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["household_id"], name: "index_paperless_connections_on_household_id", unique: true
   end
 
-  create_table "plantings", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "plantings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "garden_bed_id", null: false
     t.bigint "plant_id", null: false
@@ -444,7 +533,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["plant_id"], name: "index_plantings_on_plant_id"
   end
 
-  create_table "plants", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "plants", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.integer "perenual_id"
     t.string "common_name", null: false
@@ -524,7 +613,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["household_id"], name: "index_products_on_household_id"
   end
 
-  create_table "project_categories", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "project_categories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.string "name", null: false
     t.integer "position", default: 0, null: false
@@ -536,7 +625,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["household_id"], name: "index_project_categories_on_household_id"
   end
 
-  create_table "project_discussion_comments", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "project_discussion_comments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "project_discussion_id", null: false
     t.bigint "user_id"
@@ -548,7 +637,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["user_id"], name: "index_project_discussion_comments_on_user_id"
   end
 
-  create_table "project_discussions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "project_discussions", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "project_id", null: false
     t.string "title", null: false
@@ -563,7 +652,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["project_id"], name: "index_project_discussions_on_project_id"
   end
 
-  create_table "project_items", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "project_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "project_id", null: false
     t.string "kind", null: false
@@ -578,7 +667,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["project_id"], name: "index_project_items_on_project_id"
   end
 
-  create_table "project_relations", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "project_relations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.bigint "project_id", null: false
     t.bigint "related_project_id", null: false
@@ -591,7 +680,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["related_project_id"], name: "index_project_relations_on_related_project_id"
   end
 
-  create_table "project_statuses", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "project_statuses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.string "name", null: false
     t.integer "position", default: 0, null: false
@@ -604,7 +693,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.index ["household_id"], name: "index_project_statuses_on_household_id"
   end
 
-  create_table "projects", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+  create_table "projects", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "household_id", null: false
     t.string "name", null: false
     t.text "description"
@@ -945,8 +1034,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "locale", limit: 5
+    t.string "ldap_uid"
     t.index ["activation_token"], name: "index_users_on_activation_token"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["ldap_uid"], name: "index_users_on_ldap_uid", unique: true
     t.index ["remember_me_token"], name: "index_users_on_remember_me_token"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token"
   end
@@ -954,6 +1045,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "api_tokens", "users"
+  add_foreign_key "bank_accounts", "bank_connections"
+  add_foreign_key "bank_accounts", "households"
+  add_foreign_key "bank_category_rules", "households"
+  add_foreign_key "bank_connections", "households"
+  add_foreign_key "bank_transactions", "bank_accounts"
+  add_foreign_key "bank_transactions", "households"
+  add_foreign_key "bank_transactions", "receipts"
   add_foreign_key "bring_connections", "households"
   add_foreign_key "calendar_connections", "households"
   add_foreign_key "calendar_events", "calendar_connections"
@@ -970,6 +1068,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_100002) do
   add_foreign_key "inbound_email_sources", "users", on_delete: :cascade
   add_foreign_key "invitations", "households"
   add_foreign_key "invitations", "users", column: "invited_by_id"
+  add_foreign_key "ldap_connections", "households"
   add_foreign_key "loans", "households"
   add_foreign_key "locations", "households"
   add_foreign_key "meal_plan_entries", "households", on_delete: :cascade
