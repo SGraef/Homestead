@@ -74,6 +74,33 @@ module Garden
         pts.map { |x, y| [(x - min_x).round(2), (y - min_y).round(2)] }
       end
 
+      # Several rings projected into ONE drawing frame: the frame (projection
+      # latitude and origin) is defined by the first ring alone, so its
+      # coordinates are identical to {project_to_meters} of just that ring and
+      # the other rings land where they belong relative to it. Used to draw
+      # structures inside the Grundstück outline.
+      # @param reference_ring [Array<Hash>] defines the frame (the Grundstück)
+      # @param other_rings [Array<Array<Hash>>]
+      # @return [Array<Array<Array(Float, Float)>>, nil] projections of
+      #   [reference, *others]; nil when the reference is degenerate
+      def project_rings_to_meters(reference_ring, other_rings = [])
+        reference = project(reference_ring).map { |x, y| [x, -y] }
+        return nil if reference.length < 3
+
+        # The frame must come from the reference ring only -- project the
+        # others with ITS mean latitude, not their own.
+        cleaned = clean(reference_ring)
+        lat0 = cleaned.sum { |lat, _| lat } / cleaned.length
+        min_x = reference.map(&:first).min
+        min_y = reference.map(&:last).min
+
+        projected_others = other_rings.map do |ring|
+          project(ring, lat0: lat0).map { |x, y| [(x - min_x).round(2), (-y - min_y).round(2)] }
+        end
+        anchored_reference = reference.map { |x, y| [(x - min_x).round(2), (y - min_y).round(2)] }
+        [anchored_reference, *projected_others]
+      end
+
       # Arithmetic mean of the vertices -- good enough as a sun-ray anchor and
       # label spot for convex-ish parcels.
       # @param ring [Array<Hash>]
@@ -88,24 +115,30 @@ module Garden
 
       private
 
+      # @param lat0 [Float, nil] projection latitude; defaults to the ring's
+      #   own mean (pass the reference ring's for a shared frame)
       # @return [Array<Array(Float, Float)>] [x, y] in meters, local frame
-      def project(ring)
-        ring = Array(ring).map { |p| [p["lat"] || p[:lat], p["lng"] || p[:lng]] }
-        ring = ring.select { |lat, lng| lat.is_a?(Numeric) && lng.is_a?(Numeric) }
-        # Official parcel rings (GML) close explicitly by repeating the first
-        # vertex; our edges close implicitly, so collapse consecutive
-        # duplicates and the wrap-around one -- they would only add
-        # zero-length edges.
-        ring = ring.chunk_while { |a, b| a == b }.map(&:first)
-        ring.pop if ring.length > 1 && ring.first == ring.last
+      def project(ring, lat0: nil)
+        ring = clean(ring)
         return [] if ring.empty?
 
-        lat0 = ring.sum { |lat, _| lat } / ring.length
+        lat0 ||= ring.sum { |lat, _| lat } / ring.length
         cos0 = Math.cos(lat0 * Math::PI / 180)
         ring.map do |lat, lng|
           [EARTH_RADIUS_M * (lng * Math::PI / 180) * cos0,
            EARTH_RADIUS_M * (lat * Math::PI / 180)]
         end
+      end
+
+      # Numeric [lat, lng] pairs with zero-length edges collapsed: official
+      # parcel rings (GML) close explicitly by repeating the first vertex;
+      # our edges close implicitly.
+      def clean(ring)
+        ring = Array(ring).map { |p| [p["lat"] || p[:lat], p["lng"] || p[:lng]] }
+        ring = ring.select { |lat, lng| lat.is_a?(Numeric) && lng.is_a?(Numeric) }
+        ring = ring.chunk_while { |a, b| a == b }.map(&:first)
+        ring.pop if ring.length > 1 && ring.first == ring.last
+        ring
       end
     end
   end

@@ -18,6 +18,7 @@ export default class extends Controller {
   static values = {
     beds: Array,
     property: Array, // Grundstück ring [{lat, lng}, ...]; may be empty
+    structures: Array, // buildings [{name, boundary}]; drawn as fixed obstacles
     token: String
   }
 
@@ -25,7 +26,13 @@ export default class extends Controller {
 
   connect() {
     this.beds = new Map(this.bedsValue.map((bed) => [bed.id, { ...bed }]))
-    this.propertyMeters = projectToMeters(this.propertyValue)
+    // One shared frame (from the Grundstück) so buildings land where they
+    // belong relative to the outline -- mirrors Geometry.project_rings_to_meters.
+    const frame = buildFrame(this.propertyValue)
+    this.propertyMeters = frame && projectRing(this.propertyValue, frame)
+    this.structureMeters = frame
+      ? (this.structuresValue || []).map((s) => ({ name: s.name, points: projectRing(s.boundary, frame) }))
+      : []
     this.dragging = null
     this.render()
   }
@@ -51,6 +58,7 @@ export default class extends Controller {
 
     this.drawGrid(svg, w, h)
     this.drawProperty(svg)
+    this.drawStructures(svg)
     sized.forEach((bed) => this.drawBed(svg, bed))
   }
 
@@ -79,10 +87,25 @@ export default class extends Controller {
 
   drawProperty(svg) {
     if (!this.propertyMeters) return
-    const d = `${this.propertyMeters
-      .map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`)
-      .join(" ")} Z`
-    svg.appendChild(this.el("path", { class: "property", d }))
+    svg.appendChild(this.el("path", { class: "property", d: ringPath(this.propertyMeters) }))
+  }
+
+  // Buildings are immovable context (their geometry lives on the map), so
+  // they render as flat obstacles beds can be arranged around.
+  drawStructures(svg) {
+    this.structureMeters.forEach(({ name, points }) => {
+      if (points.length < 3) return
+      const group = this.el("g", { class: "structure" })
+      group.appendChild(this.el("path", { d: ringPath(points) }))
+      const cx = points.reduce((s, [x]) => s + x, 0) / points.length
+      const cy = points.reduce((s, [, y]) => s + y, 0) / points.length
+      const label = this.el("text", {
+        x: cx, y: cy, "text-anchor": "middle", "dominant-baseline": "middle", "font-size": 0.6
+      })
+      label.textContent = name
+      group.appendChild(label)
+      svg.appendChild(group)
+    })
   }
 
   drawBed(svg, bed) {
@@ -207,18 +230,36 @@ function snap(meters) {
   return Math.round(meters / SNAP_M) * SNAP_M
 }
 
-// Project a WGS84 ring to local meters (equirectangular around the mean
-// latitude), normalized so the outline's bounding box starts at (0, 0).
+// Equirectangular projection to local meters with a frame defined by the
+// Grundstück: its mean latitude and its bounding-box corner as origin. All
+// rings projected through the same frame keep their true relative positions.
 // SVG y grows downward, so latitude is flipped (north = up).
-function projectToMeters(ring) {
+function buildFrame(ring) {
   if (!ring || ring.length < 3) return null
   const lat0 = ring.reduce((sum, p) => sum + p.lat, 0) / ring.length
   const cos0 = Math.cos((lat0 * Math.PI) / 180)
-  const pts = ring.map((p) => [
+  const pts = ring.map((p) => projectPoint(p, cos0))
+  return {
+    cos0,
+    minX: Math.min(...pts.map(([x]) => x)),
+    minY: Math.min(...pts.map(([, y]) => y))
+  }
+}
+
+function projectPoint(p, cos0) {
+  return [
     EARTH_RADIUS_M * ((p.lng * Math.PI) / 180) * cos0,
     -EARTH_RADIUS_M * ((p.lat * Math.PI) / 180)
-  ])
-  const minX = Math.min(...pts.map(([x]) => x))
-  const minY = Math.min(...pts.map(([, y]) => y))
-  return pts.map(([x, y]) => [x - minX, y - minY])
+  ]
+}
+
+function projectRing(ring, frame) {
+  return (ring || []).map((p) => {
+    const [x, y] = projectPoint(p, frame.cos0)
+    return [x - frame.minX, y - frame.minY]
+  })
+}
+
+function ringPath(points) {
+  return `${points.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`).join(" ")} Z`
 }

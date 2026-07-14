@@ -114,6 +114,10 @@ Rails.application.routes.draw do
   resources :garden_beds do
     member { patch :geometry } # JSON save from the map / lite planner
   end
+
+  # Buildings on the Grundstück (shadow casters): traced on the garden map,
+  # named/heighted in the list below it.
+  resources :garden_structures, only: %i[create update destroy]
   resources :plantings, only: %i[create update destroy] do
     member { post :advance }
   end

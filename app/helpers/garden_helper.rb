@@ -46,6 +46,16 @@ module GardenHelper
     end
   end
 
+  # Structure payload for the map (rendering + tracing) and the lite planner
+  # (fixed obstacles).
+  # @param structures [Enumerable<GardenStructure>]
+  # @return [Array<Hash>]
+  def garden_map_structures_json(structures)
+    structures.map do |structure|
+      { id: structure.id, name: structure.name, boundary: structure.boundary }
+    end
+  end
+
   # Bad-neighbour conflicts within a bed: for each active planting, the other
   # crop keys present that its companion table warns against.
   # @param plantings [Enumerable<Planting>]

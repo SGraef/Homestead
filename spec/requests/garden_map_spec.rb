@@ -176,6 +176,39 @@ RSpec.describe "GardenMap" do
       expect(response).to redirect_to(garden_map_path)
       expect(flash[:alert]).to eq(I18n.t("garden_map.plan.no_property"))
     end
+
+    context "with buildings on the property" do
+      before do
+        household.update!(timezone: "Europe/Berlin") # fixed local clock for the shadow hours
+        create(:garden_map_setting, household: household, property_boundary: ring)
+        create(:garden_structure, household: household, name: "Haus", height_m: 6.5)
+      end
+
+      it "draws the building and its shadows for the default day (today)" do
+        get plan_garden_map_path
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("class=\"structure\"")
+        expect(response.body).to include("Haus")
+        expect(response.body).to include("class=\"shadow\"")
+        expect(response.body).to include(I18n.t("garden_map.plan.days.today"))
+      end
+
+      it "casts long shadows at the winter solstice via ?day=" do
+        get plan_garden_map_path(day: "winter_solstice")
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("class=\"shadow\"")
+        # 18:00 winter sun is below the horizon, so only earlier layers render.
+        expect(response.body).to include(I18n.t("garden_map.plan.shadow_legend",
+                                                date:  I18n.l(Date.new(Date.current.year, 12, 21),
+                                                              format: :short),
+                                                hours: "9, 12, 15"))
+      end
+
+      it "falls back to today for an unknown day param" do
+        get plan_garden_map_path(day: "junk")
+        expect(response).to have_http_status(:ok)
+      end
+    end
   end
 
   describe "GET /garden_map/parcel" do

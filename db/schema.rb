@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_08_000002) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_14_000001) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -255,6 +255,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_08_000002) do
     t.json "property_boundary"
     t.decimal "property_area_sqm", precision: 10, scale: 2
     t.index ["household_id"], name: "index_garden_map_settings_on_household_id", unique: true
+  end
+
+  create_table "garden_structures", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "household_id", null: false
+    t.string "name", null: false
+    t.string "kind", default: "other", null: false
+    t.json "boundary", null: false
+    t.decimal "height_m", precision: 5, scale: 2, default: "6.0", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["household_id"], name: "index_garden_structures_on_household_id"
   end
 
   create_table "grocery_items", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -1061,6 +1072,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_08_000002) do
   add_foreign_key "garden_beds", "households"
   add_foreign_key "garden_connections", "households"
   add_foreign_key "garden_map_settings", "households"
+  add_foreign_key "garden_structures", "households"
   add_foreign_key "grocery_items", "households"
   add_foreign_key "grocery_items", "products"
   add_foreign_key "grocery_items", "stores"

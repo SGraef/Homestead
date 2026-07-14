@@ -83,6 +83,24 @@ RSpec.describe Garden::Geometry do
     end
   end
 
+  describe ".project_rings_to_meters" do
+    it "projects other rings into the reference ring's frame" do
+      # A 10 m square 10 m north of the reference square: same lng range,
+      # lat shifted by two steps.
+      north_square = square.map { |p| { "lat" => p["lat"] + (2 * lat_step), "lng" => p["lng"] } }
+      reference, other = described_class.project_rings_to_meters(square, [north_square])
+
+      expect(reference).to eq(described_class.project_to_meters(square))
+      # North of the reference -> negative y (above the frame origin).
+      expect(other.map(&:last).minmax.map { |v| v.round(1) }).to eq([-20.0, -10.0])
+      expect(other.map(&:first).minmax.map { |v| v.round(1) }).to eq([0.0, 10.0])
+    end
+
+    it "returns nil for a degenerate reference" do
+      expect(described_class.project_rings_to_meters(square.first(2), [square])).to be_nil
+    end
+  end
+
   describe ".centroid" do
     it "returns the vertex mean as [lat, lng]" do
       lat, lng = described_class.centroid(square)

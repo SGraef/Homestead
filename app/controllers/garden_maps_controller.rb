@@ -15,6 +15,7 @@ class GardenMapsController < ApplicationController
   def show
     authorize @settings, :show?
     @garden_beds = current_household.garden_beds.includes(plantings: :plant).ordered
+    @structures  = current_household.garden_structures.ordered
   end
 
   def update
@@ -23,20 +24,32 @@ class GardenMapsController < ApplicationController
       redirect_to garden_map_path, notice: t("notices.garden_map_settings_saved")
     else
       @garden_beds = current_household.garden_beds.includes(plantings: :plant).ordered
+      @structures  = current_household.garden_structures.ordered
       render :show, status: :unprocessable_content
     end
   end
 
+  # Local clock hours the plan casts building shadows for; hours where the
+  # sun is below Garden::Shadow::MIN_ELEVATION_DEG simply draw nothing.
+  SHADOW_HOURS = [9, 12, 15, 18].freeze
+
+  # Selectable shadow days: today plus the three sun-defining days.
+  PLAN_DAYS = %w[today summer_solstice equinox winter_solstice].freeze
+
   # The Grundstücksplan: the captured outline as a standalone to-scale map
-  # with measurements, compass orientation and the sun's course (rise/set
+  # with measurements, compass orientation, the sun's course (rise/set
   # directions and noon heights across the year, computed for the parcel's
-  # own coordinates). Member-level like viewing the map.
+  # own coordinates) and the shadows the household's buildings throw on a
+  # selectable day. Member-level like viewing the map.
   def plan
     authorize @settings, :show?
     return redirect_to(garden_map_path, alert: t("garden_map.plan.no_property")) unless @settings.property?
 
     ring            = @settings.property_boundary
-    @points         = Garden::Geometry.project_to_meters(ring)
+    @structures     = current_household.garden_structures.ordered.to_a
+    @points, *structure_points =
+      Garden::Geometry.project_rings_to_meters(ring, @structures.map(&:boundary))
+    @structure_points = @structures.zip(structure_points)
     @edge_lengths   = Garden::Geometry.edge_lengths_m(ring)
     @edge_bearings  = Garden::Geometry.edge_bearings_deg(ring)
     lat, lng        = Garden::Geometry.centroid(ring)
@@ -45,6 +58,10 @@ class GardenMapsController < ApplicationController
       Garden::Sun.day(lat: lat, lng: lng, date: date, zone: zone)
     end
     @sun_now = Garden::Sun.position(lat: lat, lng: lng, time: Time.current)
+
+    @plan_day    = PLAN_DAYS.include?(params[:day]) ? params[:day] : PLAN_DAYS.first
+    @shadow_date = shadow_date_for(@plan_day)
+    @shadows     = shadows_for(@shadow_date, lat, lng, zone)
   end
 
   # Address -> saved viewport, via server-side geocoding (Nominatim). Admin
@@ -113,5 +130,25 @@ class GardenMapsController < ApplicationController
       :mode, :bundesland, :center_lat, :center_lng, :zoom,
       :custom_dop_url, :custom_dop_layer, :custom_alkis_url, :custom_alkis_layer
     )
+  end
+
+  def shadow_date_for(day_key)
+    day_key == "today" ? Date.current : Garden::Sun.key_dates(Date.current.year)[day_key.to_sym]
+  end
+
+  # One entry per hour the sun is up: its position plus every building's
+  # shadow polygon in the drawing frame.
+  def shadows_for(date, lat, lng, zone)
+    SHADOW_HOURS.filter_map do |hour|
+      position = Garden::Sun.position(lat: lat, lng: lng,
+                                      time: zone.local(date.year, date.month, date.day, hour))
+      polygons = @structure_points.filter_map do |structure, points|
+        Garden::Shadow.polygon(points,
+                               azimuth_deg:   position[:azimuth_deg],
+                               elevation_deg: position[:elevation_deg],
+                               height_m:      structure.height_m.to_f)
+      end
+      { hour: hour, position: position, polygons: polygons } if polygons.any?
+    end
   end
 end

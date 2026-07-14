@@ -575,7 +575,11 @@ en:
       length: "Length"
       bearing: "Bearing"
       compass_points: ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+      shadows_for: "Shadows for:"
+      shadow_legend: "Building shadows on %{date} at %{hours} o'clock — overlapping layers mean longer shading."
+      no_shadows: "The sun is not high enough at any of these hours on this day."
       days:
+        today: "Today"
         summer_solstice: "Summer solstice"
         summer_solstice_short: "Summer"
         equinox: "Equinox"
@@ -597,6 +601,26 @@ en:
       custom_alkis_url: "Parcel WMS URL"
       custom_alkis_layer: "Parcel WMS layer"
       save: "Save settings"
+
+  garden_structure:
+    heading: "Buildings"
+    draw: "Trace building"
+    empty: "No buildings captured yet — trace house, garage & co. on the aerial imagery and the property plan will compute their shadows."
+    hint: "Height = eaves height (gutter), not the ridge — it determines the shadow length."
+    default_name: "Building %{number}"
+    name: "Name"
+    kind: "Kind"
+    height: "Height"
+    footprint: "Footprint"
+    saved: "Building saved."
+    deleted: "Building removed."
+    confirm_delete: "Really remove this building?"
+    kinds:
+      house: "House"
+      garage: "Garage"
+      shed: "Shed"
+      greenhouse: "Greenhouse"
+      other: "Other"
 
   project:
     title: "Projects"

@@ -20,8 +20,10 @@
        data-garden-map-center-value="<%= @settings.effective_center.to_json %>"
        data-garden-map-zoom-value="<%= @settings.effective_zoom %>"
        data-garden-map-property-value="<%= (@settings.property_boundary || []).to_json %>"
+       data-garden-map-structures-value="<%= garden_map_structures_json(@structures).to_json %>"
        data-garden-map-token-value="<%= form_authenticity_token %>"
        data-garden-map-property-url-value="<%= admin ? property_garden_map_path : "" %>"
+       data-garden-map-structures-url-value="<%= admin ? garden_structures_path : "" %>"
        data-garden-map-parcel-url-value="<%= Garden::MapSources.parcel_source(@settings) ? parcel_garden_map_path : "" %>"
        data-i18n-draw-hint="<%= t("garden_map.draw.hint") %>"
        data-i18n-draw-need-points="<%= t("garden_map.draw.need_points") %>"
@@ -49,6 +51,8 @@
         <% if @settings.property? %>
           <button type="button" class="btn btn-sm btn-secondary"
                   data-action="garden-map#clearProperty"><%= t("garden_map.property.clear") %></button>
+          <button type="button" class="btn btn-sm btn-secondary"
+                  data-action="garden-map#startDrawStructure"><%= t("garden_structure.draw") %></button>
         <% end %>
       <% end %>
       <span class="caption" data-garden-map-target="readout"></span>
@@ -62,6 +66,63 @@
       <p class="caption" data-garden-map-target="adoptControls" hidden>
         <button type="button" class="btn btn-sm" data-action="garden-map#adoptParcel"><%= t("garden_map.parcel.adopt") %></button>
       </p>
+    <% end %>
+
+    <% if admin && (@structures.any? || @settings.property?) %>
+      <h3 class="garden-map-beds-heading"><%= t("garden_structure.heading") %></h3>
+      <% if @structures.empty? %>
+        <p class="caption"><%= t("garden_structure.empty") %></p>
+      <% else %>
+        <p class="caption"><%= t("garden_structure.hint") %></p>
+        <table>
+          <thead>
+            <tr>
+              <th><%= t("garden_structure.name") %></th>
+              <th><%= t("garden_structure.kind") %></th>
+              <th><%= t("garden_structure.height") %></th>
+              <th><%= t("garden_structure.footprint") %></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @structures.each do |structure| %>
+              <tr>
+                <td><input type="text" name="garden_structure[name]" value="<%= structure.name %>"
+                           maxlength="80" required form="structure-form-<%= structure.id %>"></td>
+                <td>
+                  <select name="garden_structure[kind]" form="structure-form-<%= structure.id %>">
+                    <% GardenStructure::KINDS.each do |kind| %>
+                      <option value="<%= kind %>" <%= "selected" if structure.kind == kind %>>
+                        <%= t("garden_structure.kinds.#{kind}") %>
+                      </option>
+                    <% end %>
+                  </select>
+                </td>
+                <td><input type="number" name="garden_structure[height_m]" value="<%= structure.height_m.to_f %>"
+                           min="0.5" max="50" step="0.1" inputmode="decimal" style="width:5.5rem"
+                           form="structure-form-<%= structure.id %>"> m</td>
+                <td><%= t("garden_map.area_label", area: number_with_precision(structure.area_sqm, precision: 1)) %></td>
+                <td style="display:flex;gap:var(--sp-1)">
+                  <button type="submit" form="structure-form-<%= structure.id %>" class="btn btn-sm secondary">
+                    <%= t("common.save") %>
+                  </button>
+                  <%= button_to t("common.delete"), garden_structure_path(structure),
+                                method: :delete, class: "btn btn-sm warn",
+                                data: { turbo_confirm: t("garden_structure.confirm_delete") },
+                                form: { style: "display:inline" } %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <%# Form shells outside the table (a <form> may not sit inside <tr>);
+            the row inputs attach via their form="" attribute. %>
+        <% @structures.each do |structure| %>
+          <%= form_with model: structure, url: garden_structure_path(structure),
+                        method: :patch, local: true, id: "structure-form-#{structure.id}" do %>
+          <% end %>
+        <% end %>
+      <% end %>
     <% end %>
 
     <% if admin %>
@@ -80,6 +141,7 @@
      data-controller="garden-lite"
      data-garden-lite-beds-value="<%= garden_map_beds_json(@garden_beds).to_json %>"
      data-garden-lite-property-value="<%= (@settings.property_boundary || []).to_json %>"
+     data-garden-lite-structures-value="<%= garden_map_structures_json(@structures).to_json %>"
      data-garden-lite-token-value="<%= form_authenticity_token %>"
      data-i18n-save-failed="<%= t("garden_map.save_failed") %>"
      data-i18n-area-label="<%= t("garden_map.area_label") %>">

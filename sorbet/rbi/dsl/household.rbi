@@ -532,6 +532,20 @@ class Household
     def garden_map_setting=(value); end
 
     sig { returns(T::Array[T.untyped]) }
+    def garden_structure_ids; end
+
+    sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }
+    def garden_structure_ids=(ids); end
+
+    # This method is created by ActiveRecord on the `Household` class because it declared `has_many :garden_structures`.
+    # 🔗 [Rails guide for `has_many` association](https://guides.rubyonrails.org/association_basics.html#the-has-many-association)
+    sig { returns(::GardenStructure::PrivateCollectionProxy) }
+    def garden_structures; end
+
+    sig { params(value: T::Enumerable[::GardenStructure]).void }
+    def garden_structures=(value); end
+
+    sig { returns(T::Array[T.untyped]) }
     def grocery_item_ids; end
 
     sig { params(ids: T::Array[T.untyped]).returns(T::Array[T.untyped]) }

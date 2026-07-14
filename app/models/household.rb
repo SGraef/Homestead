@@ -51,6 +51,7 @@ class Household < ApplicationRecord
   has_one  :garden_map_setting, dependent: :destroy
   has_many :plants, dependent: :destroy
   has_many :garden_beds, dependent: :destroy
+  has_many :garden_structures, -> { ordered }, dependent: :destroy
   has_many :plantings, dependent: :destroy
   # Projects before statuses/categories: destroying the household must
   # remove projects first or the statuses' destroy trips the NOT NULL FK.

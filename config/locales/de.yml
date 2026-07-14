@@ -581,7 +581,11 @@ de:
       length: "Länge"
       bearing: "Richtung"
       compass_points: ["N", "NO", "O", "SO", "S", "SW", "W", "NW"]
+      shadows_for: "Schatten für:"
+      shadow_legend: "Gebäudeschatten am %{date} um %{hours} Uhr — überlappende Schichten bedeuten längere Beschattung."
+      no_shadows: "Die Sonne steht an diesem Tag zu keiner der Stunden hoch genug."
       days:
+        today: "Heute"
         summer_solstice: "Sommersonnenwende"
         summer_solstice_short: "Sommer"
         equinox: "Tagundnachtgleiche"
@@ -603,6 +607,26 @@ de:
       custom_alkis_url: "Flurstück-WMS-URL"
       custom_alkis_layer: "Flurstück-WMS-Layer"
       save: "Einstellungen speichern"
+
+  garden_structure:
+    heading: "Gebäude"
+    draw: "Gebäude einzeichnen"
+    empty: "Noch keine Gebäude erfasst — zeichne Haus, Garage & Co. auf dem Luftbild nach, dann berechnet der Grundstücksplan ihre Schatten."
+    hint: "Höhe = Traufhöhe (Dachrinne), nicht der First — sie bestimmt die Schattenlänge."
+    default_name: "Gebäude %{number}"
+    name: "Name"
+    kind: "Art"
+    height: "Höhe"
+    footprint: "Grundfläche"
+    saved: "Gebäude gespeichert."
+    deleted: "Gebäude entfernt."
+    confirm_delete: "Gebäude wirklich entfernen?"
+    kinds:
+      house: "Wohnhaus"
+      garage: "Garage"
+      shed: "Schuppen"
+      greenhouse: "Gewächshaus"
+      other: "Sonstiges"
 
   project:
     title: "Projekte"

@@ -25,6 +25,7 @@ class Rails::Conductor::BaseController
     include ::ApplicationHelper
     include ::CalendarsHelper
     include ::GardenHelper
+    include ::GardenPlanHelper
     include ::IconHelper
     include ::NavigationHelper
     include ::NotificationPreferencesHelper

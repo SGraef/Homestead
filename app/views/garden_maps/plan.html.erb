@@ -50,6 +50,27 @@
       <%# the Grundstück itself %>
       <path class="property" d="<%= plan_path(@points) %>"/>
 
+      <%# building shadows for the selected day, one layer per hour --
+          overlaps darken naturally, so all-day shade reads darkest %>
+      <% @shadows.each do |shadow| %>
+        <g class="shadow">
+          <% shadow[:polygons].each do |polygon| %>
+            <path d="<%= plan_path(polygon) %>"/>
+          <% end %>
+        </g>
+      <% end %>
+
+      <%# the buildings themselves, on top of their shadows %>
+      <% @structure_points.each do |structure, points| %>
+        <% next if points.length < 3 %>
+        <g class="structure">
+          <path d="<%= plan_path(points) %>"/>
+          <% cx, cy = plan_center(points) %>
+          <text x="<%= cx.round(2) %>" y="<%= cy.round(2) %>" text-anchor="middle"
+                dominant-baseline="middle" font-size="<%= label_size * 0.85 %>"><%= structure.name %></text>
+        </g>
+      <% end %>
+
       <%# edge length labels at the midpoints; tiny jog edges stay unlabeled
           (they are still listed in the table below) %>
       <% plan_edge_midpoints(@points).each_with_index do |(mx, my), i| %>
@@ -75,7 +96,50 @@
     <span class="legend-swatch legend-winter"></span> <%= t("garden_map.plan.days.winter_solstice") %>
     · <%= t("garden_map.plan.arc_legend") %>
   </p>
+
+  <% if @structures.any? %>
+    <p class="garden-plan-daypicker">
+      <span class="caption"><%= t("garden_map.plan.shadows_for") %></span>
+      <% GardenMapsController::PLAN_DAYS.each do |day| %>
+        <%= link_to day == "today" ? t("garden_map.plan.days.today") : t("garden_map.plan.days.#{day}"),
+                    plan_garden_map_path(day: day),
+                    class: "btn btn-sm #{day == @plan_day ? '' : 'secondary'}" %>
+      <% end %>
+    </p>
+    <p class="caption">
+      <%= t("garden_map.plan.shadow_legend",
+            date:  l(@shadow_date, format: :short),
+            hours: @shadows.map { |s| s[:hour] }.join(", ")) %>
+      <% if @shadows.empty? %><%= t("garden_map.plan.no_shadows") %><% end %>
+    </p>
+  <% end %>
 </div>
+
+<% if @structures.any? %>
+  <div class="card card-flat">
+    <h2><%= t("garden_structure.heading") %></h2>
+    <table>
+      <thead>
+        <tr>
+          <th><%= t("garden_structure.name") %></th>
+          <th><%= t("garden_structure.kind") %></th>
+          <th><%= t("garden_structure.height") %></th>
+          <th><%= t("garden_structure.footprint") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @structures.each do |structure| %>
+          <tr>
+            <td><%= structure.name %></td>
+            <td><%= t("garden_structure.kinds.#{structure.kind}") %></td>
+            <td><%= number_with_precision(structure.height_m, precision: 1) %> m</td>
+            <td><%= t("garden_map.area_label", area: number_with_precision(structure.area_sqm, precision: 1)) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
 
 <div class="card card-flat">
   <h2><%= t("garden_map.plan.sun_heading") %></h2>

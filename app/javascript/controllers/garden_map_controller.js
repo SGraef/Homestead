@@ -18,8 +18,10 @@ export default class extends Controller {
     center: Array,
     zoom: Number,
     property: Array, // saved Grundstück ring [{lat, lng}, ...] (may be empty)
+    structures: Array, // buildings [{id, name, boundary: [{lat, lng}, ...]}]
     token: String,
     propertyUrl: String, // PATCH endpoint (blank for non-admin members)
+    structuresUrl: String, // POST endpoint for traced buildings (blank for members)
     parcelUrl: String // blank when the Bundesland has no Flurstück source
   }
 
@@ -35,9 +37,11 @@ export default class extends Controller {
     this.parcelLayer = null
     this.pendingParcel = null
     this.propertyLayer = null
+    this.structureLayers = []
 
     this.initMap()
     this.renderProperty(this.propertyValue)
+    this.renderStructures()
   }
 
   disconnect() {
@@ -124,15 +128,25 @@ export default class extends Controller {
     const point = { lat: e.latlng.lat, lng: e.latlng.lng }
     this.drawing.points.push(point)
     this.drawing.markers.push(
-      this.L.circleMarker(e.latlng, { radius: 5, color: "#c97455", fillOpacity: 1 }).addTo(this.map)
+      this.L.circleMarker(e.latlng, { radius: 5, color: this.drawing.color, fillOpacity: 1 }).addTo(this.map)
     )
     this.updatePreview()
   }
 
   startDraw() {
+    this.beginDrawing("property", "#c97455")
+  }
+
+  // Same tracing flow as the Grundstück, but the finished ring becomes a
+  // building (shadow caster) instead of the property outline.
+  startDrawStructure() {
+    this.beginDrawing("structure", "#5b6770")
+  }
+
+  beginDrawing(mode, color) {
     this.stopParcelPick()
     this.cancelDraw()
-    this.drawing = { points: [], markers: [], preview: null }
+    this.drawing = { mode, color, points: [], markers: [], preview: null }
     this.propertyLayer?.setStyle({ opacity: 0.3, fillOpacity: 0.02 })
     this.mapTarget.classList.add("garden-map-drawing")
     this.drawControlsTarget.hidden = false
@@ -144,7 +158,7 @@ export default class extends Controller {
     this.drawing.preview?.remove()
     this.drawing.preview = this.L.polyline(
       points.concat(points.length > 2 ? [points[0]] : []).map((p) => [p.lat, p.lng]),
-      { color: "#c97455", dashArray: "6 4", weight: 2 }
+      { color: this.drawing.color, dashArray: "6 4", weight: 2 }
     ).addTo(this.map)
     if (points.length >= 3) this.setReadout(this.areaLabel(polygonAreaSqm(points)))
   }
@@ -155,7 +169,10 @@ export default class extends Controller {
       this.setReadout(this.element.dataset.i18nDrawNeedPoints)
       return
     }
-    this.saveProperty(this.drawing.points).then((saved) => {
+    const save = this.drawing.mode === "structure"
+      ? this.createStructure(this.drawing.points)
+      : this.saveProperty(this.drawing.points)
+    save.then((saved) => {
       if (saved) this.cancelDraw()
     })
   }
@@ -190,6 +207,38 @@ export default class extends Controller {
       const data = await response.json()
       this.renderProperty(ring)
       this.setReadout(data.property_area_sqm ? this.areaLabel(data.property_area_sqm) : "")
+      return true
+    } catch {
+      this.setReadout(this.element.dataset.i18nSaveFailed)
+      return false
+    }
+  }
+
+  // -- buildings (shadow casters) ---------------------------------------------
+
+  renderStructures() {
+    this.structureLayers.forEach((layer) => layer.remove())
+    this.structureLayers = (this.structuresValue || []).map((structure) =>
+      this.L.polygon(structure.boundary.map((p) => [p.lat, p.lng]), {
+        color: "#5b6770", weight: 2, fillOpacity: 0.35, interactive: false
+      }).bindTooltip(structure.name).addTo(this.map)
+    )
+  }
+
+  async createStructure(ring) {
+    try {
+      const response = await fetch(this.structuresUrlValue, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": this.tokenValue,
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ boundary: ring })
+      })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      // Reload so the new building appears in the editable list below the map.
+      window.Turbo ? window.Turbo.visit(window.location, { action: "replace" }) : window.location.reload()
       return true
     } catch {
       this.setReadout(this.element.dataset.i18nSaveFailed)
