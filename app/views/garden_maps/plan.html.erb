@@ -1,0 +1,140 @@
+<% content_for :title, t("garden_map.plan.title") %>
+<h1><%= t("garden_map.plan.title") %></h1>
+
+<p>
+  <%= link_to t("garden_map.plan.back"), garden_map_path, class: "btn btn-secondary" %>
+</p>
+<p class="caption"><%= t("garden_map.plan.intro") %></p>
+
+<%
+  w, h = plan_extent(@points)
+  margin = [[w, h].max * 0.18, 3].max.round(1)
+  center = plan_center(@points)
+  ray = ([w, h].min / 2.0) * 0.9
+  label_size = ([[w, h].max / 22.0, 0.6].max).round(2)
+  sun_radii = { summer_solstice: ray, equinox: ray * 0.78, winter_solstice: ray * 0.56 }
+%>
+
+<div class="card card-flat">
+  <h2><%= t("garden_map.plan.map_heading") %></h2>
+  <p class="caption">
+    <%= t("garden_map.property.area",
+          area: number_with_precision(@settings.property_area_sqm, precision: 1)) %>
+    · <%= t("garden_map.plan.dimensions", width: number_with_precision(w, precision: 1),
+                                          height: number_with_precision(h, precision: 1)) %>
+  </p>
+
+  <div class="garden-plan-canvas">
+    <svg class="garden-plan-svg" xmlns="http://www.w3.org/2000/svg"
+         viewBox="<%= -margin %> <%= -margin %> <%= w + (margin * 2) %> <%= h + (margin * 2) %>"
+         style="aspect-ratio: <%= w + (margin * 2) %> / <%= h + (margin * 2) %>"
+         role="img" aria-label="<%= t("garden_map.plan.svg_label") %>">
+
+      <%# sun course: one arc per key day, drawn beneath the outline %>
+      <% @sun_days.each do |key, day| %>
+        <% next unless day.sunrise %>
+        <% radius = sun_radii[key] %>
+        <g class="sun sun--<%= key.to_s.dasherize %>">
+          <path class="sun-arc" d="<%= sun_arc_path(center, day.sunrise_azimuth_deg, day.sunset_azimuth_deg, radius) %>"/>
+          <% rise = sun_point(center, day.sunrise_azimuth_deg, radius)
+             set  = sun_point(center, day.sunset_azimuth_deg, radius)
+             noon = sun_point(center, 180, radius) %>
+          <line class="sun-ray" x1="<%= center[0] %>" y1="<%= center[1] %>" x2="<%= rise[0] %>" y2="<%= rise[1] %>"/>
+          <line class="sun-ray" x1="<%= center[0] %>" y1="<%= center[1] %>" x2="<%= set[0] %>" y2="<%= set[1] %>"/>
+          <circle class="sun-noon" cx="<%= noon[0] %>" cy="<%= noon[1] %>" r="<%= label_size * 0.45 %>"/>
+          <text class="sun-label" x="<%= noon[0] %>" y="<%= noon[1] + (label_size * 1.4) %>"
+                text-anchor="middle" font-size="<%= label_size * 0.8 %>"><%= t("garden_map.plan.days.#{key}_short") %></text>
+        </g>
+      <% end %>
+
+      <%# the Grundstück itself %>
+      <path class="property" d="<%= plan_path(@points) %>"/>
+
+      <%# edge length labels at the midpoints; tiny jog edges stay unlabeled
+          (they are still listed in the table below) %>
+      <% plan_edge_midpoints(@points).each_with_index do |(mx, my), i| %>
+        <% next if @edge_lengths[i] < 1.5 %>
+        <text class="edge-label" x="<%= mx.round(2) %>" y="<%= my.round(2) %>"
+              text-anchor="middle" font-size="<%= label_size %>"
+              ><%= number_with_precision(@edge_lengths[i], precision: 1) %> m</text>
+      <% end %>
+
+      <%# north arrow, top-right of the drawing area %>
+      <g class="north" transform="translate(<%= w + (margin * 0.55) %>, <%= -margin * 0.45 %>)">
+        <line x1="0" y1="<%= label_size * 2.2 %>" x2="0" y2="0"/>
+        <path d="M<%= -label_size * 0.5 %> <%= label_size * 0.8 %> L0 0 L<%= label_size * 0.5 %> <%= label_size * 0.8 %>"/>
+        <text text-anchor="middle" font-size="<%= label_size %>"
+              x="0" y="<%= label_size * 3.4 %>"><%= t("garden_map.plan.north") %></text>
+      </g>
+    </svg>
+  </div>
+
+  <p class="caption garden-plan-legend">
+    <span class="legend-swatch legend-summer"></span> <%= t("garden_map.plan.days.summer_solstice") %>
+    <span class="legend-swatch legend-equinox"></span> <%= t("garden_map.plan.days.equinox") %>
+    <span class="legend-swatch legend-winter"></span> <%= t("garden_map.plan.days.winter_solstice") %>
+    · <%= t("garden_map.plan.arc_legend") %>
+  </p>
+</div>
+
+<div class="card card-flat">
+  <h2><%= t("garden_map.plan.sun_heading") %></h2>
+  <% if @sun_now[:elevation_deg].positive? %>
+    <p class="caption">
+      <%= t("garden_map.plan.sun_now",
+            azimuth: number_with_precision(@sun_now[:azimuth_deg], precision: 0),
+            direction: compass_point(@sun_now[:azimuth_deg]),
+            elevation: number_with_precision(@sun_now[:elevation_deg], precision: 0)) %>
+    </p>
+  <% end %>
+  <table>
+    <thead>
+      <tr>
+        <th><%= t("garden_map.plan.day") %></th>
+        <th><%= t("garden_map.plan.sunrise") %></th>
+        <th><%= t("garden_map.plan.noon") %></th>
+        <th><%= t("garden_map.plan.sunset") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @sun_days.each do |key, day| %>
+        <tr>
+          <td><%= t("garden_map.plan.days.#{key}") %> (<%= l(day.date, format: :short) %>)</td>
+          <% if day.sunrise %>
+            <td><%= day.sunrise.strftime("%H:%M") %>
+                · <%= number_with_precision(day.sunrise_azimuth_deg, precision: 0) %>° <%= compass_point(day.sunrise_azimuth_deg) %></td>
+            <td><%= day.noon.strftime("%H:%M") %>
+                · <%= t("garden_map.plan.elevation", degrees: number_with_precision(day.noon_elevation_deg, precision: 0)) %></td>
+            <td><%= day.sunset.strftime("%H:%M") %>
+                · <%= number_with_precision(day.sunset_azimuth_deg, precision: 0) %>° <%= compass_point(day.sunset_azimuth_deg) %></td>
+          <% else %>
+            <td colspan="3"><%= t("garden_map.plan.no_sunrise") %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p class="caption"><%= t("garden_map.plan.sun_note") %></p>
+</div>
+
+<div class="card card-flat">
+  <h2><%= t("garden_map.plan.edges_heading") %></h2>
+  <table>
+    <thead>
+      <tr>
+        <th><%= t("garden_map.plan.edge") %></th>
+        <th><%= t("garden_map.plan.length") %></th>
+        <th><%= t("garden_map.plan.bearing") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @edge_lengths.each_with_index do |length, i| %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><%= number_with_precision(length, precision: 1) %> m</td>
+          <td><%= number_with_precision(@edge_bearings[i], precision: 0) %>° <%= compass_point(@edge_bearings[i]) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

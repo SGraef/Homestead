@@ -5,6 +5,9 @@
 <p>
   <%= link_to t("garden_map.beds_link"), garden_beds_path, class: "btn btn-secondary" %>
   <%= link_to t("garden_bed.catalog_link"), plants_path, class: "btn btn-secondary" %>
+  <% if @settings.property? %>
+    <%= link_to t("garden_map.plan.link"), plan_garden_map_path, class: "btn btn-secondary" %>
+  <% end %>
 </p>
 <p class="caption"><%= t("garden_map.intro") %></p>
 

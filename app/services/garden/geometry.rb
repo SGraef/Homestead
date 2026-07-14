@@ -44,12 +44,60 @@ module Garden
         end
       end
 
+      # Compass bearing of each edge (0 = north, 90 = east), closing edge
+      # included -- pairs index-for-index with {edge_lengths_m}.
+      # @param ring [Array<Hash>]
+      # @return [Array<Float>] degrees, 1 decimal
+      def edge_bearings_deg(ring)
+        pts = project(ring)
+        return [] if pts.length < 2
+
+        pts.each_index.map do |i|
+          x1, y1 = pts[i]
+          x2, y2 = pts[(i + 1) % pts.length]
+          # x is east, y is north in the local frame; atan2(east, north)
+          ((Math.atan2(x2 - x1, y2 - y1) * 180 / Math::PI) % 360).round(1)
+        end
+      end
+
+      # The ring projected to a local drawing frame: meters, bounding box
+      # anchored at (0, 0), y flipped so north is "up" in SVG coordinates.
+      # Mirrors projectToMeters in the lite-planner JS.
+      # @param ring [Array<Hash>]
+      # @return [Array<Array(Float, Float)>, nil] nil for degenerate input
+      def project_to_meters(ring)
+        pts = project(ring).map { |x, y| [x, -y] }
+        return nil if pts.length < 3
+
+        min_x = pts.map(&:first).min
+        min_y = pts.map(&:last).min
+        pts.map { |x, y| [(x - min_x).round(2), (y - min_y).round(2)] }
+      end
+
+      # Arithmetic mean of the vertices -- good enough as a sun-ray anchor and
+      # label spot for convex-ish parcels.
+      # @param ring [Array<Hash>]
+      # @return [Array(Float, Float), nil] [lat, lng]
+      def centroid(ring)
+        pts = Array(ring).map { |p| [p["lat"] || p[:lat], p["lng"] || p[:lng]] }
+        pts = pts.select { |lat, lng| lat.is_a?(Numeric) && lng.is_a?(Numeric) }
+        return nil if pts.empty?
+
+        [pts.sum(&:first) / pts.length, pts.sum(&:last) / pts.length]
+      end
+
       private
 
       # @return [Array<Array(Float, Float)>] [x, y] in meters, local frame
       def project(ring)
         ring = Array(ring).map { |p| [p["lat"] || p[:lat], p["lng"] || p[:lng]] }
         ring = ring.select { |lat, lng| lat.is_a?(Numeric) && lng.is_a?(Numeric) }
+        # Official parcel rings (GML) close explicitly by repeating the first
+        # vertex; our edges close implicitly, so collapse consecutive
+        # duplicates and the wrap-around one -- they would only add
+        # zero-length edges.
+        ring = ring.chunk_while { |a, b| a == b }.map(&:first)
+        ring.pop if ring.length > 1 && ring.first == ring.last
         return [] if ring.empty?
 
         lat0 = ring.sum { |lat, _| lat } / ring.length

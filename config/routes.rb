@@ -125,6 +125,7 @@ Rails.application.routes.draw do
   resource :garden_map, only: %i[show update] do
     post  :locate
     get   :parcel
+    get   :plan     # Grundstücksplan: outline + orientation + sun course
     patch :property # save/clear the Grundstück outline (traced or adopted)
   end
 

@@ -27,6 +27,26 @@ class GardenMapsController < ApplicationController
     end
   end
 
+  # The Grundstücksplan: the captured outline as a standalone to-scale map
+  # with measurements, compass orientation and the sun's course (rise/set
+  # directions and noon heights across the year, computed for the parcel's
+  # own coordinates). Member-level like viewing the map.
+  def plan
+    authorize @settings, :show?
+    return redirect_to(garden_map_path, alert: t("garden_map.plan.no_property")) unless @settings.property?
+
+    ring            = @settings.property_boundary
+    @points         = Garden::Geometry.project_to_meters(ring)
+    @edge_lengths   = Garden::Geometry.edge_lengths_m(ring)
+    @edge_bearings  = Garden::Geometry.edge_bearings_deg(ring)
+    lat, lng        = Garden::Geometry.centroid(ring)
+    zone            = ActiveSupport::TimeZone[current_household.timezone] || Time.zone
+    @sun_days       = Garden::Sun.key_dates(Date.current.year).transform_values do |date|
+      Garden::Sun.day(lat: lat, lng: lng, date: date, zone: zone)
+    end
+    @sun_now = Garden::Sun.position(lat: lat, lng: lng, time: Time.current)
+  end
+
   # Address -> saved viewport, via server-side geocoding (Nominatim). Admin
   # like the rest of the settings; the geocoder is called at most once per
   # form submit.

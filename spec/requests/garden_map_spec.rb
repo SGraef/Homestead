@@ -147,6 +147,37 @@ RSpec.describe "GardenMap" do
     end
   end
 
+  describe "GET /garden_map/plan" do
+    # ~10 m x 10 m square near Hannover (see the property PATCH spec above).
+    let(:ring) do
+      step = 10.0 / Garden::Geometry::EARTH_RADIUS_M * 180 / Math::PI
+      lng_step = step / Math.cos(52 * Math::PI / 180)
+      [{ "lat" => 52.0, "lng" => 9.0 }, { "lat" => 52.0, "lng" => 9.0 + lng_step },
+       { "lat" => 52.0 + step, "lng" => 9.0 + lng_step }, { "lat" => 52.0 + step, "lng" => 9.0 }]
+    end
+
+    before { login_via_post(admin) }
+
+    it "renders the plan with sun course, north arrow and edge table (member-level)" do
+      create(:garden_map_setting, household: household, property_boundary: ring)
+      get plan_garden_map_path
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("garden-plan-svg")
+      expect(response.body).to include("sun--summer-solstice")
+      expect(response.body).to include("sun--winter-solstice")
+      expect(response.body).to include(CGI.escapeHTML(I18n.t("garden_map.plan.edges_heading")))
+      expect(response.body).to include(I18n.t("garden_map.plan.days.summer_solstice"))
+      # 10 m edge label from the outline
+      expect(response.body).to match(/10[.,]0 m/)
+    end
+
+    it "redirects to the garden map when no property has been captured" do
+      get plan_garden_map_path
+      expect(response).to redirect_to(garden_map_path)
+      expect(flash[:alert]).to eq(I18n.t("garden_map.plan.no_property"))
+    end
+  end
+
   describe "GET /garden_map/parcel" do
     let(:gml) { Rails.root.join("spec/fixtures/garden/alkis_flurstueck.xml").read }
 

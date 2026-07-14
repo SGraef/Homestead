@@ -48,4 +48,50 @@ RSpec.describe Garden::Geometry do
       expect(described_class.edge_lengths_m([square.first])).to eq([])
     end
   end
+
+  describe ".edge_bearings_deg" do
+    it "walks the square east, north, west, south" do
+      # Ring order: E along the south edge, N up the east edge, W along the
+      # north edge, S down the west edge (closing).
+      expect(described_class.edge_bearings_deg(square)).to eq([90.0, 0.0, 270.0, 180.0])
+    end
+  end
+
+  describe "explicitly closed rings (GML style)" do
+    it "collapses the repeated closing vertex instead of emitting a 0 m edge" do
+      closed = square + [square.first]
+      expect(described_class.edge_lengths_m(closed).length).to eq(4)
+      expect(described_class.edge_lengths_m(closed)).to all(be_positive)
+      expect(described_class.polygon_area_sqm(closed)).to be_within(0.5).of(100.0)
+    end
+  end
+
+  describe ".project_to_meters" do
+    it "anchors the bounding box at the origin with north up (y flipped)" do
+      pts = described_class.project_to_meters(square)
+      expect(pts.map(&:first).min).to eq(0.0)
+      expect(pts.map(&:last).min).to eq(0.0)
+      # First vertex is the SW corner geographically -> bottom-left on screen.
+      expect(pts.first[0]).to eq(0.0)
+      expect(pts.first[1]).to be_within(0.05).of(10.0)
+      expect(pts.map(&:first).max).to be_within(0.05).of(10.0)
+    end
+
+    it "returns nil for degenerate input" do
+      expect(described_class.project_to_meters(square.first(2))).to be_nil
+      expect(described_class.project_to_meters(nil)).to be_nil
+    end
+  end
+
+  describe ".centroid" do
+    it "returns the vertex mean as [lat, lng]" do
+      lat, lng = described_class.centroid(square)
+      expect(lat).to be_within(1e-9).of(52.0 + (lat_step / 2))
+      expect(lng).to be_within(1e-9).of(9.0 + (lng_step / 2))
+    end
+
+    it "returns nil for empty input" do
+      expect(described_class.centroid([])).to be_nil
+    end
+  end
 end
