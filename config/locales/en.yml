@@ -560,7 +560,7 @@ en:
       svg_label: "To-scale property plan with the sun's course"
       dimensions: "extent approx. %{width} m × %{height} m"
       north: "N"
-      arc_legend: "Arcs: direction of the sun's travel from rise via noon (dot = south) to set."
+      arc_legend: "Compass rose bottom left: the sun's travel from rise via noon (dot = south) to set."
       sun_heading: "Sun positions"
       sun_now: "Right now: sun at %{azimuth}° (%{direction}), %{elevation}° above the horizon."
       day: "Day"
@@ -581,11 +581,8 @@ en:
       days:
         today: "Today"
         summer_solstice: "Summer solstice"
-        summer_solstice_short: "Summer"
         equinox: "Equinox"
-        equinox_short: "Spring/autumn"
         winter_solstice: "Winter solstice"
-        winter_solstice_short: "Winter"
     settings:
       heading: "Map settings"
       mode: "View"

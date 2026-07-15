@@ -9,10 +9,12 @@
 <%
   w, h = plan_extent(@points)
   margin = [[w, h].max * 0.18, 3].max.round(1)
-  center = plan_center(@points)
-  ray = ([w, h].min / 2.0) * 0.9
   label_size = ([[w, h].max / 22.0, 0.6].max).round(2)
-  sun_radii = { summer_solstice: ray, equinox: ray * 0.78, winter_solstice: ray * 0.56 }
+  # Sun compass rose: a small inset in the bottom-left margin corner, so the
+  # sun's course stays readable without arcs sweeping across the garden.
+  rose_r = (margin * 0.48).round(2)
+  rose_c = [(-margin * 0.5).round(2), (h + (margin * 0.5)).round(2)]
+  rose_radii = { summer_solstice: rose_r, equinox: rose_r * 0.78, winter_solstice: rose_r * 0.56 }
 %>
 
 <div class="card card-flat">
@@ -30,22 +32,24 @@
          style="aspect-ratio: <%= w + (margin * 2) %> / <%= h + (margin * 2) %>"
          role="img" aria-label="<%= t("garden_map.plan.svg_label") %>">
 
-      <%# sun course: one arc per key day, drawn beneath the outline %>
-      <% @sun_days.each do |key, day| %>
-        <% next unless day.sunrise %>
-        <% radius = sun_radii[key] %>
-        <g class="sun sun--<%= key.to_s.dasherize %>">
-          <path class="sun-arc" d="<%= sun_arc_path(center, day.sunrise_azimuth_deg, day.sunset_azimuth_deg, radius) %>"/>
-          <% rise = sun_point(center, day.sunrise_azimuth_deg, radius)
-             set  = sun_point(center, day.sunset_azimuth_deg, radius)
-             noon = sun_point(center, 180, radius) %>
-          <line class="sun-ray" x1="<%= center[0] %>" y1="<%= center[1] %>" x2="<%= rise[0] %>" y2="<%= rise[1] %>"/>
-          <line class="sun-ray" x1="<%= center[0] %>" y1="<%= center[1] %>" x2="<%= set[0] %>" y2="<%= set[1] %>"/>
-          <circle class="sun-noon" cx="<%= noon[0] %>" cy="<%= noon[1] %>" r="<%= label_size * 0.45 %>"/>
-          <text class="sun-label" x="<%= noon[0] %>" y="<%= noon[1] + (label_size * 1.4) %>"
-                text-anchor="middle" font-size="<%= label_size * 0.8 %>"><%= t("garden_map.plan.days.#{key}_short") %></text>
-        </g>
-      <% end %>
+      <%# sun course as a compact compass rose in the bottom-left margin:
+          rise/set ticks + travel arc per key day, none of it over the garden %>
+      <g class="sun-rose">
+        <% @sun_days.each do |key, day| %>
+          <% next unless day.sunrise %>
+          <% radius = rose_radii[key] %>
+          <g class="sun sun--<%= key.to_s.dasherize %>">
+            <path class="sun-arc" d="<%= sun_arc_path(rose_c, day.sunrise_azimuth_deg, day.sunset_azimuth_deg, radius) %>"/>
+            <% [day.sunrise_azimuth_deg, day.sunset_azimuth_deg].each do |azimuth| %>
+              <% from = sun_point(rose_c, azimuth, radius * 0.68)
+                 to   = sun_point(rose_c, azimuth, radius) %>
+              <line class="sun-ray" x1="<%= from[0] %>" y1="<%= from[1] %>" x2="<%= to[0] %>" y2="<%= to[1] %>"/>
+            <% end %>
+            <% noon = sun_point(rose_c, 180, radius) %>
+            <circle class="sun-noon" cx="<%= noon[0] %>" cy="<%= noon[1] %>" r="<%= (rose_r * 0.09).round(2) %>"/>
+          </g>
+        <% end %>
+      </g>
 
       <%# the Grundstück itself %>
       <path class="property" d="<%= plan_path(@points) %>"/>

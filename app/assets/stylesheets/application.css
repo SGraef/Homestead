@@ -871,8 +871,7 @@ pre {
   stroke-linejoin: round;
 }
 .garden-plan-svg .edge-label,
-.garden-plan-svg .north text,
-.garden-plan-svg .sun-label { fill: var(--fg-1); }
+.garden-plan-svg .north text { fill: var(--fg-1); }
 .garden-plan-svg .north line,
 .garden-plan-svg .north path {
   stroke: var(--fg-1);
@@ -880,8 +879,9 @@ pre {
   fill: none;
   stroke-linejoin: round;
 }
-.garden-plan-svg .sun-arc { fill: none; stroke-width: 0.14; }
-.garden-plan-svg .sun-ray { stroke-width: 0.07; stroke-dasharray: 0.4 0.25; }
+/* Sun rose inset: fine strokes, sized for the small margin corner. */
+.garden-plan-svg .sun-arc { fill: none; stroke-width: 0.09; opacity: 0.85; }
+.garden-plan-svg .sun-ray { stroke-width: 0.07; opacity: 0.85; }
 .garden-plan-svg .sun--summer-solstice .sun-arc,
 .garden-plan-svg .sun--summer-solstice .sun-ray { stroke: #e0a800; }
 .garden-plan-svg .sun--summer-solstice .sun-noon { fill: #e0a800; }

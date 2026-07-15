@@ -566,7 +566,7 @@ de:
       svg_label: "Maßstabsgetreuer Grundstücksplan mit Sonnenverlauf"
       dimensions: "Ausdehnung ca. %{width} m × %{height} m"
       north: "N"
-      arc_legend: "Bögen: Richtung des Sonnenlaufs vom Aufgang über Mittag (Punkt = Süden) zum Untergang."
+      arc_legend: "Kompassrose unten links: Sonnenlauf vom Aufgang über Mittag (Punkt = Süden) zum Untergang."
       sun_heading: "Sonnenstand"
       sun_now: "Jetzt gerade: Sonne bei %{azimuth}° (%{direction}), %{elevation}° über dem Horizont."
       day: "Tag"
@@ -587,11 +587,8 @@ de:
       days:
         today: "Heute"
         summer_solstice: "Sommersonnenwende"
-        summer_solstice_short: "Sommer"
         equinox: "Tagundnachtgleiche"
-        equinox_short: "Frühjahr/Herbst"
         winter_solstice: "Wintersonnenwende"
-        winter_solstice_short: "Winter"
     settings:
       heading: "Karteneinstellungen"
       mode: "Ansicht"
