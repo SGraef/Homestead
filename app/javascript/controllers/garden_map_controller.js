@@ -21,7 +21,6 @@ export default class extends Controller {
     structures: Array, // buildings [{id, name, boundary: [{lat, lng}, ...]}]
     token: String,
     propertyUrl: String, // PATCH endpoint (blank for non-admin members)
-    structuresUrl: String, // POST endpoint for traced buildings (blank for members)
     parcelUrl: String // blank when the Bundesland has no Flurstück source
   }
 
@@ -73,6 +72,16 @@ export default class extends Controller {
 
     this.map.on("click", (e) => this.mapClicked(e))
     this.map.on("moveend zoomend", () => this.viewportChanged())
+
+    // The capture map lives in a <details> fold: Leaflet initialized while
+    // hidden has zero size, so re-measure (and re-frame the Grundstück)
+    // whenever the fold opens.
+    const details = this.element.closest("details")
+    details?.addEventListener("toggle", () => {
+      if (!details.open) return
+      this.map.invalidateSize()
+      if (this.propertyLayer) this.map.fitBounds(this.propertyLayer.getBounds(), { maxZoom: 19 })
+    })
   }
 
   setupToggle(input, layer, initiallyOn) {
@@ -137,12 +146,6 @@ export default class extends Controller {
     this.beginDrawing("property", "#c97455")
   }
 
-  // Same tracing flow as the Grundstück, but the finished ring becomes a
-  // building (shadow caster) instead of the property outline.
-  startDrawStructure() {
-    this.beginDrawing("structure", "#5b6770")
-  }
-
   beginDrawing(mode, color) {
     this.stopParcelPick()
     this.cancelDraw()
@@ -169,10 +172,7 @@ export default class extends Controller {
       this.setReadout(this.element.dataset.i18nDrawNeedPoints)
       return
     }
-    const save = this.drawing.mode === "structure"
-      ? this.createStructure(this.drawing.points)
-      : this.saveProperty(this.drawing.points)
-    save.then((saved) => {
+    this.saveProperty(this.drawing.points).then((saved) => {
       if (saved) this.cancelDraw()
     })
   }
@@ -214,7 +214,7 @@ export default class extends Controller {
     }
   }
 
-  // -- buildings (shadow casters) ---------------------------------------------
+  // -- buildings (context only; drawn/edited on the parcel planner) -----------
 
   renderStructures() {
     this.structureLayers.forEach((layer) => layer.remove())
@@ -223,27 +223,6 @@ export default class extends Controller {
         color: "#5b6770", weight: 2, fillOpacity: 0.35, interactive: false
       }).bindTooltip(structure.name).addTo(this.map)
     )
-  }
-
-  async createStructure(ring) {
-    try {
-      const response = await fetch(this.structuresUrlValue, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": this.tokenValue,
-          "Accept": "application/json"
-        },
-        body: JSON.stringify({ boundary: ring })
-      })
-      if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      // Reload so the new building appears in the editable list below the map.
-      window.Turbo ? window.Turbo.visit(window.location, { action: "replace" }) : window.location.reload()
-      return true
-    } catch {
-      this.setReadout(this.element.dataset.i18nSaveFailed)
-      return false
-    }
   }
 
   // -- official parcel (Flurstück) lookup + adoption --------------------------

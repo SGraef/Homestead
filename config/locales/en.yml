@@ -508,7 +508,7 @@ en:
 
   garden_map:
     title: "Garden map"
-    intro: "Capture your property (Grundstück) on the official map, then lay out the beds to scale inside its outline."
+    intro: "Your garden to scale: the parcel as an aerial-photo crop with buildings and beds on top. The property itself is captured once via the official map below."
     beds_link: "Go to beds"
     beds_heading: "Beds"
     no_beds_html: "No beds yet — %{link} first."
@@ -523,6 +523,9 @@ en:
       cancel: "Cancel"
       hint: "Click the map to set corner points, then press Done."
       need_points: "Set at least 3 points."
+    capture:
+      summary: "Capture / adjust the property (large map)"
+      hint: "Only needed for capturing: trace the property on the aerial imagery or adopt the official outline via \"Show parcel\". Everything else happens on the garden map above."
     property:
       heading: "Property (Grundstück)"
       hint: "Trace your property over the aerial imagery — or click \"Show parcel\" and adopt the official outline."

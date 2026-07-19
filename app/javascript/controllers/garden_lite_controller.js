@@ -19,21 +19,25 @@ export default class extends Controller {
     beds: Array,
     property: Array, // Grundstück ring [{lat, lng}, ...]; may be empty
     structures: Array, // buildings [{name, boundary}]; drawn as fixed obstacles
+    photo: Object, // aerial underlay { url, x, y, width, height }; may be empty
+    structuresUrl: String, // POST endpoint for drawn buildings ("" = not allowed)
     token: String
   }
 
-  static targets = ["svg", "width", "length", "bedArea"]
+  static targets = ["svg", "width", "length", "bedArea", "structureControls", "readout"]
 
   connect() {
     this.beds = new Map(this.bedsValue.map((bed) => [bed.id, { ...bed }]))
     // One shared frame (from the Grundstück) so buildings land where they
     // belong relative to the outline -- mirrors Geometry.project_rings_to_meters.
-    const frame = buildFrame(this.propertyValue)
-    this.propertyMeters = frame && projectRing(this.propertyValue, frame)
-    this.structureMeters = frame
-      ? (this.structuresValue || []).map((s) => ({ name: s.name, points: projectRing(s.boundary, frame) }))
+    this.frame = buildFrame(this.propertyValue)
+    this.propertyMeters = this.frame && projectRing(this.propertyValue, this.frame)
+    this.structureMeters = this.frame
+      ? (this.structuresValue || []).map((s) => ({ name: s.name, points: projectRing(s.boundary, this.frame) }))
       : []
     this.dragging = null
+    this.drawingStructure = null
+    this.svgTarget.addEventListener("click", (e) => this.svgClicked(e))
     this.render()
   }
 
@@ -56,10 +60,24 @@ export default class extends Controller {
     svg.setAttribute("viewBox", `${-MARGIN_M} ${-MARGIN_M} ${w} ${h}`)
     svg.style.aspectRatio = `${w} / ${h}`
 
-    this.drawGrid(svg, w, h)
+    this.drawPhoto(svg)
+    if (!this.photoValue?.url) this.drawGrid(svg, w, h)
     this.drawProperty(svg)
     this.drawStructures(svg)
     sized.forEach((bed) => this.drawBed(svg, bed))
+    this.drawStructurePreview(svg)
+  }
+
+  // The Flurstück aerial photo as underlay: the WMS crop is requested for
+  // exactly the frame's bbox (+margin), so it just stretches into place.
+  drawPhoto(svg) {
+    const photo = this.photoValue
+    if (!photo?.url || !this.propertyMeters) return
+    svg.appendChild(this.el("image", {
+      href: photo.url, x: photo.x, y: photo.y,
+      width: photo.width, height: photo.height,
+      preserveAspectRatio: "none", class: "photo"
+    }))
   }
 
   propertyExtent() {
@@ -132,9 +150,76 @@ export default class extends Controller {
     return node
   }
 
+  // -- drawing a building on the parcel view --------------------------------
+
+  startDrawStructure() {
+    if (!this.frame || !this.structuresUrlValue) return
+    this.drawingStructure = { points: [] }
+    this.svgTarget.classList.add("garden-lite-svg--drawing")
+    if (this.hasStructureControlsTarget) this.structureControlsTarget.hidden = false
+    this.setReadout(this.element.dataset.i18nDrawHint)
+  }
+
+  svgClicked(event) {
+    if (!this.drawingStructure) return
+    const point = this.svgPoint(event)
+    this.drawingStructure.points.push([snap(point.x), snap(point.y)])
+    this.render()
+  }
+
+  drawStructurePreview(svg) {
+    const points = this.drawingStructure?.points
+    if (!points?.length) return
+    const group = this.el("g", { class: "structure-preview" })
+    if (points.length > 1) {
+      group.appendChild(this.el("path", {
+        d: `${points.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x} ${y}`).join(" ")}${points.length > 2 ? " Z" : ""}`
+      }))
+    }
+    points.forEach(([x, y]) => group.appendChild(this.el("circle", { cx: x, cy: y, r: 0.35 })))
+    svg.appendChild(group)
+  }
+
+  async finishStructure() {
+    const points = this.drawingStructure?.points
+    if (!points) return
+    if (points.length < 3) {
+      this.setReadout(this.element.dataset.i18nDrawNeedPoints)
+      return
+    }
+    try {
+      const response = await fetch(this.structuresUrlValue, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": this.tokenValue,
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ boundary: points.map((p) => unprojectPoint(p, this.frame)) })
+      })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      window.Turbo ? window.Turbo.visit(window.location, { action: "replace" }) : window.location.reload()
+    } catch {
+      this.setReadout(this.element.dataset.i18nSaveFailed)
+    }
+  }
+
+  cancelStructure() {
+    this.drawingStructure = null
+    this.svgTarget.classList.remove("garden-lite-svg--drawing")
+    if (this.hasStructureControlsTarget) this.structureControlsTarget.hidden = true
+    this.setReadout("")
+    this.render()
+  }
+
+  setReadout(text) {
+    if (this.hasReadoutTarget) this.readoutTarget.textContent = text || ""
+  }
+
   // -- dragging (pointer events, coordinates in SVG user units = meters) ----
 
   dragStart(event, bed) {
+    if (this.drawingStructure) return // clicks are placing building corners
     event.preventDefault()
     const point = this.svgPoint(event)
     this.dragging = {
@@ -258,6 +343,15 @@ function projectRing(ring, frame) {
     const [x, y] = projectPoint(p, frame.cos0)
     return [x - frame.minX, y - frame.minY]
   })
+}
+
+// Frame meters back to WGS84 -- the exact inverse of projectPoint+offset,
+// used to store buildings drawn on the parcel view as lat/lng rings.
+function unprojectPoint([x, y], frame) {
+  return {
+    lat: (-(y + frame.minY) / EARTH_RADIUS_M) * (180 / Math.PI),
+    lng: ((x + frame.minX) / (EARTH_RADIUS_M * frame.cos0)) * (180 / Math.PI)
+  }
 }
 
 function ringPath(points) {

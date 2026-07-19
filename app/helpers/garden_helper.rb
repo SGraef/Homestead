@@ -56,6 +56,47 @@ module GardenHelper
     end
   end
 
+  # Pixel width of the planner's aerial underlay (DOP20 is 20 cm/px, so this
+  # is sharper than the source for any garden-sized parcel).
+  PLANNER_PHOTO_WIDTH_PX = 1200
+
+  # Aerial-photo underlay for the parcel planner: one WMS GetMap request
+  # covering the Grundstück bounding box plus the planner margin. Requested in
+  # EPSG:4326, which is linear in lat/lng per axis -- exactly like the
+  # planner's equirectangular frame -- so the image aligns with the drawn
+  # geometry by construction (WMS 1.3.0: BBOX axis order is lat,lng).
+  # @param settings [GardenMapSetting]
+  # @return [Hash, nil] { url:, x:, y:, width:, height: } in frame meters
+  def garden_planner_photo(settings)
+    return nil unless settings.map_mode? && settings.property?
+
+    dop = Garden::MapSources.client_config(settings)[:dop]
+    points = dop && Garden::Geometry.project_to_meters(settings.property_boundary)
+    return nil unless points
+
+    width_m  = points.map(&:first).max
+    height_m = points.map(&:last).max
+    margin_m = 1.0 # mirrors MARGIN_M in the planner JS
+    lats = settings.property_boundary.pluck("lat")
+    lngs = settings.property_boundary.pluck("lng")
+    dlat = margin_m / Garden::Geometry::EARTH_RADIUS_M * 180 / Math::PI
+    dlng = dlat / Math.cos(lats.sum / lats.length * Math::PI / 180)
+
+    query = {
+      "SERVICE" => "WMS", "REQUEST" => "GetMap", "VERSION" => "1.3.0",
+      "LAYERS" => dop[:layer], "STYLES" => "", "CRS" => "EPSG:4326",
+      "BBOX"   => [lats.min - dlat, lngs.min - dlng, lats.max + dlat, lngs.max + dlng].join(","),
+      "WIDTH"  => PLANNER_PHOTO_WIDTH_PX,
+      "HEIGHT" => ((height_m + (2 * margin_m)) / (width_m + (2 * margin_m)) *
+                   PLANNER_PHOTO_WIDTH_PX).round,
+      "FORMAT" => "image/jpeg"
+    }
+    { url:    "#{dop[:url]}#{dop[:url].include?("?") ? "&" : "?"}#{query.to_query}",
+      x:      -margin_m, y: -margin_m,
+      width:  (width_m + (2 * margin_m)).round(2),
+      height: (height_m + (2 * margin_m)).round(2) }
+  end
+
   # Bad-neighbour conflicts within a bed: for each active planting, the other
   # crop keys present that its companion table warns against.
   # @param plantings [Enumerable<Planting>]

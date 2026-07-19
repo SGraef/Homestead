@@ -514,7 +514,7 @@ de:
 
   garden_map:
     title: "Gartenkarte"
-    intro: "Erfasse dein Grundstück auf der amtlichen Karte und plane die Beete dann maßstabsgetreu innerhalb des Umrisses."
+    intro: "Dein Garten im Maßstab: das Flurstück als Luftbild-Ausschnitt, darauf Gebäude und Beete. Das Grundstück selbst erfasst du einmalig unten über die amtliche Karte."
     beds_link: "Zu den Beeten"
     beds_heading: "Beete"
     no_beds_html: "Noch keine Beete — lege zuerst eins an: %{link}."
@@ -529,6 +529,9 @@ de:
       cancel: "Abbrechen"
       hint: "Klicke auf die Karte, um Eckpunkte zu setzen, dann auf Fertig."
       need_points: "Mindestens 3 Punkte setzen."
+    capture:
+      summary: "Grundstück erfassen / ändern (große Karte)"
+      hint: "Nur zum Erfassen nötig: Grundstück auf dem Luftbild nachzeichnen oder mit „Flurstück anzeigen“ den amtlichen Umriss übernehmen. Danach spielt sich alles oben auf der Gartenkarte ab."
     property:
       heading: "Grundstück"
       hint: "Zeichne dein Grundstück auf dem Luftbild nach — oder klicke auf „Flurstück anzeigen“ und übernimm den amtlichen Umriss."

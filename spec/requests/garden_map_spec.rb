@@ -10,14 +10,28 @@ RSpec.describe "GardenMap" do
   describe "GET /garden_map" do
     before { login_via_post(admin) }
 
-    it "renders map + planner with defaults (Niedersachsen, map mode) before any settings exist" do
+    it "renders planner-first with the capture map folded below (Niedersachsen defaults)" do
       create(:garden_bed, household: household, name: "Raised bed A")
       get garden_map_path
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("data-controller=\"garden-map\"") # Grundstück capture
-      expect(response.body).to include("data-controller=\"garden-lite\"") # planner below
+      expect(response.body).to include("data-controller=\"garden-lite\"") # the Gartenkarte
+      expect(response.body).to include("data-controller=\"garden-map\"")  # capture fold
+      expect(response.body).to include("garden-map-capture")
       expect(response.body).to include("ni_dop20") # LGLN DOP layer in the client config
       expect(response.body).to include("Raised bed A")
+    end
+
+    it "underlays the planner with a DOP GetMap crop of the Flurstück once captured" do
+      ring = [{ "lat" => 52.0, "lng" => 9.0 }, { "lat" => 52.0, "lng" => 9.0003 },
+              { "lat" => 52.0003, "lng" => 9.0003 }, { "lat" => 52.0003, "lng" => 9.0 }]
+      create(:garden_map_setting, household: household, property_boundary: ring)
+      get garden_map_path
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("REQUEST=GetMap")
+      expect(response.body).to include("LAYERS=ni_dop20")
+      # Admins can draw buildings directly on the parcel view.
+      expect(response.body).to include("garden-lite#startDrawStructure")
+      expect(response.body).to include(garden_structures_path)
     end
 
     it "renders only the planner in lite mode" do

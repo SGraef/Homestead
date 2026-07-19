@@ -769,6 +769,24 @@ pre {
   pointer-events: none;
 }
 .garden-lite-svg .grid line { stroke: var(--border-subtle); stroke-width: 0.02; }
+.garden-lite-svg--drawing { cursor: crosshair; }
+.garden-lite-svg .photo { opacity: 0.95; }
+.garden-lite-svg .structure-preview path {
+  fill: none;
+  stroke: #e8edf2;
+  stroke-width: 0.12;
+  stroke-dasharray: 0.5 0.3;
+}
+.garden-lite-svg .structure-preview circle { fill: #e8edf2; stroke: #3d4650; stroke-width: 0.06; }
+
+/* Grundstück capture fold: the large map is only needed to (re)set the
+   outline, so it collapses once one exists. */
+.garden-map-capture summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--fs-md);
+}
+.garden-map-capture[open] summary { margin-bottom: var(--sp-2); }
 
 /* ---- Projects: shared color palette chips -------------------- */
 /* Named palette for user-managed labels (project statuses/categories,
