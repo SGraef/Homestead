@@ -709,6 +709,7 @@ de:
     product_removed:  "Produkt entfernt."
     product_remove_failed: "Produkt konnte nicht entfernt werden."
     barcode_added:    "Barcode hinzugefügt."
+    barcode_added_named: "Barcode zu %{name} hinzugefügt."
     barcode_updated:  "Barcode aktualisiert."
     barcode_removed:  "Barcode entfernt."
     store_added:      "Geschäft hinzugefügt."

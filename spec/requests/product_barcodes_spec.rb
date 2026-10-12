@@ -60,6 +60,14 @@ RSpec.describe "ProductBarcodes" do
       expect(response).to redirect_to(butter)
     end
 
+    it "returns to the auto-starting scanner when posted from the scan page" do
+      post attach_barcode_products_path,
+           params: { product_id: butter.id, barcode: "4006381333924", return_to: "scan" }
+
+      expect(response).to redirect_to(scan_products_path(autostart: 1))
+      expect(flash[:notice]).to include(butter.name)
+    end
+
     it "redirects back to scan with an alert when the barcode collides" do
       create(:product, household: household, barcode: "4006381333924")
 

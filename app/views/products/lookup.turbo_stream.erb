@@ -103,6 +103,7 @@
         <%= form_with url: attach_barcode_products_path, method: :post, local: true,
                       data: { turbo_frame: "_top" } do |f| %>
           <%= f.hidden_field :barcode, value: @barcode %>
+          <%= hidden_field_tag :return_to, "scan" %>
           <%= f.select :product_id,
                        options_from_collection_for_select(existing, :id, :name) %>
           <%= f.submit t("scan.add_existing_button"), class: "btn" %>

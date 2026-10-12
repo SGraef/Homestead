@@ -85,7 +85,9 @@ class ProductsController < ApplicationController
   # code that doesn't exist locally, picks an existing product (e.g.
   # "Butter") from a dropdown, and the scanned EAN is attached as an
   # alternate ProductBarcode to that product. No JS / inline scripts: the
-  # form posts here directly with `product_id` in the body.
+  # form posts here directly with `product_id` in the body. With
+  # return_to=scan the user goes straight back to the (auto-started)
+  # scanner instead of the product page.
   def attach_barcode
     product = current_household.products.find(params[:product_id])
     authorize product, :update?
@@ -95,7 +97,12 @@ class ProductsController < ApplicationController
       brand:   params[:brand].presence
     )
     if pb.save
-      redirect_to product, notice: t("notices.barcode_added")
+      if params[:return_to] == "scan"
+        redirect_to scan_products_path(autostart: 1),
+                    notice: t("notices.barcode_added_named", name: product.name)
+      else
+        redirect_to product, notice: t("notices.barcode_added")
+      end
     else
       redirect_to scan_products_path, alert: pb.errors.full_messages.to_sentence
     end

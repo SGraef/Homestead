@@ -703,6 +703,7 @@ en:
     product_removed:  "Product removed."
     product_remove_failed: "Couldn't remove product."
     barcode_added:    "Barcode added."
+    barcode_added_named: "Barcode added to %{name}."
     barcode_updated:  "Barcode updated."
     barcode_removed:  "Barcode removed."
     store_added:      "Store added."
