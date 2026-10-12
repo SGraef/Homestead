@@ -4,6 +4,8 @@
 require "rails_helper"
 
 RSpec.describe ExpenseReport do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:user)      { create(:user) }
   let(:household) { create(:household, admin: user) }
   let(:store)     { create(:store, household: household) }
@@ -49,38 +51,41 @@ RSpec.describe ExpenseReport do
 
   describe "#months" do
     it "aggregates totals per month and groups line items by category" do
-      build_confirmed_receipt(
-        date:        Date.new(2026, 5, 3),
-        total_cents: 1500,
-        lines:       [
-          { name: "Milk",  category: "dairy", cents: 800 },
-          { name: "Bread", category: "bakery", cents: 600 }
-        ]
-      )
-      build_confirmed_receipt(
-        date:        Date.new(2026, 5, 20),
-        total_cents: 500,
-        lines:       [{ name: "Cheese", category: "dairy", cents: 500 }]
-      )
-      build_confirmed_receipt(
-        date:        Date.new(2026, 4, 15),
-        total_cents: 700,
-        lines:       [{ name: "Apples", category: "produce", cents: 700 }]
-      )
+      # Fixed dates below -- pin "today" so April stays inside the 6-month window.
+      travel_to(Date.new(2026, 6, 15)) do
+        build_confirmed_receipt(
+          date:        Date.new(2026, 5, 3),
+          total_cents: 1500,
+          lines:       [
+            { name: "Milk",  category: "dairy", cents: 800 },
+            { name: "Bread", category: "bakery", cents: 600 }
+          ]
+        )
+        build_confirmed_receipt(
+          date:        Date.new(2026, 5, 20),
+          total_cents: 500,
+          lines:       [{ name: "Cheese", category: "dairy", cents: 500 }]
+        )
+        build_confirmed_receipt(
+          date:        Date.new(2026, 4, 15),
+          total_cents: 700,
+          lines:       [{ name: "Apples", category: "produce", cents: 700 }]
+        )
 
-      report = described_class.new(household: household, months: 6)
-      months = report.months
+        report = described_class.new(household: household, months: 6)
+        months = report.months
 
-      may = months.find { |m| m.key == "2026-05" }
-      apr = months.find { |m| m.key == "2026-04" }
+        may = months.find { |m| m.key == "2026-05" }
+        apr = months.find { |m| m.key == "2026-04" }
 
-      expect(may.total_cents).to eq(2000)
-      expect(may.by_category).to eq("dairy" => 1300, "bakery" => 600)
-      expect(may.uncategorized_cents).to eq(100) # 2000 - (800 + 600 + 500)
+        expect(may.total_cents).to eq(2000)
+        expect(may.by_category).to eq("dairy" => 1300, "bakery" => 600)
+        expect(may.uncategorized_cents).to eq(100) # 2000 - (800 + 600 + 500)
 
-      expect(apr.total_cents).to eq(700)
-      expect(apr.by_category).to eq("produce" => 700)
-      expect(apr.uncategorized_cents).to eq(0)
+        expect(apr.total_cents).to eq(700)
+        expect(apr.by_category).to eq("produce" => 700)
+        expect(apr.uncategorized_cents).to eq(0)
+      end
     end
 
     it "buckets line items with NULL or empty category as 'uncategorized'" do
