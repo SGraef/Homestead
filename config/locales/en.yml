@@ -710,6 +710,7 @@ en:
     store_removed:    "Store removed."
     storage_added:        "Storage item added."
     storage_added_named:  "Added %{qty} × %{name} to storage."
+    product_saved_with_stock: "Product %{name} saved and %{qty} × added to storage."
     storage_updated:      "Storage item updated."
     storage_removed:      "Storage item removed."
     storage_decremented:  "%{name}: %{qty} left."
@@ -1069,6 +1070,10 @@ en:
     barcodes_alternates:    "Other brands / barcodes"
     add_barcode:            "Add barcode"
     add_barcode_variant:    "Add brand variant"
+    save_and_scan_next:  "Save & scan next"
+    initial_stock:
+      legend: "Add to storage right away"
+      help:   "Optional: enter a quantity to put the product into storage straight away. Leave empty to only create the product."
     scan_barcode:
       button:    "Scan"
       scanning:  "Camera running — point at a barcode…"

@@ -16,17 +16,38 @@ class ProductsController < ApplicationController
   def new
     @product = current_household.products.build(prefill_attrs)
     authorize @product
+    @return_to     = params[:return_to].presence
+    @initial_stock = initial_stock_defaults
   end
 
   def edit
     authorize @product
   end
 
+  # Optionally books an initial StorageItem in the same transaction
+  # (`initial_stock[quantity]` present) so a freshly scanned product can
+  # go straight onto the shelf. With return_to=scan the user lands back
+  # on the scanner -- camera auto-started -- ready for the next item.
   def create
-    @product = current_household.products.build(product_params)
+    @product   = current_household.products.build(product_params)
+    @return_to = params[:return_to].presence
     authorize @product
-    if @product.save
-      redirect_to @product, notice: t("notices.product_saved")
+
+    @initial_stock = initial_stock_params
+    stock_item = nil
+    saved = Product.transaction do
+      next false unless @product.save
+
+      stock_item = build_initial_stock_item
+      next true if stock_item.nil?
+      next true if stock_item.save
+
+      stock_item.errors.full_messages.each { |m| @product.errors.add(:base, m) }
+      raise ActiveRecord::Rollback
+    end
+
+    if saved
+      redirect_to create_redirect_target, notice: create_notice(stock_item)
     else
       render :new, status: :unprocessable_content
     end
@@ -150,6 +171,44 @@ class ProductsController < ApplicationController
   # form after a remote barcode lookup.
   def prefill_attrs
     params.permit(:barcode, :name, :brand, :category, :unit).to_h.compact_blank
+  end
+
+  def initial_stock_params
+    params.fetch(:initial_stock, {}).permit(:quantity, :location_id, :expires_on).to_h.symbolize_keys
+  end
+
+  # Prefill for the "add to storage right away" fieldset. Coming from the
+  # scanner the common case is "I'm holding one of these", so default 1.
+  def initial_stock_defaults
+    { quantity:    (@return_to == "scan" ? 1 : nil),
+      location_id: current_household.default_storage_location&.id,
+      expires_on:  nil }
+  end
+
+  # @return [StorageItem, nil] nil when no initial quantity was entered.
+  def build_initial_stock_item
+    raw = @initial_stock[:quantity].to_s.strip.tr(",", ".")
+    return nil if raw.empty?
+
+    item = current_household.storage_items.build(
+      product:     @product,
+      quantity:    BigDecimal(raw, exception: false) || raw,
+      location_id: @initial_stock[:location_id].presence ||
+                   current_household.default_storage_location&.id,
+      expires_on:  @initial_stock[:expires_on].presence
+    )
+    authorize item, :create?
+    item
+  end
+
+  def create_redirect_target
+    @return_to == "scan" ? scan_products_path(autostart: 1) : @product
+  end
+
+  def create_notice(stock_item)
+    return t("notices.product_saved") unless stock_item
+
+    t("notices.product_saved_with_stock", name: @product.name, qty: stock_item.quantity.to_s("F").delete_suffix(".0"))
   end
 
   def lookup_payload

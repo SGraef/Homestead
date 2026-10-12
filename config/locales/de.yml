@@ -716,6 +716,7 @@ de:
     store_removed:    "Geschäft entfernt."
     storage_added:        "Eintrag im Vorrat hinzugefügt."
     storage_added_named:  "%{qty} × %{name} dem Vorrat hinzugefügt."
+    product_saved_with_stock: "Produkt %{name} gespeichert und %{qty} × dem Vorrat hinzugefügt."
     storage_updated:      "Eintrag aktualisiert."
     storage_removed:      "Eintrag entfernt."
     storage_decremented:  "%{name}: noch %{qty} übrig."
@@ -1063,6 +1064,10 @@ de:
     barcodes_alternates: "Weitere Marken / Barcodes"
     add_barcode:         "Barcode hinzufügen"
     add_barcode_variant: "Brand-Variante hinzufügen"
+    save_and_scan_next:  "Speichern & weiter scannen"
+    initial_stock:
+      legend: "Direkt in den Vorrat"
+      help:   "Optional: Menge eintragen, um das Produkt gleich einzulagern. Leer lassen, um nur das Produkt anzulegen."
     scan_barcode:
       button:    "Scannen"
       scanning:  "Kamera läuft — auf einen Barcode richten…"

@@ -49,7 +49,7 @@ class StorageItemsController < ApplicationController
       # The scan page posts here with return_to=scan so the user
       # lands back on /products/scan ready to scan the next item
       # instead of bouncing through the storage index.
-      target = params[:return_to] == "scan" ? scan_products_path : storage_items_path
+      target = params[:return_to] == "scan" ? scan_products_path(autostart: 1) : storage_items_path
       redirect_to target,
                   notice: t("notices.storage_added_named",
                             name: @item.product.name, qty: @item.quantity)

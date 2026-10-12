@@ -74,7 +74,8 @@
                                      name:    @remote.name,
                                      brand:   @remote.brand,
                                      category: @remote.category,
-                                     unit:    @remote.unit),
+                                     unit:    @remote.unit,
+                                     return_to: "scan"),
                     class: "btn",
                     data: { turbo_frame: "_top" } %>
         <%= link_to t("scan.view_on_source", source: @remote.source.titleize),
@@ -88,7 +89,7 @@
       <p><%= t("scan.no_match_anywhere") %></p>
       <p>
         <%= link_to t("scan.create_for_code"),
-                    new_product_path(barcode: @barcode),
+                    new_product_path(barcode: @barcode, return_to: "scan"),
                     class: "btn",
                     data: { turbo_frame: "_top" } %>
       </p>

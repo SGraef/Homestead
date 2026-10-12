@@ -103,5 +103,37 @@
     </p>
   </fieldset>
 
-  <p><%= f.submit class: "btn" %></p>
+  <% if @product.new_record? %>
+    <%= hidden_field_tag :return_to, @return_to if @return_to %>
+
+    <%# Optional first stock booking -- leave quantity empty to only
+        create the product. Pre-filled with 1 when coming from the
+        scanner, where the user is usually holding the item. %>
+    <fieldset class="card">
+      <legend><%= t("product.initial_stock.legend") %></legend>
+      <p class="caption"><%= t("product.initial_stock.help") %></p>
+      <div style="display:flex;gap:var(--sp-2);align-items:end;flex-wrap:wrap">
+        <span>
+          <label for="initial_stock_quantity"><%= t("scan.add_to_storage_qty") %></label><br>
+          <%= text_field_tag "initial_stock[quantity]", @initial_stock[:quantity],
+                             inputmode: "decimal", style: "width:5rem" %>
+        </span>
+        <span>
+          <label for="initial_stock_location_id"><%= t("scan.add_to_storage_location") %></label><br>
+          <%= select_tag "initial_stock[location_id]",
+                         options_from_collection_for_select(
+                           current_household.locations.ordered, :id, :name,
+                           @initial_stock[:location_id].to_s) %>
+        </span>
+        <span>
+          <label for="initial_stock_expires_on"><%= t("scan.add_to_storage_expires") %></label><br>
+          <%= date_field_tag "initial_stock[expires_on]", @initial_stock[:expires_on], style: "width:10rem" %>
+        </span>
+      </div>
+    </fieldset>
+  <% end %>
+
+  <p>
+    <%= f.submit (@return_to == "scan" ? t("product.save_and_scan_next") : nil), class: "btn" %>
+  </p>
 <% end %>

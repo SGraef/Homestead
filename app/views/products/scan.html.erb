@@ -3,7 +3,8 @@
 
 <div class="card" data-controller="barcode-scanner"
      data-barcode-scanner-lookup-url-value="<%= lookup_products_path %>"
-     data-barcode-scanner-token-value="<%= form_authenticity_token %>">
+     data-barcode-scanner-token-value="<%= form_authenticity_token %>"
+     data-barcode-scanner-autostart-value="<%= params[:autostart].present? %>">
 
   <p><%= t("scan.intro") %></p>
 

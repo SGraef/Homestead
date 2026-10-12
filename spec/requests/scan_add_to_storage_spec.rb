@@ -22,7 +22,7 @@ RSpec.describe "Scan -> add to storage" do
       }
     end.to change(StorageItem, :count).by(1)
 
-    expect(response).to redirect_to(scan_products_path)
+    expect(response).to redirect_to(scan_products_path(autostart: 1))
     follow_redirect!
     expect(flash[:notice]).to include("Vollmilch")
     item = StorageItem.last

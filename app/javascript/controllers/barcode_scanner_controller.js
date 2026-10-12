@@ -18,7 +18,7 @@ import { Controller } from "@hotwired/stimulus"
 // dead-ended.
 export default class extends Controller {
   static targets = ["video", "input", "status"]
-  static values  = { lookupUrl: String, token: String }
+  static values  = { lookupUrl: String, token: String, autostart: Boolean }
 
   connect() {
     this.scanning      = false
@@ -26,6 +26,12 @@ export default class extends Controller {
     this.detector      = null
     this.zxingReader   = null
     this.zxingControls = null
+
+    // ?autostart=1 -- set when we bounce back here after adding an item,
+    // so scanning a whole bag of groceries doesn't need a tap per item.
+    // Camera permission is already granted at that point, so no gesture
+    // is required; if it isn't, start() just reports the error.
+    if (this.autostartValue) this.start()
   }
 
   disconnect() {
